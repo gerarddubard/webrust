@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="GUI Module - Web Server and Browser Integration"><title>webrust::gui - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webrust" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.1 (4eb161250 2025-03-15)" data-channel="1.85.1" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../webrust/index.html">webrust</a><span class="version">0.4.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module gui</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#gui-module---web-server-and-browser-integration" title="GUI Module - Web Server and Browser Integration">GUI Module - Web Server and Browser Integration</a><ul><li><a href="#architecture" title="Architecture">Architecture</a></li><li><a href="#key-functions" title="Key Functions">Key Functions</a></li><li><a href="#smart-shutdown-logic" title="Smart Shutdown Logic">Smart Shutdown Logic</a></li><li><a href="#api-endpoints" title="API Endpoints">API Endpoints</a></li></ul></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate webrust</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">webrust</a></span><h1>Module <span>gui</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/webrust/gui.rs.html#1-358">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="gui-module---web-server-and-browser-integration"><a class="doc-anchor" href="#gui-module---web-server-and-browser-integration">§</a>GUI Module - Web Server and Browser Integration</h2>
+<p>This module provides the core web server functionality that powers WebRust applications.
+It automatically launches a local web server, opens the user’s default browser, and
+handles real-time communication between the Rust application and the web interface.</p>
+<h3 id="architecture"><a class="doc-anchor" href="#architecture">§</a>Architecture</h3>
+<p>The GUI system consists of several key components:</p>
+<h4 id="web-server"><a class="doc-anchor" href="#web-server">§</a>Web Server</h4>
+<ul>
+<li><strong>Local HTTP Server</strong>: Runs on <code>127.0.0.1:8080</code></li>
+<li><strong>Static File Serving</strong>: Serves HTML, CSS, and JavaScript files</li>
+<li><strong>API Endpoints</strong>: Provides REST API for real-time communication</li>
+<li><strong>Auto-termination</strong>: Intelligently shuts down when the user is done</li>
+</ul>
+<h4 id="state-management"><a class="doc-anchor" href="#state-management">§</a>State Management</h4>
+<ul>
+<li><strong>Thread-safe State</strong>: Uses <code>Arc&lt;Mutex&lt;GuiState&gt;&gt;</code> for concurrent access</li>
+<li><strong>Output Buffer</strong>: Stores all program output for web display</li>
+<li><strong>Input Tracking</strong>: Manages pending input requests with type validation</li>
+<li><strong>Request Monitoring</strong>: Tracks browser activity for smart shutdown</li>
+</ul>
+<h4 id="browser-integration"><a class="doc-anchor" href="#browser-integration">§</a>Browser Integration</h4>
+<ul>
+<li><strong>Auto-launch</strong>: Automatically opens the default browser</li>
+<li><strong>Real-time Updates</strong>: JavaScript polls for updates every 300ms</li>
+<li><strong>Smart Shutdown</strong>: Waits for browser to finish loading before closing</li>
+</ul>
+<h3 id="key-functions"><a class="doc-anchor" href="#key-functions">§</a>Key Functions</h3><h4 id="start_gui_serverfuser_function-f"><a class="doc-anchor" href="#start_gui_serverfuser_function-f">§</a><code>start_gui_server&lt;F&gt;(user_function: F)</code></h4>
+<p>The main entry point that:</p>
+<ol>
+<li>Starts the HTTP server on port 8080</li>
+<li>Opens the user’s default browser</li>
+<li>Runs the user’s main function in a separate thread</li>
+<li>Handles incoming HTTP requests</li>
+<li>Intelligently shuts down when appropriate</li>
+</ol>
+<h4 id="add_outputtext-string"><a class="doc-anchor" href="#add_outputtext-string">§</a><code>add_output(text: String)</code></h4>
+<p>Adds text to the output buffer for display in the web interface.
+Supports special formatting:</p>
+<ul>
+<li>HTML content for styled text</li>
+<li>LaTeX markers for mathematical rendering</li>
+<li>Input request markers for interactive prompts</li>
+</ul>
+<h4 id="create_input_request_typedtprompt-str---string"><a class="doc-anchor" href="#create_input_request_typedtprompt-str---string">§</a><code>create_input_request_typed&lt;T&gt;(prompt: &amp;str) -&gt; String</code></h4>
+<p>Creates a typed input request with automatic validation:</p>
+<ul>
+<li>Generates unique input ID</li>
+<li>Stores type information for validation</li>
+<li>Blocks until user provides valid input</li>
+<li>Returns the validated input value</li>
+</ul>
+<h3 id="smart-shutdown-logic"><a class="doc-anchor" href="#smart-shutdown-logic">§</a>Smart Shutdown Logic</h3>
+<p>The server implements intelligent shutdown behavior:</p>
+<ol>
+<li><strong>Initial Wait</strong>: Gives browser time to connect (up to 10 seconds)</li>
+<li><strong>Activity Monitoring</strong>: Tracks when browser makes requests</li>
+<li><strong>Grace Period</strong>: Waits 5 seconds after last browser activity</li>
+<li><strong>Maximum Runtime</strong>: Hard limit of 30 seconds for safety</li>
+<li><strong>Clean Exit</strong>: Displays confirmation message before closing</li>
+</ol>
+<p>This eliminates the need for users to manually terminate with Ctrl+C.</p>
+<h3 id="api-endpoints"><a class="doc-anchor" href="#api-endpoints">§</a>API Endpoints</h3><h4 id="get-apistate"><a class="doc-anchor" href="#get-apistate">§</a>GET <code>/api/state</code></h4>
+<p>Returns current application state:</p>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;output&quot;: [&quot;line1&quot;, &quot;line2&quot;, ...],
+  &quot;pending_inputs&quot;: [&quot;input_1&quot;, &quot;input_2&quot;, ...],
+  &quot;program_finished&quot;: false
+}</code></pre></div><h4 id="post-apiinput"><a class="doc-anchor" href="#post-apiinput">§</a>POST <code>/api/input</code></h4>
+<p>Submits user input:</p>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;id&quot;: &quot;input_1&quot;,
+  &quot;value&quot;: &quot;user response&quot;
+}</code></pre></div><h4 id="post-apivalidate"><a class="doc-anchor" href="#post-apivalidate">§</a>POST <code>/api/validate</code></h4>
+<p>Validates input before submission:</p>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;id&quot;: &quot;input_1&quot;,
+  &quot;value&quot;: &quot;test value&quot;
+}</code></pre></div>
+<p>Returns:</p>
+<div class="example-wrap"><pre class="language-json"><code>{
+  &quot;valid&quot;: true|false,
+  &quot;error&quot;: &quot;error message if invalid&quot;
+}</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.GuiState.html" title="struct webrust::gui::GuiState">GuiState</a></div></li></ul><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.add_output.html" title="fn webrust::gui::add_output">add_<wbr>output</a></div></li><li><div class="item-name"><a class="fn" href="fn.add_output_new_line.html" title="fn webrust::gui::add_output_new_line">add_<wbr>output_<wbr>new_<wbr>line</a></div></li><li><div class="item-name"><a class="fn" href="fn.add_output_same_line.html" title="fn webrust::gui::add_output_same_line">add_<wbr>output_<wbr>same_<wbr>line</a></div></li><li><div class="item-name"><a class="fn" href="fn.create_input_request.html" title="fn webrust::gui::create_input_request">create_<wbr>input_<wbr>request</a></div></li><li><div class="item-name"><a class="fn" href="fn.create_input_request_typed.html" title="fn webrust::gui::create_input_request_typed">create_<wbr>input_<wbr>request_<wbr>typed</a></div></li><li><div class="item-name"><a class="fn" href="fn.start_gui_server.html" title="fn webrust::gui::start_gui_server">start_<wbr>gui_<wbr>server</a></div></li></ul></section></div></main></body></html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="webrust - Python-like Rust for Web Applications"><title>webrust - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="webrust" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.1 (4eb161250 2025-03-15)" data-channel="1.85.1" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../webrust/index.html">webrust</a><span class="version">0.4.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#webrust---python-like-rust-for-web-applications" title="webrust - Python-like Rust for Web Applications">webrust - Python-like Rust for Web Applications</a><ul><li><a href="#core-philosophy" title="Core Philosophy">Core Philosophy</a></li><li><a href="#key-features" title="Key Features">Key Features</a></li><li><a href="#example-usage" title="Example Usage">Example Usage</a></li><li><a href="#module-organization" title="Module Organization">Module Organization</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>webrust</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/webrust/lib.rs.html#1-78">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="webrust---python-like-rust-for-web-applications"><a class="doc-anchor" href="#webrust---python-like-rust-for-web-applications">§</a>webrust - Python-like Rust for Web Applications</h2>
+<p>webrust is a revolutionary Rust crate that bridges the simplicity of Python with the power and safety of Rust.
+It provides an elegant web-based interface for Rust applications, featuring Python-like syntax, advanced
+f-string formatting, automatic type validation, and mathematical rendering capabilities.</p>
+<h3 id="core-philosophy"><a class="doc-anchor" href="#core-philosophy">§</a>Core Philosophy</h3>
+<p>webrust aims to make Rust more accessible while maintaining its core strengths:</p>
+<ul>
+<li><strong>Simplicity</strong>: Python-like syntax for common operations</li>
+<li><strong>Safety</strong>: Full Rust type safety and memory management</li>
+<li><strong>Innovation</strong>: Web-based UI with automatic browser integration</li>
+<li><strong>Flexibility</strong>: Advanced formatting and mathematical rendering</li>
+</ul>
+<h3 id="key-features"><a class="doc-anchor" href="#key-features">§</a>Key Features</h3>
+<ul>
+<li><strong>F-String Support</strong>: Advanced string formatting with Rust expressions</li>
+<li><strong>Web Interface</strong>: Automatic web server with browser integration</li>
+<li><strong>Type Validation</strong>: Real-time input validation with error feedback</li>
+<li><strong>Mathematical Rendering</strong>: LaTeX support via MathJax integration</li>
+<li><strong>Styling System</strong>: CSS-like styling directly in Rust code</li>
+<li><strong>Python-like Ranges</strong>: Intuitive range generation with <code>start.to(end)</code> syntax</li>
+<li><strong>Enumerate Function</strong>: Python-style enumeration with <code>enumerate(iterable)</code></li>
+</ul>
+<h3 id="example-usage"><a class="doc-anchor" href="#example-usage">§</a>Example Usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>webrust::prelude::<span class="kw-2">*</span>;
+
+<span class="attr">#[gui]
+</span><span class="kw">fn </span>main() {
+    <span class="kw">let </span>name: String = input(<span class="string">"Enter your name:"</span>);
+    <span class="kw">let </span>age: i32 = input(<span class="string">"Enter your age:"</span>);
+     
+    println(<span class="string">"Hello @(green, bold){name}@(reset), you are @(yellow){age}@(reset) years old!"</span>);
+     
+    <span class="comment">// Python-like ranges
+    </span>println(<span class="string">"Counting to 10:"</span>);
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>.to(<span class="number">11</span>) {
+        println(<span class="string">"@(blue){i}@(reset)"</span>);
+    }
+     
+    <span class="comment">// Enumerate with styling
+    </span><span class="kw">let </span>items = <span class="macro">vec!</span>[<span class="string">"apple"</span>, <span class="string">"banana"</span>, <span class="string">"cherry"</span>];
+    <span class="kw">for </span>(index, item) <span class="kw">in </span>enumerate(<span class="kw-2">&amp;</span>items) {
+        println(<span class="string">"@(yellow){index}@(reset): @(green){item}@(reset)"</span>);
+    }
+     
+    latex(<span class="string">"E = mc^2"</span>);
+}</code></pre></div>
+<h3 id="module-organization"><a class="doc-anchor" href="#module-organization">§</a>Module Organization</h3>
+<ul>
+<li><code>gui</code>: Web server and browser integration</li>
+<li><code>print</code>: Enhanced printing with styling support</li>
+<li><code>input</code>: Type-safe input handling with validation</li>
+<li><code>latex</code>: Mathematical rendering via MathJax</li>
+<li><code>range</code>: Python-like range generation with fluent syntax</li>
+<li><code>enumerate</code>: Python-style enumeration for iterables</li>
+<li><code>prelude</code>: Common imports for ease of use</li>
+</ul>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="enumerate/index.html" title="mod webrust::enumerate">enumerate</a></div><div class="desc docblock-short">Enumerate - Python-like enumeration function</div></li><li><div class="item-name"><a class="mod" href="gui/index.html" title="mod webrust::gui">gui</a></div><div class="desc docblock-short">GUI Module - Web Server and Browser Integration</div></li><li><div class="item-name"><a class="mod" href="input/index.html" title="mod webrust::input">input</a></div><div class="desc docblock-short">Input Module - Type-Safe User Input with Validation</div></li><li><div class="item-name"><a class="mod" href="latex/index.html" title="mod webrust::latex">latex</a></div><div class="desc docblock-short">LaTeX Module - Mathematical and Scientific Rendering</div></li><li><div class="item-name"><a class="mod" href="prelude/index.html" title="mod webrust::prelude">prelude</a></div></li><li><div class="item-name"><a class="mod" href="print/index.html" title="mod webrust::print">print</a></div><div class="desc docblock-short">Print Module - Enhanced Output with Styling</div></li><li><div class="item-name"><a class="mod" href="range/index.html" title="mod webrust::range">range</a></div><div class="desc docblock-short">Python-like Ranges in Rust</div></li></ul></section></div></main></body></html>

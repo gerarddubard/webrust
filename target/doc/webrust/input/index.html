@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Input Module - Type-Safe User Input with Validation"><title>webrust::input - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webrust" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.1 (4eb161250 2025-03-15)" data-channel="1.85.1" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../webrust/index.html">webrust</a><span class="version">0.4.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module input</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#input-module---type-safe-user-input-with-validation" title="Input Module - Type-Safe User Input with Validation">Input Module - Type-Safe User Input with Validation</a><ul><li><a href="#core-philosophy" title="Core Philosophy">Core Philosophy</a></li><li><a href="#supported-types" title="Supported Types">Supported Types</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#validation-process" title="Validation Process">Validation Process</a></li><li><a href="#error-messages" title="Error Messages">Error Messages</a></li><li><a href="#integration-with-f-strings" title="Integration with F-Strings">Integration with F-Strings</a></li><li><a href="#advanced-usage" title="Advanced Usage">Advanced Usage</a></li><li><a href="#implementation-notes" title="Implementation Notes">Implementation Notes</a></li></ul></li></ul><h3><a href="#reexports">Module Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#functions-1" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate webrust</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">webrust</a></span><h1>Module <span>input</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/webrust/input.rs.html#1-155">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="input-module---type-safe-user-input-with-validation"><a class="doc-anchor" href="#input-module---type-safe-user-input-with-validation">§</a>Input Module - Type-Safe User Input with Validation</h2>
+<p>This module provides robust, type-safe input handling with real-time validation
+and error feedback. It bridges the gap between Rust’s strict type system and
+user-friendly input collection.</p>
+<h3 id="core-philosophy"><a class="doc-anchor" href="#core-philosophy">§</a>Core Philosophy</h3>
+<p>Traditional console input in Rust requires manual parsing and error handling.
+webrust simplifies this by:</p>
+<ol>
+<li><strong>Automatic Type Detection</strong>: Uses Rust’s type system to determine expected input</li>
+<li><strong>Real-time Validation</strong>: Validates input on the client side before submission</li>
+<li><strong>User-Friendly Errors</strong>: Provides clear, actionable error messages</li>
+<li><strong>Retry Logic</strong>: Automatically prompts for re-entry on validation failure</li>
+</ol>
+<h3 id="supported-types"><a class="doc-anchor" href="#supported-types">§</a>Supported Types</h3>
+<p>The input system supports all common Rust types:</p>
+<ul>
+<li><strong>Integers</strong>: <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>i128</code>, <code>isize</code></li>
+<li><strong>Unsigned Integers</strong>: <code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code>, <code>u128</code>, <code>usize</code></li>
+<li><strong>Floats</strong>: <code>f32</code>, <code>f64</code></li>
+<li><strong>Boolean</strong>: <code>bool</code> (accepts “true”/“false”, case-insensitive)</li>
+<li><strong>Character</strong>: <code>char</code> (single Unicode character)</li>
+<li><strong>String</strong>: <code>String</code> (any text input)</li>
+<li><strong>Custom Types</strong>: Any type implementing <code>FromStr</code></li>
+</ul>
+<h3 id="functions"><a class="doc-anchor" href="#functions">§</a>Functions</h3><h4 id="input_with_validationtprompt-str---t"><a class="doc-anchor" href="#input_with_validationtprompt-str---t">§</a><code>input_with_validation&lt;T&gt;(prompt: &amp;str) -&gt; T</code></h4>
+<p>The primary input function that:</p>
+<ol>
+<li>Displays the prompt to the user</li>
+<li>Creates a typed input request in the web interface</li>
+<li>Validates the input according to the target type</li>
+<li>Retries automatically if validation fails</li>
+<li>Returns the parsed value once valid input is received</li>
+</ol>
+<p><strong>Type inference makes this incredibly simple:</strong></p>
+<p>let age: i32 = input(“Enter your age:”);           // Validates as integer
+let height: f64 = input(“Enter your height:”);     // Validates as float
+let married: bool = input(“Are you married?”);     // Validates as boolean</p>
+<h4 id="input_stringprompt-str---string"><a class="doc-anchor" href="#input_stringprompt-str---string">§</a><code>input_string(prompt: &amp;str) -&gt; String</code></h4>
+<p>Specialized function for string input:</p>
+<ul>
+<li>No validation required (all input is valid string)</li>
+<li>More explicit than using type annotation</li>
+<li>Useful when the generic version causes inference issues</li>
+</ul>
+<h4 id="try_inputtprompt-str---resultt-terr"><a class="doc-anchor" href="#try_inputtprompt-str---resultt-terr">§</a><code>try_input&lt;T&gt;(prompt: &amp;str) -&gt; Result&lt;T, T::Err&gt;</code></h4>
+<p>Non-blocking input function that:</p>
+<ul>
+<li>Returns <code>Result</code> instead of retrying on failure</li>
+<li>Allows custom error handling by the caller</li>
+<li>Useful for advanced validation scenarios</li>
+</ul>
+<h3 id="validation-process"><a class="doc-anchor" href="#validation-process">§</a>Validation Process</h3>
+<p>The validation happens in two stages:</p>
+<h4 id="1-client-side-validation-javascript"><a class="doc-anchor" href="#1-client-side-validation-javascript">§</a>1. Client-Side Validation (JavaScript)</h4>
+<p>Before submission, the web interface:</p>
+<ol>
+<li>Sends input to <code>/api/validate</code> endpoint</li>
+<li>Server attempts to parse the input according to expected type</li>
+<li>Returns validation result with error message if invalid</li>
+<li>Client displays error and prevents submission if invalid</li>
+</ol>
+<h4 id="2-server-side-validation-rust"><a class="doc-anchor" href="#2-server-side-validation-rust">§</a>2. Server-Side Validation (Rust)</h4>
+<p>The <code>validate_input_rust</code> function:</p>
+<ol>
+<li>Receives the type name and input value</li>
+<li>Attempts parsing using the appropriate <code>FromStr</code> implementation</li>
+<li>Returns detailed error messages for common parsing failures</li>
+</ol>
+<h3 id="error-messages"><a class="doc-anchor" href="#error-messages">§</a>Error Messages</h3>
+<p>The system provides helpful, type-specific error messages:</p>
+<ul>
+<li><strong>Integer</strong>: “invalid digit found in string”</li>
+<li><strong>Float</strong>: “invalid float literal”</li>
+<li><strong>Boolean</strong>: “provided string was not ‘true’ or ‘false’”</li>
+<li><strong>Character</strong>: “input too long for character”</li>
+</ul>
+<h3 id="integration-with-f-strings"><a class="doc-anchor" href="#integration-with-f-strings">§</a>Integration with F-Strings</h3>
+<p>Input values work seamlessly with webrust f-string formatting:</p>
+<p>let name: String = input(“Name:”);
+let age: i32 = input(“Age:”);</p>
+<p>println(“Hello @(green){name}@(reset), you are @(yellow){age}@(reset) years old!”);</p>
+<h3 id="advanced-usage"><a class="doc-anchor" href="#advanced-usage">§</a>Advanced Usage</h3><h4 id="custom-types"><a class="doc-anchor" href="#custom-types">§</a>Custom Types</h4>
+<p>Any type implementing <code>FromStr</code> can be used:</p>
+<p>use std::net::IpAddr;</p>
+<p>let ip: IpAddr = input(“Enter IP address:”);  // Validates IP format</p>
+<h4 id="error-handling"><a class="doc-anchor" href="#error-handling">§</a>Error Handling</h4>
+<p>match <code>try_input::&lt;i32&gt;</code>(“Enter number:”) {
+Ok(num) =&gt; println(“You entered: {num}”),
+Err(e) =&gt; println(“Invalid input: {e}”),
+}</p>
+<h3 id="implementation-notes"><a class="doc-anchor" href="#implementation-notes">§</a>Implementation Notes</h3>
+<ul>
+<li>Uses <code>create_input_request_typed&lt;T&gt;</code> from the GUI module</li>
+<li>Type information is extracted using <code>std::any::type_name::&lt;T&gt;()</code></li>
+<li>Validation occurs both client-side (for UX) and server-side (for safety)</li>
+<li>Thread-safe communication via channels between GUI and input threads</li>
+</ul>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name" id="reexport.input"><code>pub use <a class="fn" href="fn.input_with_validation.html" title="fn webrust::input::input_with_validation">input_with_validation</a> as input;</code></div></li></ul><h2 id="functions-1" class="section-header">Functions<a href="#functions-1" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.input_string.html" title="fn webrust::input::input_string">input_<wbr>string</a></div></li><li><div class="item-name"><a class="fn" href="fn.input_with_validation.html" title="fn webrust::input::input_with_validation">input_<wbr>with_<wbr>validation</a></div></li><li><div class="item-name"><a class="fn" href="fn.try_input.html" title="fn webrust::input::try_input">try_<wbr>input</a></div></li></ul></section></div></main></body></html>

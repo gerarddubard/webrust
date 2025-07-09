@@ -1,0 +1,2 @@
+window.ALL_CRATES = ["aho_corasick","ascii","chunked_transfer","httpdate","itoa","lazy_static","log","memchr","proc_macro2","quote","regex","regex_automata","regex_syntax","ryu","serde","serde_derive","serde_json","syn","tiny_http","unicode_ident","webrust","webrust_macros"];
+//{"start":21,"fragment_lengths":[14,8,19,11,7,14,6,9,14,8,8,17,15,6,8,15,13,6,12,16,10,17]}

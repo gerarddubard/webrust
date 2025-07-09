@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Builder","CharBuilder","CharRange","Range"],"trait":["CharRangeExt","One","RangeExt"]};

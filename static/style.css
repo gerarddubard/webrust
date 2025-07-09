@@ -1,0 +1,87 @@
+/* webrust/static/style.css */
+body {
+    font-family: 'Arial', monospace;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    margin: 0;
+    padding: 20px;
+}
+
+#terminal {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 20px;
+    height: 90vh;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.input-container {
+    margin: 2px 0;
+}
+
+.input-line {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-prompt {
+    color: #58a6ff;
+    margin-right: 5px;
+}
+
+.user-input {
+    background: transparent;
+    border: none;
+    color: #d4d4d4;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    outline: none;
+    flex: 1;
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 2px;
+    display: block;
+}
+
+.completed-input {
+    color: #d4d4d4;
+}
+
+.terminal-line {
+    margin: 2px 0;
+}
+
+.latex-display {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #161b22;
+    border-left: 3px solid #58a6ff;
+    border-radius: 3px;
+}
+
+.latex-inline {
+    background-color: #21262d;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-family: 'Times New Roman', serif;
+}
+
+.MathJax, .MathJax_Display {
+    color: #d4d4d4 !important;
+}
+
+[class*="mjx-"] {
+    color: #d4d4d4 !important;
+}
+
+.MathJax_SVG * {
+    fill: #d4d4d4 !important;
+    stroke: #d4d4d4 !important;
+}

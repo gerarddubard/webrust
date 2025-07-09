@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["enumerate","gui","input","latex","prelude","print","range"]};

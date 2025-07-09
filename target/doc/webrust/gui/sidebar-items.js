@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["add_output","add_output_new_line","add_output_same_line","create_input_request","create_input_request_typed","start_gui_server"],"struct":["GuiState"]};

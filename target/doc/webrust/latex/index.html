@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="LaTeX Module - Mathematical and Scientific Rendering"><title>webrust::latex - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webrust" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.1 (4eb161250 2025-03-15)" data-channel="1.85.1" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../webrust/index.html">webrust</a><span class="version">0.4.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module latex</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#latex-module---mathematical-and-scientific-rendering" title="LaTeX Module - Mathematical and Scientific Rendering">LaTeX Module - Mathematical and Scientific Rendering</a><ul><li><a href="#overview" title="Overview">Overview</a></li><li><a href="#features" title="Features">Features</a></li><li><a href="#functions" title="Functions">Functions</a></li><li><a href="#mathjax-integration" title="MathJax Integration">MathJax Integration</a></li><li><a href="#supported-latex-features" title="Supported LaTeX Features">Supported LaTeX Features</a></li><li><a href="#usage-examples" title="Usage Examples">Usage Examples</a></li><li><a href="#integration-with-f-strings" title="Integration with F-Strings">Integration with F-Strings</a></li><li><a href="#best-practices" title="Best Practices">Best Practices</a></li></ul></li></ul><h3><a href="#functions-1">Module Items</a></h3><ul class="block"><li><a href="#functions-1" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate webrust</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">webrust</a></span><h1>Module <span>latex</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/webrust/latex.rs.html#1-182">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="latex-module---mathematical-and-scientific-rendering"><a class="doc-anchor" href="#latex-module---mathematical-and-scientific-rendering">§</a>LaTeX Module - Mathematical and Scientific Rendering</h2>
+<p>This module provides seamless integration of LaTeX mathematical notation
+with webrust applications. It leverages MathJax for high-quality rendering
+of mathematical expressions, equations, matrices, and scientific notation.</p>
+<h3 id="overview"><a class="doc-anchor" href="#overview">§</a>Overview</h3>
+<p>Scientific computing and mathematical applications often require the ability
+to display complex mathematical expressions. Traditional console output is
+limited to plain text, making it difficult to represent:</p>
+<ul>
+<li>Mathematical equations and formulas</li>
+<li>Matrices and vectors</li>
+<li>Scientific notation and symbols</li>
+<li>Complex mathematical structures</li>
+</ul>
+<p>webrust solves this by integrating LaTeX rendering directly into the web interface,
+allowing for publication-quality mathematical display.</p>
+<h3 id="features"><a class="doc-anchor" href="#features">§</a>Features</h3><h4 id="mathematical-expressions"><a class="doc-anchor" href="#mathematical-expressions">§</a>Mathematical Expressions</h4>
+<p>latex(“E = mc^2”);                          // Einstein’s equation
+latex(“\frac{-b \pm \sqrt{b^2-4ac}}{2a}”); // Quadratic formula
+latex(“\int_0^\infty e^{-x^2} dx”);       // Integral notation</p>
+<h4 id="matrices-and-vectors"><a class="doc-anchor" href="#matrices-and-vectors">§</a>Matrices and Vectors</h4>
+<p>latex(“\begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{pmatrix}”);  // Identity matrix
+latex(“\begin{bmatrix} a \\ b \\ c \end{bmatrix}”);     // Column vector</p>
+<h4 id="complex-structures"><a class="doc-anchor" href="#complex-structures">§</a>Complex Structures</h4>
+<p>latex(“\begin{cases} x + y = 5 \\ 2x - y = 1 \end{cases}”); // System of equations
+latex(“\sum_{i=1}^n i = \frac{n(n+1)}{2}”);                  // Summation formula</p>
+<h3 id="functions"><a class="doc-anchor" href="#functions">§</a>Functions</h3><h4 id="latext-stdfmtdisplayformula-t"><a class="doc-anchor" href="#latext-stdfmtdisplayformula-t">§</a><code>latex&lt;T: std::fmt::Display&gt;(formula: T)</code></h4>
+<p>The primary LaTeX rendering function:</p>
+<ul>
+<li>Accepts any type implementing <code>Display</code> (String, &amp;str, formatted strings)</li>
+<li>Automatically detects display vs inline mode based on content</li>
+<li>Integrates seamlessly with the web interface</li>
+<li>Renders using MathJax for high-quality output</li>
+</ul>
+<h4 id="latex_displayt-stdfmtdisplayformula-t"><a class="doc-anchor" href="#latex_displayt-stdfmtdisplayformula-t">§</a><code>latex_display&lt;T: std::fmt::Display&gt;(formula: T)</code></h4>
+<p>Forces display mode rendering:</p>
+<ul>
+<li>Centers the mathematical expression</li>
+<li>Uses larger fonts and spacing</li>
+<li>Ideal for standalone equations and formulas</li>
+</ul>
+<h4 id="latex_inlinet-stdfmtdisplayformula-t"><a class="doc-anchor" href="#latex_inlinet-stdfmtdisplayformula-t">§</a><code>latex_inline&lt;T: std::fmt::Display&gt;(formula: T)</code></h4>
+<p>Forces inline mode rendering:</p>
+<ul>
+<li>Integrates with surrounding text</li>
+<li>Uses smaller, text-height rendering</li>
+<li>Ideal for mathematical expressions within sentences</li>
+</ul>
+<h3 id="mathjax-integration"><a class="doc-anchor" href="#mathjax-integration">§</a>MathJax Integration</h3>
+<p>webrust uses MathJax 3.x for LaTeX rendering:</p>
+<h4 id="configuration"><a class="doc-anchor" href="#configuration">§</a>Configuration</h4>
+<ul>
+<li><strong>Input</strong>: TeX/LaTeX notation</li>
+<li><strong>Output</strong>: High-quality HTML/CSS rendering</li>
+<li><strong>Delimiters</strong>: <code>$$...$$</code> for display, <code>$...$</code> for inline</li>
+<li><strong>Processing</strong>: Automatic detection and rendering</li>
+</ul>
+<h4 id="performance"><a class="doc-anchor" href="#performance">§</a>Performance</h4>
+<ul>
+<li><strong>Client-side rendering</strong>: No server-side processing required</li>
+<li><strong>Caching</strong>: MathJax caches rendered expressions</li>
+<li><strong>Progressive enhancement</strong>: Works without JavaScript (shows raw LaTeX)</li>
+</ul>
+<h3 id="supported-latex-features"><a class="doc-anchor" href="#supported-latex-features">§</a>Supported LaTeX Features</h3>
+<p>webrust supports the full range of MathJax/LaTeX features:</p>
+<h4 id="basic-mathematics"><a class="doc-anchor" href="#basic-mathematics">§</a>Basic Mathematics</h4>
+<ul>
+<li>Superscripts: <code>x^2</code>, <code>e^{i\pi}</code></li>
+<li>Subscripts: <code>x_1</code>, <code>H_2O</code></li>
+<li>Fractions: <code>\frac{a}{b}</code>, <code>\dfrac{x}{y}</code></li>
+<li>Roots: <code>\sqrt{x}</code>, <code>\sqrt[n]{x}</code></li>
+</ul>
+<h4 id="advanced-features"><a class="doc-anchor" href="#advanced-features">§</a>Advanced Features</h4>
+<ul>
+<li>Integrals: <code>\int</code>, <code>\iint</code>, <code>\iiint</code></li>
+<li>Summations: <code>\sum</code>, <code>\prod</code></li>
+<li>Limits: <code>\lim_{x \to \infty}</code></li>
+<li>Matrices: <code>pmatrix</code>, <code>bmatrix</code>, <code>vmatrix</code></li>
+</ul>
+<h4 id="symbols-and-notation"><a class="doc-anchor" href="#symbols-and-notation">§</a>Symbols and Notation</h4>
+<ul>
+<li>Greek letters: <code>\alpha</code>, <code>\beta</code>, <code>\gamma</code></li>
+<li>Mathematical operators: <code>\times</code>, <code>\div</code>, <code>\pm</code></li>
+<li>Set notation: <code>\in</code>, <code>\subset</code>, <code>\cup</code>, <code>\cap</code></li>
+<li>Logic symbols: <code>\land</code>, <code>\lor</code>, <code>\neg</code></li>
+</ul>
+<h3 id="usage-examples"><a class="doc-anchor" href="#usage-examples">§</a>Usage Examples</h3><h4 id="basic-equations"><a class="doc-anchor" href="#basic-equations">§</a>Basic Equations</h4>
+<p>latex(“F = ma”);                    // Newton’s second law
+latex(“\Delta x = v_0 t + \frac{1}{2}at^2”); // Kinematic equation</p>
+<h4 id="complex-expressions"><a class="doc-anchor" href="#complex-expressions">§</a>Complex Expressions</h4>
+<p>latex(“\nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}”); // Maxwell’s equation
+latex(“\Psi(x,t) = Ae^{i(kx-\omega t)}”);  // Wave function</p>
+<h4 id="data-visualization"><a class="doc-anchor" href="#data-visualization">§</a>Data Visualization</h4>
+<p>// Display a data table using LaTeX array environment
+latex(“\begin{array}{|c|c|c|}
+\hline
+\text{Name} &amp; \text{Age} &amp; \text{Score} \\
+\hline
+\text{Alice} &amp; 25 &amp; 95.5 \\
+\text{Bob} &amp; 30 &amp; 87.2 \\
+\hline
+\end{array}”);</p>
+<h3 id="integration-with-f-strings"><a class="doc-anchor" href="#integration-with-f-strings">§</a>Integration with F-Strings</h3>
+<p>LaTeX expressions can incorporate Rust variables:</p>
+<p>let a = 2.0;
+let b = 3.0;
+let c = (a * a + b * b).sqrt();</p>
+<p>latex(“\text{Given } a = {a} \text{ and } b = {b}”);
+latex(“\text{Then } c = \sqrt{{{a}^2 + {b}^2}} = {c:.2}”);</p>
+<h3 id="best-practices"><a class="doc-anchor" href="#best-practices">§</a>Best Practices</h3><h4 id="performance-1"><a class="doc-anchor" href="#performance-1">§</a>Performance</h4>
+<ul>
+<li>Group related expressions when possible</li>
+<li>Use <code>latex_inline</code> for simple expressions in text</li>
+<li>Use <code>latex_display</code> for standalone equations</li>
+</ul>
+<h4 id="readability"><a class="doc-anchor" href="#readability">§</a>Readability</h4>
+<ul>
+<li>Add spacing with <code>\\,</code> for better visual separation</li>
+<li>Use <code>\\text{}</code> for non-mathematical text within expressions</li>
+<li>Break complex expressions across multiple lines</li>
+</ul>
+<h4 id="accessibility"><a class="doc-anchor" href="#accessibility">§</a>Accessibility</h4>
+<ul>
+<li>Provide alternative text descriptions for complex expressions</li>
+<li>Use semantic LaTeX commands when available</li>
+<li>Consider providing both symbolic and numeric representations</li>
+</ul>
+</div></details><h2 id="functions-1" class="section-header">Functions<a href="#functions-1" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.latex.html" title="fn webrust::latex::latex">latex</a></div></li><li><div class="item-name"><a class="fn" href="fn.latex_display.html" title="fn webrust::latex::latex_display">latex_<wbr>display</a></div></li><li><div class="item-name"><a class="fn" href="fn.latex_inline.html" title="fn webrust::latex::latex_inline">latex_<wbr>inline</a></div></li></ul></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["latex","latex_display","latex_inline"]};

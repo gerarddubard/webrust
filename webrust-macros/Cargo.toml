@@ -1,0 +1,22 @@
+[package]
+name = "webrust-macros"
+version = "0.4.0"
+edition = "2021"
+authors = ["gdubard <infodgjl@gmail.com>"]
+description = "Procedural macros for webrust - Python-like Rust syntax"
+documentation = "https://docs.rs/webrust-macros"
+repository = "https://github.com/gerarddubard/webrust"
+homepage = "https://github.com/gerarddubard/webrust"
+license = "MIT"
+keywords = ["macros", "python", "syntax", "procedural"]
+categories = ["development-tools::procedural-macro-helpers"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0.40"
+syn = { version = "2.0.104", features = ["full", "visit-mut"] }
+proc-macro2 = "1.0.95"
+regex = "1.11.1"
+lazy_static = "1.5.0"

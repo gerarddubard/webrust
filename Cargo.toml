@@ -1,0 +1,47 @@
+[package]
+name = "webrust"
+version = "0.4.0"
+edition = "2021"
+authors = ["gdubard <infodgjl@gmail.com>"]
+description = "Python-like Rust for Web Applications - A bridge between Python simplicity and Rust power"
+documentation = "https://docs.rs/webrust"
+repository = "https://github.com/gerarddubard/webrust"
+homepage = "https://github.com/gerarddubard/webrust"
+license = "MIT"
+keywords = ["python", "web", "gui", "latex", "formatting"]
+categories = ["gui", "web-programming", "development-tools"]
+readme = "README.md"
+
+[dependencies]
+tiny_http = "0.12.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+lazy_static = "1.5.0"
+regex = "1.11.1"
+webrust-macros = { version = "0.4.0", path = "webrust-macros" }
+
+[features]
+default = []
+
+[[example]]
+name = "simpleio"
+path = "examples/py_simpleio.rs"
+
+[[example]]
+name = "format"
+path = "examples/py_format.rs"
+
+[[example]]
+name = "latex"
+path = "examples/py_latex.rs"
+
+[[example]]
+name = "rangenumerate"
+path = "examples/py_rangenumerate.rs"
+
+[workspace]
+members = ["webrust-macros"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
