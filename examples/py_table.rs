@@ -31,10 +31,10 @@ fn main() {
     table(&matrix);
 
     println("With headers:");
-    table(&matrix).header(["x", "y", "z"]);
+    table(&matrix).header(["$(x)", "$(y)", "$(z)"]);
 
     println("Pivoted with headers:");
-    table(&matrix).header(["x", "y", "z"]).pivot().header(["$(\\vec{u})", "$(\\vec{v})"]);
+    table(&matrix).header(["$(x)", "$(y)", "$(z)"]).pivot().header(["$(\\vec{u})", "$(\\vec{v})"]);
 
     println("");
 
@@ -206,30 +206,38 @@ fn main() {
     let data: Vec<Vec<u32>> = (1..=9).map(|i| (1..=9).map(|j| i * j).collect()).collect();
     table(&data).header(headers.clone()).pivot().header(headers);
 
-    // ===== 9. LaTeX EXAMPLES (SIMPLE vs COMPLEX) =====
+    // ===== 9. LATEX EXAMPLES (SIMPLE vs COMPLEX) =====
     println("@(green, bold)9. LaTeX Examples (Simple vs Complex)");
 
+    println("Simple Greek alphabet:");
+    let greek = vec![
+        vec!["Alpha", "$(\\alpha)", "$(A)"],
+        vec!["Beta", "$(\\beta)", "$(B)"],
+        vec!["Gamma", "$(\\gamma)", "$(\\Gamma)"],
+        vec!["Delta", "$(\\delta)", "$(\\Delta)"],
+        vec!["Epsilon", "$(\\epsilon)", "$(E)"],
+        vec!["Pi", "$(\\pi)", "$(\\Pi)"],
+    ];
+    table(&greek).header(["Name", "Lowercase", "Uppercase"]);
+    
     println("Simple trigonometric values:");
     let trig = vec![
-        vec!["$(0)",      "$(0)",                         "$(1)",                         "$(0)"],
-        vec!["$(\\pi/4)",  "$(\\sqrt{2}/2)",               "$(\\sqrt{2}/2)",               "$(1)"],
-        vec!["$(\\pi/2)",  "$(1)",                         "$(0)",                         "not defined"],
+        vec!["$(0)",                     "$(0)",                     "$(1)",                     "$(0)"],
+        vec![r"$(\frac{\pi}{6})",        r"$(\frac{1}{2})",          r"$(\frac{\sqrt{3}}{2})",    r"$(\frac{1}{\sqrt{3}})"],
+        vec![r"$(\frac{\pi}{4})",        r"$(\frac{\sqrt{2}}{2})",   r"$(\frac{\sqrt{2}}{2})",    "$(1)"],
+        vec![r"$(\frac{\pi}{3})",        r"$(\frac{\sqrt{3}}{2})",   r"$(\frac{1}{2})",           r"$(\sqrt{3})"],
+        vec![r"$(\frac{\pi}{2})",        "$(1)",                     "$(0)",                     "not defined"],
+        vec![r"$(\pi)",                  "$(0)",                     "$(-1)",                    "$(0)"],
+        vec![r"$(\frac{3\pi}{2})",       "$(-1)",                    "$(0)",                     "not defined"],
+        vec![r"$2\pi$",                  "$(0)",                     "$(1)",                     "$(0)"],
     ];
+
     table(&trig).header([
         "$(\\theta)",
         "$(\\sin\\theta)",
         "$(\\cos\\theta)",
         "$(\\tan\\theta)",
     ]);
-
-    println("Simple physics formulas:");
-    let formulas = vec![
-        vec!["Energy", "$(E = mc^2)"],
-        vec!["Force", "$(F = ma)"],
-        vec!["Momentum", "$(p = mv)"],
-        vec!["Power", "$(P = Fv)"],
-    ];
-    table(&formulas).header(["Concept", "Formula"]);
 
     println("Complex equations (using raw strings for clarity):");
     let equations = vec![
@@ -256,17 +264,6 @@ fn main() {
     ];
     table(&transforms_3d).header(["Transform", "3D Homogeneous Matrix"]);
 
-    println("Simple Greek alphabet:");
-    let greek = vec![
-        vec!["Alpha", "$(\\alpha)", "$(A)"],
-        vec!["Beta", "$(\\beta)", "$(B)"],
-        vec!["Gamma", "$(\\gamma)", "$(\\Gamma)"],
-        vec!["Delta", "$(\\delta)", "$(\\Delta)"],
-        vec!["Epsilon", "$(\\epsilon)", "$(E)"],
-        vec!["Pi", "$(\\pi)", "$(\\Pi)"],
-    ];
-    table(&greek).header(["Name", "Lowercase", "Uppercase"]);
-
     println("Complex mathematical expressions (showcasing when raw strings help):");
     let complex_math = vec![
         vec!["Fourier Transform", r"$(\mathcal{F}\{f(t)\} = \int_{-\infty}^{\infty} f(t) e^{-2\pi i \xi t} dt)"],
@@ -276,7 +273,33 @@ fn main() {
     ];
     table(&complex_math).header(["Name", "Expression"]);
 
-    println("@(cyan, bold)✨ Notice the smart usage of raw strings only when needed for readability!");
+    println("@(green, bold)10. Periodic Table (colored tiles)\n");
+    const A: &str = "MistyRose"; const E: &str = "LemonChiffon"; const T: &str = "LightSteelBlue"; const P: &str = "Gainsboro"; const M: &str = "PaleGreen"; const N: &str = "HoneyDew"; const H: &str = "Moccasin"; const G: &str = "Plum"; const L: &str = "Lavender"; const C: &str = "Thistle"; const B: &str = "#333"; const X: (&str, &str, &str) = ("","","");
+    let table = vec![
+        vec![("H",N,B), X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X, ("He",G,B)],
+        vec![("Li",A,B), ("Be",E,B), X,X,X,X,X,X,X,X,X,X, ("B",M,B), ("C",N,B), ("N",N,B), ("O",N,B), ("F",H,B), ("Ne",G,B)],
+        vec![("Na",A,B), ("Mg",E,B), X,X,X,X,X,X,X,X,X,X, ("Al",P,B), ("Si",M,B), ("P",N,B), ("S",N,B), ("Cl",H,B), ("Ar",G,B)],
+        vec![("K",A,B), ("Ca",E,B), ("Sc",T,B), ("Ti",T,B), ("V",T,B), ("Cr",T,B), ("Mn",T,B), ("Fe",T,B), ("Co",T,B), ("Ni",T,B), ("Cu",T,B), ("Zn",T,B), ("Ga",P,B), ("Ge",M,B), ("As",M,B), ("Se",P,B), ("Br",H,B), ("Kr",G,B)],
+        vec![("Rb",A,B), ("Sr",E,B), ("Y",T,B), ("Zr",T,B), ("Nb",T,B), ("Mo",T,B), ("Tc",T,B), ("Ru",T,B), ("Rh",T,B), ("Pd",T,B), ("Ag",T,B), ("Cd",T,B), ("In",P,B), ("Sn",P,B), ("Sb",M,B), ("Te",M,B), ("I",H,B), ("Xe",G,B)],
+        vec![("Cs",A,B), ("Ba",E,B), ("La",L,B), ("Hf",T,B), ("Ta",T,B), ("W",T,B), ("Re",T,B), ("Os",T,B), ("Ir",T,B), ("Pt",T,B), ("Au",T,B), ("Hg",T,B), ("Tl",P,B), ("Pb",P,B), ("Bi",P,B), ("Po",P,B), ("At",H,B), ("Rn",G,B)],
+        vec![("Fr",A,B), ("Ra",E,B), ("Ac",C,B), ("Rf",T,B), ("Db",T,B), ("Sg",T,B), ("Bh",T,B), ("Hs",T,B), ("Mt",T,B), ("Ds",T,B), ("Rg",T,B), ("Cn",T,B), ("Nh",P,B), ("Fl",P,B), ("Mc",P,B), ("Lv",P,B), ("Ts",H,B), ("Og",G,B)],
+        vec![X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X],
+        vec![X,X,X, ("La",L,B), ("Ce",L,B), ("Pr",L,B), ("Nd",L,B), ("Pm",L,B), ("Sm",L,B), ("Eu",L,B), ("Gd",L,B), ("Tb",L,B), ("Dy",L,B), ("Ho",L,B), ("Er",L,B), ("Tm",L,B), ("Yb",L,B), ("Lu",L,B)],
+        vec![X,X,X, ("Ac",C,B), ("Th",C,B), ("Pa",C,B), ("U",C,B), ("Np",C,B), ("Pu",C,B), ("Am",C,B), ("Cm",C,B), ("Bk",C,B), ("Cf",C,B), ("Es",C,B), ("Fm",C,B), ("Md",C,B), ("No",C,B), ("Lr",C,B)],
+    ];
+    for row in &table {
+        for &(sym, bg, border) in row {
+            if sym.is_empty() {
+                print("").width(20).weight(1).color("transparent").background("transparent").space(0);
+            } else {
+                print(sym).width(20).radius(6).align("center").weight(1).style("solid").color(border).background(bg).space(0);
+            }
+        }
+        println("").space(0);
+    }
+
+
+    println("\n@(cyan, bold)✨ Notice the smart usage of raw strings only when needed for readability!");
     println("@(gray, italic)Simple LaTeX: $(E = mc^2) - no raw string needed");
     println("@(gray, italic)Complex LaTeX: r\"$(\\\\frac{...}{...})\" - raw string for clarity");
 }
