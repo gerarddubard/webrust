@@ -8,25 +8,25 @@ fn main() {
 
     println("\n@(green, bold)=== Numeric Tests (Horizontal Tables) ===");
 
-    println("@(magenta, italic)0.to(5):@()\n");
+    println("@(magenta, italic)0.to(5):\n");
     for i in 0.to(5) {
         print("@(white){i}").width(25).weight(1).color("white").background("purple").align("center").space(0);
     }
     println("");
 
-    println("@(magenta, italic)4.5.to(0.0):@()\n");
+    println("@(magenta, italic)4.5.to(0.0):\n");
     for i in 4.5.to(0.0) {
         print("@(white){i}").width(30).weight(1).color("white").background("darkred").align("center").space(0);
     }
     println("");
 
-    println("@(magenta, italic)20.to(0).by(-2):@()\n");
+    println("@(magenta, italic)20.to(0).by(-2):\n");
     for i in 20.to(0).by(-2) {
         print("@(white){i}").width(20).weight(1).color("white").background("navy").align("center").space(0);
     }
     println("");
 
-    println("@(magenta, italic)0.0.to(4.0).by(0.25):@()\n");
+    println("@(magenta, italic)0.0.to(4.0).by(0.25):\n");
     for x in 0.0.to(4.0).by(0.25) {
         print("@(white){x}").width(25).weight(1).color("white").background("darkgreen").align("center").space(0);
     }
