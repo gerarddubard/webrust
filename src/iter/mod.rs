@@ -31,5 +31,8 @@
 //! while maintaining Rust's performance and type safety.
 pub mod range;
 pub mod enumerate;
+pub mod comprehension;
+
 pub use range::*;
 pub use enumerate::enumerate;
+pub use comprehension::*;

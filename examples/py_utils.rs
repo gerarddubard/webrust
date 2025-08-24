@@ -1,32 +1,32 @@
-// webrust/examples/py_utils.rs
+use std::collections::HashMap;
 use webrust::prelude::*;
 
 #[gui(bg = "blue", fg = "white", font = "Times", color = "black", size = "14px")]
 fn main() {
-    println("@(blue, bold)🎯 webrust Range and Enumerate Examples");
-    println("@(gray, italic)Demonstrating Python-like ranges and enumeration:\n");
+    println("@(blue, bold)🎯 webrust Range and Iterator Examples");
+    println("@(gray, italic)Demonstrating Python-like comprehensions with when/then syntax:\n");
 
     println("\n@(green, bold)=== Numeric Tests (Horizontal Tables) ===");
 
-    println("@(magenta, italic)0.to(5):@()\n");
+    println("@(magenta, italic)0.to(5):\n");
     for i in 0.to(5) {
         print("@(white){i}").width(25).weight(1).color("white").background("purple").align("center").space(0);
     }
     println("");
 
-    println("@(magenta, italic)4.5.to(0.0):@()\n");
+    println("@(magenta, italic)4.5.to(0.0):\n");
     for i in 4.5.to(0.0) {
         print("@(white){i}").width(30).weight(1).color("white").background("darkred").align("center").space(0);
     }
     println("");
 
-    println("@(magenta, italic)20.to(0).by(-2):@()\n");
+    println("@(magenta, italic)20.to(0).by(-2):\n");
     for i in 20.to(0).by(-2) {
         print("@(white){i}").width(20).weight(1).color("white").background("navy").align("center").space(0);
     }
     println("");
 
-    println("@(magenta, italic)0.0.to(4.0).by(0.25):@()\n");
+    println("@(magenta, italic)0.0.to(4.0).by(0.25):\n");
     for x in 0.0.to(4.0).by(0.25) {
         print("@(white){x}").width(25).weight(1).color("white").background("darkgreen").align("center").space(0);
     }
@@ -176,9 +176,98 @@ fn main() {
     for (index, number) in enumerate(1.to(6)) {
         let cube = number * number * number;
         print("{index}").weight(1).color("SteelBlue").background("White").width(80).align("center").space(0);
-        print("{number}$({number}^3) = {cube}").weight(1).color("SteelBlue").background("White").width(140).align("center").space(0);
+        print("${number}^3 = {cube}$").weight(1).color("SteelBlue").background("White").width(140).align("center").space(0);
         println("").space(0);
     }
 
     println("\n@(bright_magenta, italic, bold)🎉 Demonstration completed with real tables!");
+
+    println("\n@(darkmagenta, bold)=== List and Dictionary Comprehensions - NEW SYNTAX ===");
+    println("@(gray, italic)Speaking syntax: when = filter, then = map + collect automatically!");
+
+    println("\n@(green, bold)📋 Basic examples");
+
+    let squares: Vec<i32> = 0.to(10).then(|x| x * x);
+    println("@(darkblue) 🐍: [x**2 for x in range(10)]");
+    println("@(darkgreen) 🦀: 0.to(10).then(|x| x * x)");
+    println("@(blue, bold)📊 Result: {squares:c}");
+
+    let stepped: Vec<i32> = 0.to(20).by(3).then(|x| x);
+    println("\n@(darkblue) 🐍: [x for x in range(0, 20, 3)]");
+    println("@(darkgreen) 🦀: 0.to(20).by(3).then(|x| x)");
+    println("@(blue, bold)📊 Result: {stepped:c}");
+
+    let letters: Vec<char> = (0..5).then(|i| (b'a' + i) as char);
+    println("\n@(darkblue) 🐍: [chr(ord('a') + i) for i in range(5)]");
+    println("@(darkgreen) 🦀: (0..5).then(|i| (b'a' + i) as char)");
+    println("@(blue, bold)📊 Result: {letters:c}");
+
+    println("\n@(blue, bold)📚 Dictionaries (automatic inference!)");
+
+    let squares_dict: HashMap<i32, i32> = 0.to(5).then(|x| (x, x * x));
+    println("@(darkblue) 🐍: {{x: x**2 for x in range(5)}}");
+    println("@(darkgreen) 🦀: 0.to(5).then(|x| (x, x * x))");
+    table(&squares_dict).header(["Number", "Square"]);
+
+    let char_codes: HashMap<char, u8> = 'a'.to('f').then(|c| (c, c as u8));
+    println("\n@(darkblue) 🐍: {{c: ord(c) for c in 'abcde'}}");
+    println("@(darkgreen) 🦀: 'a'.to('f').then(|c| (c, c as u8))");
+    table(&char_codes).header(["Char", "ASCII"]);
+
+    println("\n@(purple, bold)🔍 Filtering with when()");
+
+    let evens: Vec<i32> = 0.to(20).when(|&x| x % 2 == 0).then(|x| x);
+    println("@(darkblue) 🐍: [x for x in range(20) if x % 2 == 0]");
+    println("@(darkgreen) 🦀: 0.to(20).when(|&x| x % 2 == 0).then(|x| x)");
+    println("@(blue, bold)📊 Result: {evens:c}");
+
+    let filtered_squares: Vec<i32> = 0.to(20).when(|&x| x % 2 == 0 && x % 3 == 0).then(|x| x * x);
+    println("\n@(magenta, bold)Multiple conditions:");
+    println("@(darkblue) 🐍: [x**2 for x in range(20) if x % 2 == 0 and x % 3 == 0]");
+    println("@(darkgreen) 🦀: 0.to(20).when(|&x| x % 2 == 0 && x % 3 == 0).then(|x| x * x)");
+    println("@(blue, bold)📊 Result: {filtered_squares:c} ");
+
+    let filtered_chain1: Vec<i32> = (0..20).when(|&x| x % 2 == 0 && x % 3 == 0).then(|x| x * x);
+    let filtered_chain2: Vec<i32> = (0..20).when(|&x| x % 2 == 0).when(|&x| x % 3 == 0).then(|x| x * x);
+    println("\n@(magenta, bold)Chained filters (webrust advantage):");
+    println("@(darkblue)# Python doesn't chain filters, but equivalent:");
+    println("@(darkblue) 🐍: [x**2 for x in range(20) if x % 2 == 0 and x % 3 == 0]");
+    println("@(darkgreen) 🦀: (0..20).when(|&x| x % 2 == 0 && x % 3 == 0).then(|x| x * x)");
+    println("@(darkgreen) 🦀: (0..20).when(|&x| x % 2 == 0).when(|&x| x % 3 == 0).then(|x| x * x)");
+    println("@(blue, bold)📊 Result: {&filtered_chain1:c}");
+
+    println("\n@(blue, bold)🌍 Real examples with new syntax");
+
+    let fib_count: i32 = 7;
+    let mut fib = vec![0i64, 1i64];
+    for i in 2..fib_count as usize {
+        let next = fib[i - 1] + fib[i - 2];
+        fib.push(next);
+    }
+
+    let fib_pairs: Vec<(usize, i64)> = enumerate(&fib).then(|(i, &v)| (i, v));
+    table(&fib_pairs).header(["Index", "Fibonacci"]);
+
+    let ratios: Vec<f64> = (1..fib.len()).when(|&i| fib[i - 1] != 0).then(|i| fib[i] as f64 / fib[i - 1] as f64);
+    println("\n@(yellow, bold)Fibonacci ratios:");
+    for (i, ratio) in enumerate(ratios) {
+        let next_idx = i + 2;
+        let curr_idx = i + 1;
+        println("F{next_idx}/F{curr_idx} = {ratio:.6}");
+    }
+
+    let words = vec!["hello", "world", "python", "rust", "comprehension"];
+    let long_words: Vec<String> = words.when(|word| word.len() > 4).then(|word| word.upper());
+    println("\n@(orange, bold)Text processing:");
+    println("@(darkblue) 🐍: [word.upper() for word in words if len(word) > 4]");
+    println("@(darkgreen) 🦀: words.when(|word| word.len() > 4).then(|word| word.upper())");
+    println("@(blue, bold)📊 Words > 4 characters: {long_words:c}");
+
+    println("\n@(bright_green, bold)✅ Perfect Balance Achieved!");
+    println("@(gray)✨ Speaking syntax: when/then vs filter/map");
+    println("@(gray)🚀 Auto collect(): no manual .collect() needed");
+    println("@(gray)⚡ Native performance: compiles to identical iterator chains");
+    println("@(gray)🎯 Type inference: Vec/HashMap automatically detected");
+    println("@(gray)🔗 Chainable: .when().when().then() flows naturally");
+    println("@(gray)🌍 Universal: works with webrust ranges, std ranges, vectors, arrays!");
 }
