@@ -139,4 +139,151 @@ fn main() {
 
     println("@(darkblue)3-level nested structure (:c - compact format): {cities_data:c}");
     println("@(darkblue)3-level nested structure (:j - JSON format): \n{cities_data:j}");
+
+    println("\n@(purple, bold)🎨 Text Alignment & Styling Showcase");
+    println("@(gray, italic)Demonstrating all alignment modes with diverse styling options\n");
+
+    // Exemples basiques d'alignement
+    println("@(blue, bold)📍 Basic Alignment Examples");
+    println("Centered Text").width(*CW).align("center").weight(1).color("blue");
+    println("Left-aligned Text").width(*CW).align("left").weight(2).color("green").style("dashed");
+    println("Right-aligned Text").width(*CW).align("right").weight(3).color("red").style("dotted");
+
+    println("\n@(green, bold)📖 Justify with Professional Styling");
+    let lorem_text = [
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+        "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
+        "nisi ut aliquip ex ea commodo consequat."
+    ].join(" ");
+
+    println(lorem_text).width(*CW).align("justify").weight(4).color("darkslategray").style("double").radius(12).background("linen");
+
+    println("\n@(orange, bold)🎯 Width Variations with Alignment");
+
+    // Largeur 1/4
+    println("Quarter Width Center").width(*CW / 4).align("center").background("lightblue");
+    println("Quarter Width Left").width(*CW / 4).align("left").background("lightgreen");
+    println("Quarter Width Right").width(*CW / 4).align("right").background("lightyellow");
+
+    // Largeur 1/2  
+    println("\nHalf Width Centered Text").width(*CW / 2).align("center").background("lavender");
+    println("Half Width Left-aligned Text").width(*CW / 2).align("left").background("lightcoral");
+    println("Half Width Right-aligned Text").width(*CW / 2).align("right").background("lightsteelblue");
+
+    println("\n@(teal, bold)⚖️ Weight & Style Variations");
+
+    println("Ultra-thin border (1px)").width(*CW / 3).align("center").weight(1).color("lightgray").background("white");
+    println("Thin border (2px)").width(*CW / 3).align("center").weight(2).color("gray").style("solid").background("whitesmoke");
+    println("Medium border (3px)").width(*CW / 3).align("center").weight(3).color("darkgray").style("dashed").background("lightgray");
+    println("Thick border (4px)").width(*CW / 3).align("center").weight(4).color("black").style("dotted").background("silver");
+    println("Extra-thick border (5px)").width(*CW / 3).align("center").weight(5).color("navy").style("double").background("lightsteelblue");
+
+    println("\n@(magenta, bold)🎭 Border Style Gallery");
+
+    println("Solid Style").width(*CW / 4).align("center").weight(3).color("crimson").style("solid").background("mistyrose");
+    println("Dashed Style").width(*CW / 4).align("center").weight(3).color("forestgreen").style("dashed").background("honeydew");
+    println("Dotted Style").width(*CW / 4).align("center").weight(3).color("royalblue").style("dotted").background("aliceblue");
+    println("Double Style").width(*CW / 4).align("center").weight(4).color("darkorange").style("double").background("papayawhip");
+
+    println("\n@(cyan, bold)🌈 Radius Variations");
+
+    println("Sharp corners (0px)").width(*CW / 5).align("center").weight(2).color("red").radius(0).background("lightcoral");
+    println("Slight curve (5px)").width(*CW / 5).align("center").weight(2).color("orange").radius(5).background("peachpuff");
+    println("Medium curve (10px)").width(*CW / 5).align("center").weight(2).color("gold").radius(10).background("lightyellow");
+    println("Rounded (15px)").width(*CW / 5).align("center").weight(2).color("limegreen").radius(15).background("lightgreen");
+    println("Very rounded (20px)").width(*CW / 5).align("center").weight(2).color("dodgerblue").radius(20).background("lightblue");
+
+    println("\n@(red, bold)🎪 Creative Combinations");
+
+    println("@(white, bold)EMERGENCY ALERT")
+        .width(*CW)
+        .align("center")
+        .weight(5)
+        .color("red")
+        .style("double")
+        .radius(0)
+        .background("yellow");
+
+    println("📈 Financial Report: Q4 Results Show 15% Growth")
+        .width(*CW)
+        .align("left")
+        .weight(1)
+        .color("darkgreen")
+        .style("solid")
+        .radius(3)
+        .background("lightgreen");
+
+    println("🎯 Call to Action: Visit our website today!")
+        .width(*CW)
+        .align("right")
+        .weight(3)
+        .color("purple")
+        .style("dashed")
+        .radius(25)
+        .background("lavender");
+
+    println("\n@(indigo, bold)📜 Document Layout Example");
+
+    // En-tête avec style épais
+    println("@(navy, bold)WEBRUST FRAMEWORK v0.7.0")
+        .width(*CW)
+        .align("center")
+        .weight(4)
+        .color("navy")
+        .style("double")
+        .radius(8)
+        .background("lightcyan");
+
+    // Corps de texte justifié avec bordure fine
+    println("Webrust revolutionizes Rust development by providing Python-like simplicity without sacrificing performance. Our framework enables rapid prototyping, elegant GUI creation, and seamless mathematical computing. The innovative styling system demonstrated here showcases just a fraction of webrust's capabilities.")
+        .width(*CW)
+        .align("justify")
+        .weight(1)
+        .color("darkslateblue")
+        .style("solid")
+        .radius(5)
+        .background("ghostwhite");
+
+    // Signature avec style distinctif
+    println("Created with ❤️ by the Webrust Team")
+        .width(*CW)
+        .align("right")
+        .weight(2)
+        .color("crimson")
+        .style("dotted")
+        .radius(15)
+        .background("seashell");
+
+    println("\n@(lime, bold)🔥 Advanced Styling Combinations");
+
+    println("Thin Dashed Border + High Radius")
+        .width(*CW / 2)
+        .align("center")
+        .weight(1)
+        .color("teal")
+        .style("dashed")
+        .radius(25)
+        .background("lightcyan");
+
+    println("Thick Double Border + Sharp Corners")
+        .width(*CW / 2)
+        .align("center")
+        .weight(5)
+        .color("maroon")
+        .style("double")
+        .radius(0)
+        .background("mistyrose");
+
+    println("Medium Dotted Border + Moderate Radius")
+        .width(*CW / 2)
+        .align("center")
+        .weight(3)
+        .color("darkviolet")
+        .style("dotted")
+        .radius(12)
+        .background("thistle");
+
+    println("\n@(bright_green, bold)✨ Styling Showcase Complete!");
+    println("@(gray, italic)Demonstrating the full power of webrust's styling system with weights 1-5, all border styles, various radii, and rich color combinations");
 }

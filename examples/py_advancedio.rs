@@ -120,7 +120,7 @@ fn main() {
     println(r"Energy-mass relation: $(E = mc^2 = m \times 8.988 \times 10^{16})");
 
     println("\n@(darkred, bold)7. Complex Mathematical Expressions");
-    println("Schr&#246dinger equation:");
+    println("Schrödinger equation:");
     println(r"$(i\hbar\frac{\partial}{\partial t}\Psi(\mathbf{r},t) = \hat{H}\Psi(\mathbf{r},t))");
 
     println("Maxwell's equations:");

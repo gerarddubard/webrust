@@ -1,6 +1,6 @@
 [package]
 name = "webrust-macros"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 authors = ["gdubard <infodgjl@gmail.com>"]
 description = "Procedural macros for webrust - Python-like Rust syntax"
@@ -16,5 +16,5 @@ proc-macro = true
 
 [dependencies]
 quote = "1.0.40"
-syn = { version = "2.0.104", features = ["full", "visit-mut"] }
-proc-macro2 = "1.0.95"
+syn = { version = "2.0.106", features = ["full", "visit-mut"] }
+proc-macro2 = "1.0.101"

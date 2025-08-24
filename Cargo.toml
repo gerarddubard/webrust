@@ -1,6 +1,6 @@
 [package]
 name = "webrust"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 authors = ["gdubard <infodgjl@gmail.com>"]
 description = "Python-like Rust for Web Applications - A bridge between Python simplicity and Rust power"
@@ -17,7 +17,7 @@ tiny_http = "0.12.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.143"
 lazy_static = "1.5.0"
-webrust-macros = { version = "0.7.0", path = "webrust-macros" }
+webrust-macros = { version = "0.8.0", path = "webrust-macros" }
 
 [features]
 default = []
@@ -29,6 +29,10 @@ path = "examples/py_simpleio.rs"
 [[example]]
 name = "advancedio"
 path = "examples/py_advancedio.rs"
+
+[[example]]
+name = "string"
+path = "examples/py_string.rs"
 
 [[example]]
 name = "utils"

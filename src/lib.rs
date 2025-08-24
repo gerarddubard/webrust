@@ -59,14 +59,11 @@ pub use serde;
 pub use serde_json;
 
 pub mod prelude {
-    pub use crate::io::print::{print, println, PrintBox};
+    pub use crate::io::print::{CW, CH};
     pub use crate::io::*;
     pub use crate::iter::*;
     pub use crate::data::*;
     pub use webrust_macros::gui;
-    pub use crate::iter::range::{RangeExt, CharRangeExt};
-    pub use crate::iter::enumerate::enumerate;
-    pub use crate::io::input::input_with_validation as input;
     pub use crate::serde;
     pub use crate::serde_json;
 }
