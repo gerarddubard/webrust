@@ -144,7 +144,8 @@ fn main() {
 toml
 [dependencies]
 webrust = "0.9.0"
-
+serde = "1.0.219"
+serde_json = "1.0.143"
 
 ### 2. Create your first interactive dashboard:
 
