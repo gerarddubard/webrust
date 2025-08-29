@@ -20,6 +20,7 @@ By bridging the gap between Python's ease of use and Rust's capabilities, WebRus
 
 ### Complete Analysis Workflow
 
+```rust
 use webrust::prelude::*;
 
 #[gui]
@@ -34,24 +35,24 @@ fn main() {
         .title("Quarterly Performance")
         .color("#2ecc71");
 }
-
+```
 
 ## Core Features
 
 ### Zero-Configuration GUI
 Transform any Rust function into a professional web application:
 
-
+```rust
 #[gui(bg = "navy", fg = "white", font = "Arial")]
 fn main() {
     println("Hello, WebRust!");
 }
-
+```
 
 ### Professional Styling
 CSS-like styling with responsive layouts:
 
-
+```rust
 println("BUSINESS DASHBOARD")
     .width(*CW)                    // Dynamic width
     .align("center")               // Center alignment
@@ -59,41 +60,41 @@ println("BUSINESS DASHBOARD")
     .style("double")               // Border style
     .radius(8)                     // Rounded corners
     .background("navy");           // Background color
-
+```
 
 ### Smart Data Visualization
 Automatic table generation from any data structure:
 
-
+```rust
 let mut scores = HashMap::new();
 scores.insert("Alice", 95);
 scores.insert("Bob", 87);
 
 table(&scores).header(["Student", "Score"]);
-
+```
 
 ### Python-like Strings
 Familiar string methods with Rust performance:
 
-
+```rust
 let result = "python,rust,go".split_by(",").join(" → ");  // "python → rust → go"
 let clean = "  hello world  ".trim().title();             // "Hello World"
 let padded = "42".zfill(6);                               // "000042"
-
+```
 
 ### Mathematical Expressions
 LaTeX integration for scientific computing:
 
-
+```rust
 println("Einstein's equation: $(E = mc^2)$");
 println("Quadratic formula: $(x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a})$");
-
+```
 
 ## Business Intelligence Example
 
 Create professional dashboards with minimal code:
 
-
+```rust
 use webrust::prelude::*;
 use std::collections::HashMap;
 
@@ -136,18 +137,18 @@ fn main() {
     );
     chart(market_share, "pie").title("Regional Market Share");
 }
-
+```
 
 ## Quick Start
 
 ### 1. Add WebRust to your project:
-toml
+```toml
 [dependencies]
 webrust = "1.0.0"
-
+```
 
 ### 2. Create your first interactive dashboard:
-
+```rust
 use webrust::prelude::*;
 
 #[gui]
@@ -156,12 +157,12 @@ fn main() {
     table(&data).header(["Q1", "Q2", "Q3", "Q4"]);
     chart(&data, "line").title("Growth Trend");
 }
-
+```
 
 ### 3. Run and enjoy:
-bash
+```bash
 cargo run
-
+```
 
 Your browser opens automatically with an interactive dashboard!
 
@@ -169,49 +170,49 @@ Your browser opens automatically with an interactive dashboard!
 
 ### Line Charts
 Perfect for trends and time series:
-
+```rust
 chart(&monthly_data, "line")
     .title("Revenue Trend")
     .x_axis_label("Month")
     .y_axis_label("Revenue ($)")
     .series_name("Monthly Revenue")
     .color("#3498db");
-
+```
 
 ### Bar Charts
 Great for comparisons:
-
+```rust
 chart(&category_data, "bar")
     .title("Sales by Category")
     .color("#2ecc71");
-
+```
 
 ### Pie Charts
 Ideal for proportions:
-
+```rust
 let pie_data = PieData(
     vec!["Desktop".to_string(), "Mobile".to_string()],
     vec![60.0, 40.0]
 );
 chart(pie_data, "pie").title("Traffic Sources");
-
+```
 
 ### Scatter Plots
 Perfect for correlations:
-
+```rust
 chart(&correlation_data, "scatter")
     .title("Price vs Quality")
     .x_axis_label("Quality Score")
     .y_axis_label("Price ($)")
     .color("#e74c3c");
-
+```
 
 ## Professional Styling
 
 WebRust provides complete control over visual presentation:
 
 ### Borders and Layout
-
+```rust
 println("Professional Content")
     .width(*CW / 2)              // Responsive width
     .align("justify")            // Text alignment
@@ -220,20 +221,20 @@ println("Professional Content")
     .radius(12)                  // Rounded corners
     .color("darkblue")           // Border color
     .background("lightcyan");    // Background
-
+```
 
 ### Color System
-
+```rust
 println("Error: Something went wrong!");
 println("Success: Data saved!");
 println("Info: Processing...");
-
+```
 
 ## Smart Tables
 
 Automatic table generation with professional formatting:
 
-
+```rust
 // From vectors
 let data = vec![("Alice", 95), ("Bob", 87), ("Charlie", 92)];
 table(&data).header(["Name", "Score"]);
@@ -250,13 +251,13 @@ let sales_data = vec![
     ("South", 30.0, 32.0, 28.0, 35.0),
 ];
 table(&sales_data).header(["Region", "Q1", "Q2", "Q3", "Q4"]);
-
+```
 
 ## String Processing
 
 Python-compatible string methods with Rust performance:
 
-
+```rust
 // Smart splitting - one method, multiple patterns
 let csv = "name,age,city".split_by(",");           // Comma-separated
 let words = "hello  world\ttab".split_by("");      // Whitespace
@@ -277,13 +278,13 @@ println!("{}", "left".ljust(10, '-'));      // "left------"
 println!("{}", "hello".isalpha());          // true
 println!("{}", "12345".isdigit());          // true
 println!("{}", "user@host.com".endswith(".com")); // true
-
+```
 
 ## Scientific Computing
 
 LaTeX integration for mathematical expressions:
 
-
+```rust
 #[gui]
 fn main() {
     println("Fundamental equations:");
@@ -299,7 +300,7 @@ fn main() {
         .y_axis_label("Measurement")
         .color("#9b59b6");
 }
-
+```
 
 ## Installation & Setup
 
@@ -308,21 +309,21 @@ fn main() {
 - Web browser (Chrome, Firefox, Safari, Edge)
 
 ### Add to Cargo.toml
-toml
+```toml
 [dependencies]
 webrust = "1.0.0"
-
+```
 
 ### Optional Features
-toml
+```toml
 [dependencies]
 webrust = { version = "1.0.0", features = ["full"] }
-
+```
 
 ## Real-World Applications
 
 ### Financial Dashboard
-
+```rust
 #[gui(bg = "navy", fg = "white")]
 fn main() {
     let portfolio = HashMap::from([
@@ -332,10 +333,10 @@ fn main() {
     table(&portfolio).header(["Stock", "Value ($)"]);
     chart(&portfolio, "pie").title("Portfolio Allocation");
 }
-
+```
 
 ### Scientific Analysis
-
+```rust
 #[gui]
 fn main() {
     let temperature_data = vec![20.1, 21.5, 19.8, 22.3, 20.9];
@@ -346,10 +347,10 @@ fn main() {
         .y_axis_label("Temperature (°C)")
         .color("#e67e22");
 }
-
+```
 
 ### Sales Analytics
-
+```rust
 #[gui]
 fn main() {
     let monthly_sales = HashMap::from([
@@ -362,7 +363,7 @@ fn main() {
         .title("Monthly Sales Performance")
         .color("#27ae60");
 }
-
+```
 
 ## Architecture
 
