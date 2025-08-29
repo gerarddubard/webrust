@@ -1,4 +1,4 @@
-## [0.8.0] - 2025-08-24
+## [1.0.0] - 2025-08-24
 
 ### Added
 - Sophisticated typography and layout system with `.align()`, `.width()`, `.weight()` methods

@@ -1,6 +1,6 @@
 [package]
 name = "webrust-macros"
-version = "0.9.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["gdubard <infodgjl@gmail.com>"]
 description = "Procedural macros for webrust - Python-like Rust syntax"

@@ -1,4 +1,4 @@
-# WebRust v0.9.0 - Interactive Data Visualization Framework
+# WebRust v1.0.0 - Interactive Data Visualization Framework
 
 **Python-like simplicity meets Rust performance with integrated business intelligence capabilities**
 
@@ -10,7 +10,7 @@ WebRust aims to **lower the barrier to Rust adoption** by providing familiar Pyt
 
 By bridging the gap between Python's ease of use and Rust's capabilities, WebRust serves as both a practical development tool and a proof-of-concept for ergonomic systems programming paradigms.
 
-## What's New in v0.9.0
+## What's New in v1.0.0
 
 ### Interactive Data Visualization
 - **Professional Charts** - Line, bar, pie, and scatter plots with ECharts integration
@@ -143,7 +143,7 @@ fn main() {
 ### 1. Add WebRust to your project:
 toml
 [dependencies]
-webrust = "0.9.0"
+webrust = "1.0.0"
 
 
 ### 2. Create your first interactive dashboard:
@@ -310,13 +310,13 @@ fn main() {
 ### Add to Cargo.toml
 toml
 [dependencies]
-webrust = "0.9.0"
+webrust = "1.0.0"
 
 
 ### Optional Features
 toml
 [dependencies]
-webrust = { version = "0.9.0", features = ["full"] }
+webrust = { version = "1.0.0", features = ["full"] }
 
 
 ## Real-World Applications
@@ -366,7 +366,7 @@ fn main() {
 
 ## Architecture
 
-WebRust v0.9.0 features a modular architecture:
+WebRust v1.0.0 features a modular architecture:
 
 - **Core GUI** (`webrust::io::gui`) - Web server and browser management
 - **Data Visualization** (`webrust::data::chart`) - Interactive chart generation
@@ -383,7 +383,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 WebRust is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-## WebRust v0.9.0 - Where Python Meets Rust Performance
+## WebRust v1.0.0 - Where Python Meets Rust Performance
 
 **Experience the perfect fusion of Python's elegance and Rust's power with professional business intelligence capabilities.**
 
