@@ -5,6 +5,7 @@
     const hasMath=s=>!!s&&mathRe.test(s);
     const showError=msg=>{if(currentErrorElement)currentErrorElement.remove();currentErrorElement=document.createElement("div");currentErrorElement.className="error-message";currentErrorElement.textContent=`❌ ${msg}`;currentInputContainer?.appendChild(currentErrorElement)};
     const clearError=()=>{if(currentErrorElement){currentErrorElement.remove();currentErrorElement=null}};
+
     function renderMathJax(c){
         const mj=window?.MathJax;
         if(!mj){setTimeout(()=>renderMathJax(c),200);return;}
@@ -14,6 +15,7 @@
         if(typeof ts==="function"){try{ts.call(mj,[c]);}catch(e){console.error("MathJax error:",e?.message||e);}return;}
         setTimeout(()=>renderMathJax(c),200);
     }
+
     function updateDisplay(){
         if(processingInput)return;
         if(inFlight?.abort)inFlight.abort();
@@ -66,12 +68,29 @@
                     if(prev&&prev.startsWith("INPUT_REQUEST:"))continue;
                     const div=document.createElement("div");div.className="terminal-line";div.innerHTML=line;frag.appendChild(div);
                     if(hasMath(line))needMath=true;
+
+                    // Gestion des graphiques ECharts
+                    if(line.includes('<script>')&&line.includes('echarts')){
+                        postTasks.push(()=>{
+                            const scripts=div.querySelectorAll('script');
+                            scripts.forEach(script=>{
+                                setTimeout(()=>{
+                                    try{
+                                        eval(script.textContent);
+                                    }catch(e){
+                                        console.error('Chart script error:',e);
+                                    }
+                                },1000);
+                            });
+                        });
+                    }
                 }
                 term.appendChild(frag);postTasks.forEach(f=>f());if(needMath)renderMathJax(term);term.scrollTop=term.scrollHeight;
             })
             .catch(err=>{if(err?.name!=="AbortError")console.error("Error fetching state:",err);})
             .finally(()=>{inFlight=null;});
     }
+
     function submitInput(){
         if(!currentInputId||!currentInputElement||processingInput)return;
         const v=currentInputElement.value;if(!v.trim())return;
@@ -80,5 +99,6 @@
             .then(()=>{processingInput=false;currentInputId=null;currentInputElement=null;currentErrorElement=null;currentInputContainer=null;lastOutputLength=0;})
             .catch(err=>{console.error("Error submitting input:",err);processingInput=false;if(currentInputElement)currentInputElement.disabled=false;});
     }
+
     setInterval(updateDisplay,300);updateDisplay();
 })();

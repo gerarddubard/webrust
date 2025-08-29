@@ -56,3 +56,14 @@ table.webrust-table td {
     background: transparent !important;
     padding: 0 !important;
 }
+
+.chart-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto; /* Centre les graphiques et ajoute de l'espace */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    box-sizing: border-box;
+}

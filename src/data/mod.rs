@@ -1,10 +1,13 @@
-//! # Data Structures and String Manipulation
+// webrust/src/data/mod.rs
+//! # Data Structures and Interactive Visualization
 //!
-//! Provides intelligent data visualization, professional table generation,
-//! and Python-like string manipulation with zero-cost abstractions.
+//! Provides intelligent data visualization, interactive chart generation,
+//! professional table formatting, and Python-like string manipulation 
+//! with zero-cost abstractions.
 //!
 //! ## Key Features
 //!
+//! - **Interactive charts** - Line, bar, pie, and scatter plots with ECharts
 //! - **Smart table generation** - Automatic visualization from any data structure
 //! - **Python-like strings** - Familiar methods with Rust performance
 //! - **Intelligent splitting** - One `split_by()` method for all patterns
@@ -14,191 +17,171 @@
 //!
 //! ## Modules
 //!
+//! - [`chart`] - Interactive data visualization with ECharts integration
 //! - [`table`] - Intelligent table generation with pivot, merge, and formatting
 //! - [`string`] - Python-like string methods with smart pattern recognition
 //!
-//! ## Quick Examples
+//! ## Complete Data Analysis Workflow
 //!
-//! ### Automatic Table Generation
-//!
+//! ```ignore
 //! use webrust::prelude::*;
 //! use std::collections::HashMap;
 //!
-//! let mut scores = HashMap::new();
-//! scores.insert("Alice", 95);
-//! scores.insert("Bob", 87);
-//! scores.insert("Charlie", 92);
+//! #[gui]
+//! fn main() {
+//!     // Data preparation
+//!     let sales_data = HashMap::from([
+//!         ("Q1", 85.0), ("Q2", 92.0), ("Q3", 78.0), ("Q4", 96.0)
+//!     ]);
+//!     
+//!     // Table analysis first
+//!     table(&sales_data).header(["Quarter", "Revenue (k$)"]);
+//!     
+//!     // Interactive visualization
+//!     chart(&sales_data, "bar")
+//!         .title("Quarterly Performance")
+//!         .x_axis_label("Quarter")
+//!         .y_axis_label("Revenue")
+//!         .color("#2ecc71");
+//! }
+//! ```
 //!
-//! // Automatic table with intelligent formatting
-//! table(&scores);
+//! ## Interactive Chart Types
 //!
-//! // With custom headers and styling  
-//! table(&scores).header(["Student", "Score"]).pivot();
+//! ### Professional Business Charts
+//! ```ignore
+//! // Line charts for trends
+//! chart(&revenue_trend, "line")
+//!     .title("Revenue Growth")
+//!     .series_name("Monthly Revenue");
+//!     
+//! // Bar charts for comparisons
+//! chart(&regional_sales, "bar")
+//!     .title("Sales by Region")
+//!     .color("#3498db");
+//!     
+//! // Pie charts for proportions
+//! let market_share = PieData(
+//!     vec!["Product A".to_string(), "Product B".to_string()],
+//!     vec![65.0, 35.0]
+//! );
+//! chart(market_share, "pie").title("Market Share");
 //!
+//! // Scatter plots for correlations
+//! chart(&price_quality_data, "scatter")
+//!     .title("Price vs Quality Analysis")
+//!     .color("#e74c3c");
+//! ```
 //!
-//! ### Python-like String Processing
-//!
-//! use webrust::prelude::*;
-//!
-//! // Intelligent splitting - one method, multiple patterns
-//! let langs = "python,rust,go".split_by(",");        // ["python", "rust", "go"]
-//! let words = "hello  world\ttab".split_by("");       // ["hello", "world", "tab"] 
-//! let lines = "L1\nL2\nL3".split_by("\n");           // ["L1", "L2", "L3"]
-//!
-//! // Fluent chaining with join
-//! let result = "a,b,c".split_by(",").join(" → ");     // "a → b → c"
-//!
-//! // Rich string methods (Python-compatible)
-//! let text = "hello world".title();                   // "Hello World"
-//! let padded = "42".zfill(6);                         // "000042"
-//! let centered = "rust".center(10, '*');              // "***rust***"
-//!
-//!
-//! ## Advanced String Operations
-//!
-//! ### Case Transformations
-//!
-//! let text = "Hello WORLD";
-//!
-//! println!("Upper: {}", text.upper());           // "HELLO WORLD"
-//! println!("Lower: {}", text.lower());           // "hello world"  
-//! println!("Title: {}", text.title());           // "Hello World"
-//! println!("Capitalized: {}", text.capitalize()); // "Hello world"
-//! println!("Swapped: {}", text.swapcase());      // "hELLO world"
-//!
-//!
-//! ### String Testing and Validation
-//!
-//! let email = "user@example.com";
-//!
-//! // Python-like testing methods
-//! println!("Starts with user: {}", email.startswith("user"));    // true
-//! println!("Ends with .com: {}", email.endswith(".com"));        // true
-//! println!("Is alphabetic: {}", "hello".isalpha());              // true
-//! println!("Is numeric: {}", "12345".isdigit());                 // true
-//! println!("Count 'an': {}", "banana".count("an"));              // 2
-//!
-//!
-//! ### Advanced Formatting and Padding
-//!
-//! // Zero-fill padding (perfect for IDs)
-//! println!("ID: {}", "42".zfill(6));                    // "000042"
-//!
-//! // Text alignment and padding
-//! println!("Left: '{}'", "text".ljust(10, '-'));       // "text------"
-//! println!("Right: '{}'", "text".rjust(10, '-'));      // "------text"
-//! println!("Center: '{}'", "text".center(10, '*'));    // "***text***"
-//!
-//!
-//! ## Smart Pattern Recognition
-//!
-//! The `split_by()` method intelligently handles different splitting patterns:
-//!
-//!
-//! // CSV data processing
-//! let csv = "name,age,city\nAlice,25,Paris\nBob,30,Lyon";
-//! let rows = csv.split_by("\n");                    // Line splitting
-//! let headers = rows[0].split_by(",");              // Delimiter splitting
-//!
-//! // Text processing  
-//! let sentence = "The quick brown fox";
-//! let words = sentence.split_by("");                // Whitespace splitting
-//!
-//! // Chained processing
-//! let clean_data = "  rust, python,  go  "
-//!     .split_by(",")
-//!     .iter()
-//!     .map(|s| s.trim())
-//!     .collect::<Vec<_>>()
-//!     .join(" | ");                                 // "rust | python | go"
-//!
-//!
-//! ## Data Visualization Intelligence
-//!
-//! The table module automatically detects data patterns and generates
-//! appropriate visualizations:
-//!
-//!
-//! // Nested structures
-//! let mut nested_data = HashMap::new();
-//! nested_data.insert("users", vec!["Alice", "Bob", "Charlie"]);
-//! nested_data.insert("scores", vec!["95", "87", "92"]);
-//!
-//! table(&nested_data);  // Automatically formatted table
-//!
-//! // Complex data with relationships  
-//! let sales_data = vec![
-//!     ("Q1", "Product A", 1500),
-//!     ("Q1", "Product B", 1200),
-//!     ("Q2", "Product A", 1800),
-//!     ("Q2", "Product B", 1600),
+//! ### Seamless Table Integration
+//! ```ignore
+//! let product_analysis = vec![
+//!     ("Product A", 25.0, 4.2, "Excellent"),
+//!     ("Product B", 45.0, 4.1, "Good"),
+//!     ("Product C", 65.0, 4.5, "Excellent"),
 //! ];
 //!
-//! table(&sales_data).header(["Quarter", "Product", "Sales"]);
+//! // Detailed analysis table
+//! table(&product_analysis).header(["Product", "Price", "Rating", "Grade"]);
 //!
+//! // Visual representation
+//! let prices: Vec<f64> = product_analysis.iter().map(|(_, p, _, _)| *p).collect();
+//! chart(&prices, "scatter").title("Price Distribution");
+//! ```
 //!
-//! ## Performance and Safety
+//! ## Advanced Data Processing
 //!
-//! All string operations are:
-//! - **Zero-cost abstractions** - Compile to optimal Rust code
-//! - **Memory efficient** - Pre-allocated capacity where possible  
-//! - **UTF-8 safe** - Full Unicode support with proper handling
-//! - **Type safe** - Compile-time guarantees prevent runtime errors
-//! - **Inline optimized** - All methods marked `#[inline]` for performance
+//! ### Python-like String Operations
+//! ```ignore
+//! // CSV processing pipeline
+//! let csv_data = "name,price,rating\nProduct A,25.0,4.2\nProduct B,45.0,4.1";
+//! let rows = csv_data.split_by("\n");
+//! let headers = rows[0].split_by(",");
 //!
-//! ## Real-World Integration
-//!
-//! ### Log Processing
-//!
-//! let log_line = "2024-01-15 INFO user@example.com Successfully logged in";
-//! let parts = log_line.split_by(" ");
-//! let email = parts.iter().find(|s| s.contains("@")).unwrap_or(&"unknown");
-//! let domain = email.split_by("@")[1];
-//!
-//! println!("User from domain: {}", domain);
-//!
-//!
-//! ### Data Cleaning Pipeline
-//!
-//! let raw_data = "  Alice,  25,   Paris  \n  Bob,30,Lyon\n";
-//! let clean_records: Vec<Vec<String>> = raw_data
-//!     .split_by("\n")
+//! // Clean and process data
+//! let clean_data: Vec<Vec<String>> = rows[1..]
 //!     .iter()
-//!     .filter(|line| !line.trim().is_empty())
-//!     .map(|line| {
-//!         line.split_by(",")
+//!     .map(|row| {
+//!         row.split_by(",")
 //!             .iter()
 //!             .map(|field| field.trim().to_string())
 //!             .collect()
 //!     })
 //!     .collect();
+//!     
+//! table(&clean_data).header(["Product", "Price ($)", "Rating"]);
+//! ```
 //!
-//! table(&clean_records).header(["Name", "Age", "City"]);
+//! ### Smart Pattern Recognition
+//! ```ignore
+//! // Multi-pattern splitting
+//! let langs = "python,rust,go".split_by(",");           // Delimiter
+//! let words = "hello  world\ttab".split_by("");         // Whitespace
+//! let lines = "L1\nL2\nL3".split_by("\n");             // Lines
 //!
+//! // Fluent data transformation
+//! let result = "sales,marketing,dev"
+//!     .split_by(",")
+//!     .join(" → ");                                     // "sales → marketing → dev"
+//! ```
 //!
-//! ### Configuration Processing
+//! ## Business Intelligence Features
 //!
-//! let config = "database.host=localhost\ndatabase.port=5432\napp.debug=true";
-//! let settings: std::collections::HashMap<String, String> = config
-//!     .split_by("\n")
-//!     .iter()
-//!     .filter_map(|line| {
-//!         let parts = line.split_by("=");
-//!         if parts.len() == 2 {
-//!             Some((parts[0].to_string(), parts[1].to_string()))
-//!         } else { None }
-//!     })
+//! ### Executive Dashboard
+//! ```ignore
+//! // KPI summary table
+//! let kpis = vec![
+//!     ("Revenue", "$1.2M", "+15%", "Strong Growth"),
+//!     ("Users", "45K", "+8%", "Steady Growth"), 
+//!     ("Conversion", "3.2%", "+0.5%", "Improving"),
+//! ];
+//! table(&kpis).header(["Metric", "Current", "Change", "Status"]);
+//!
+//! // Visual trend analysis
+//! let monthly_revenue = vec![85.0, 92.0, 78.0, 96.0, 103.0, 110.0];
+//! chart(&monthly_revenue, "line")
+//!     .title("6-Month Revenue Trend")
+//!     .x_labels(vec!["Jan", "Feb", "Mar", "Apr", "May", "Jun"])
+//!     .color("#27ae60");
+//! ```
+//!
+//! ### Regional Analysis with Pivot
+//! ```ignore
+//! let regional_data = vec![
+//!     ("North", 25.0, 28.0, 22.0, 30.0, 105.0),
+//!     ("South", 30.0, 32.0, 28.0, 35.0, 125.0),
+//!     ("East", 20.0, 22.0, 18.0, 25.0, 85.0),
+//!     ("West", 15.0, 18.0, 16.0, 20.0, 69.0),
+//! ];
+//!
+//! // Pivot table analysis
+//! table(&regional_data).header(["Region", "Q1", "Q2", "Q3", "Q4", "Total"]);
+//!
+//! // Regional comparison chart
+//! let totals: HashMap<String, f64> = regional_data.iter()
+//!     .map(|(region, _, _, _, _, total)| (region.to_string(), *total))
 //!     .collect();
+//! chart(&totals, "bar").title("Total Sales by Region");
+//! ```
 //!
-//! table(&settings).header(["Setting", "Value"]);
+//! ## Performance and Integration
 //!
+//! All data operations provide:
+//! - **Zero-cost abstractions** - Compile-time optimizations
+//! - **Memory efficiency** - Smart allocation and reuse
+//! - **Type safety** - Compile-time guarantees
+//! - **Interactive rendering** - Real-time chart updates
+//! - **Professional styling** - Publication-ready output
+//! - **Responsive design** - Automatic layout adaptation
 //!
-//! The data module bridges Python's string processing elegance with Rust's
-//! performance and safety, making WebRust ideal for data manipulation,
-//! text processing, and professional data visualization.
+//! The data module creates a complete business intelligence platform,
+//! combining Python's data processing elegance with Rust's performance
+//! and interactive web-based visualization for modern data analysis workflows.
 
 pub mod table;
 pub mod string;
+pub mod chart;
 
 pub use table::*;
 pub use string::*;
+pub use chart::*;

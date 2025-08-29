@@ -1,275 +1,201 @@
 // webrust/webrust-macros/src/lib.rs
-//! # Procedural Macros for webrust
+//! # Procedural Macros for WebRust
 //!
 //! Provides the `#[gui]` attribute macro that transforms regular Rust functions
 //! into web-based interactive applications with advanced f-string processing.
 //!
-//! ## Features
+//! ## Key Features
 //!
-//! - **F-string transformation** - Converts `{variable}` syntax to proper formatting
-//! - **Expression evaluation** - Supports complex Rust expressions in strings
-//! - **Format specifiers** - Rich formatting options (`:c`, `:j`, `:e`, `:.2`, etc.)
-//! - **GUI integration** - Automatic web server and styling setup
-//! - **LaTeX processing** - Handles `$(...)` mathematical expressions
-//! - **Theme support** - Customizable colors, fonts, and styling
+//! - **F-string transformation** - Python-like `{variable}` syntax with Rust performance
+//! - **Expression evaluation** - Complex Rust expressions in string literals
+//! - **Format specifiers** - Rich formatting (`:c`, `:j`, `:e`, `:.2`, etc.)
+//! - **GUI integration** - Automatic web server with responsive styling
+//! - **LaTeX processing** - Mathematical expressions with `$(...)` syntax
+//! - **Theme customization** - Professional styling with CSS-like controls
 //!
 //! ## The `#[gui]` Macro
 //!
-//! Transforms a regular `main()` function into a web application:
+//! Transforms any function into a web application with zero boilerplate:
 //!
-//!
+//! ```ignore
 //! #[gui]
 //! fn main() {
 //!     let name = "Alice";
 //!     let age = 30;
 //!     println("Hello {name}, you are {age} years old!");
 //! }
+//! ```
 //!
+//! ## Professional Theming
 //!
-//! ## Theme Configuration
-//!
-//!
-//! #[gui(bg = "navy", fg = "white", font = "Arial", color = "cyan", size = "14px")]
+//! ```ignore
+//! #[gui(bg = "navy", fg = "white", font = "Courier New", color = "cyan", size = "14px")]
 //! fn main() {
-//!     println("Styled application!");
+//!     println("Professional styled application!");
 //! }
+//! ```
 //!
-//!
-//! ## F-String Processing
-//!
-//! The macro intelligently processes string literals in `print!` and `println!` calls:
+//! ## Advanced F-String Processing
 //!
 //! - **Variables**: `{name}` → `format!("{}", name)`
-//! - **Expressions**: `{name.len()}` → `format!("{}", name.len())`
+//! - **Expressions**: `{name.len()}` → `format!("{}", name.len())`  
 //! - **Formatting**: `{pi:.2}` → `format!("{:.2}", pi)`
-//! - **Complex**: `{numbers:j}` → `webrust_format_json_proper(&numbers)`
+//! - **JSON**: `{data:j}` → Pretty JSON formatting
+//! - **Compact**: `{data:c}` → Compact representation
 //!
-//! ## LaTeX Integration
+//! ## Mathematical Expressions
 //!
-//! Automatically detects and preserves `$(...)` mathematical expressions
-//! while processing the rest of the string for f-string substitutions.
+//! ```ignore
+//! println("Einstein's equation: $(E = mc^2)$");
+//! println("Integral: $(\\int_0^\\infty e^{-x^2} dx)$");
+//! ```
 //!
-//! ## Implementation
+//! LaTeX expressions are preserved and rendered with MathJax in the browser.
 //!
-//! Uses `syn` for AST manipulation and `quote` for code generation.
-//! Implements a visitor pattern to transform expression trees while
-//! preserving LaTeX regions and handling complex nested expressions.
+//! ## Zero-Cost Abstractions
+//!
+//! All transformations happen at compile-time using `syn` and `quote`.
+//! The resulting code is as fast as hand-written Rust with no runtime overhead.
 
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, ItemFn, visit_mut::{self, VisitMut}, Expr, ExprCall, ExprPath, Lit, ExprLit};
+use quote::{quote, ToTokens};
+use syn::{parse_macro_input, ItemFn, Expr, ExprCall, ExprLit, ExprPath, Lit, visit_mut::{VisitMut, visit_expr_mut}};
 
-struct FStringTransformer;
+fn cut(s:&str)->(&str,Option<&str>){
+    let b=s.as_bytes(); let (n,mut i,mut p,mut a,mut br)=(b.len(),0,0,0,0);
+    while i<n{
+        match b[i]{
+            b'('=>p+=1, b')'=>p-=1, b'<'=>a+=1, b'>'=>a-=1, b'['=>br+=1, b']'=>br-=1,
+            b':' if p==0&&a==0&&br==0=>{
+                if i+1<n&&b[i+1]==b':'{i+=2;continue;}
+                let (e,x)=s.split_at(i); return (e.trim(),Some(x[1..].trim()));
+            }
+            _=>{}
+        } i+=1;
+    } (s.trim(),None)
+}
 
-impl VisitMut for FStringTransformer {
-    fn visit_expr_mut(&mut self, expr: &mut Expr) {
-        if let Expr::Call(ExprCall { func, args, .. }) = expr {
-            if let Expr::Path(ExprPath { path, .. }) = func.as_ref() {
-                if path.segments.len() == 1 && (path.segments[0].ident == "println" || path.segments[0].ident == "print") {
-                    if let Some(Expr::Lit(ExprLit { lit: Lit::Str(lit_str), .. })) = args.first() {
-                        let template = lit_str.value();
-                        let tr = extract_and_process_variables(&template);
-                        if !tr.is_empty() {
-                            let name = &path.segments[0].ident;
-                            let mut rep = quote! { let mut result = String::from(#template); };
-                            for (orig, expr_str, fmt) in tr {
-                                let tokens = match expr_str.parse::<proc_macro2::TokenStream>() {
-                                    Ok(t) => t, Err(_) => quote! { #expr_str }
-                                };
-                                let fe = match fmt.as_deref() {
-                                    Some(":c") => quote! { format!("{:?}", #tokens) },
-                                    Some(":j") => quote! { webrust_format_json_proper(&#tokens) },
-                                    Some(":.2") => quote! { format!("{:.2}", #tokens) },
-                                    Some(":.6") => quote! { format!("{:.6}", #tokens) },
-                                    Some(":e") => quote! { format!("{:e}", #tokens) },
-                                    Some(":.0") => quote! { format!("{:.0}", #tokens) },
-                                    Some(":04") => quote! { format!("{:04}", #tokens) },
-                                    Some(":x") => quote! { format!("{:x}", #tokens) },
-                                    Some(":X") => quote! { format!("{:X}", #tokens) },
-                                    Some(":b") => quote! { format!("{:b}", #tokens) },
-                                    Some(":o") => quote! { format!("{:o}", #tokens) },
-                                    None => quote! { format!("{}", #tokens) },
-                                    _ => quote! { format!("{}", #tokens) },
-                                };
-                                rep = quote! { #rep result = result.replace(#orig, &#fe); };
-                            }
-                            let new_expr = quote! { #name({ #rep result }) };
-                            *expr = syn::parse2(new_expr).unwrap();
-                            return;
-                        }
+fn latex_ranges(t:&str)->Vec<(usize,usize)>{
+    let b=t.as_bytes(); let n=b.len(); let (mut i,mut v)=(0,Vec::new());
+    while i+1<n{
+        if b[i]==b'$'&&b[i+1]==b'('{
+            let s=i; i+=2; let mut d=1i32;
+            while i<n&&d>0{ if b[i]==b'(' {d+=1} else if b[i]==b')' {d-=1} i+=1; }
+            v.push((s,i));
+        } else { i+=1; }
+    } v
+}
+
+fn esc_braces(s:&str)->String{
+    let mut o=String::with_capacity(s.len());
+    for ch in s.chars(){ match ch{ '{'=>o.push_str("{{"), '}'=>o.push_str("}}"), _=>o.push(ch) } }
+    o
+}
+
+fn trans(t:&str)->(String,Vec<proc_macro2::TokenStream>){
+    let b=t.as_bytes(); let n=b.len(); let rs=latex_ranges(t);
+    let (mut r,mut i,mut last)=(0,0,0); let mut fmt=String::with_capacity(n+16); let mut args=Vec::new();
+    while i<n{
+        if r<rs.len()&&i==rs[r].0{ fmt.push_str(&esc_braces(&t[last..rs[r].1])); i=rs[r].1; last=i; r+=1; continue; }
+        match b[i]{
+            b'{'=>{
+                if i+1<n&&b[i+1]==b'{'{ fmt.push_str(&t[last..i+2]); i+=2; last=i; continue; }
+                fmt.push_str(&t[last..i]); i+=1; let s=i; let mut d=1i32;
+                while i<n&&d>0{ match b[i]{ b'{'=>d+=1, b'}'=>d-=1, _=>{} } i+=1; }
+                if d!=0{ fmt.push_str("{:?}"); break; }
+                let e=i-1; let inner=t[s..e].trim();
+                if inner.is_empty(){ fmt.push_str("{:?}"); last=i; continue; }
+                let (ex,sp)=cut(inner);
+                if let Ok(expr)=syn::parse_str::<Expr>(ex){
+                    match sp{
+                        Some("?")=>fmt.push_str("{:?}"),
+                        Some("c")=>{ fmt.push_str("{}"); args.push(quote!{ format!("{:?}", #expr) }); last=i; continue; }
+                        Some("j")=>{ fmt.push_str("{}"); args.push(quote!{ __w_json(&#expr) }); last=i; continue; }
+                        Some(sp)=>{ fmt.push('{'); fmt.push(':'); fmt.push_str(sp); fmt.push('}'); }
+                        None=>fmt.push_str("{}"),
+                    }
+                    if !matches!(sp,Some("c"|"j")){ args.push(expr.into_token_stream()); }
+                } else { fmt.push('{'); fmt.push_str(inner); fmt.push('}'); }
+                last=i;
+            }
+            b'}'=>{
+                if i+1<n&&b[i+1]==b'}'{ fmt.push_str(&t[last..i+2]); i+=2; last=i; }
+                else { fmt.push_str(&t[last..=i]); i+=1; last=i; }
+            }
+            _=>{ i+=1; }
+        }
+    }
+    if last<n{ fmt.push_str(&t[last..]); }
+    (fmt,args)
+}
+
+struct R;
+impl VisitMut for R{
+    fn visit_expr_mut(&mut self,e:&mut Expr){
+        if let Expr::Call(ExprCall{func,args,..})=e{
+            if let Expr::Path(ExprPath{path,..})=func.as_ref(){
+                if path.segments.len()==1 && (path.segments[0].ident=="println"||path.segments[0].ident=="print"){
+                    if let Some(Expr::Lit(ExprLit{lit:Lit::Str(s),..}))=args.first(){
+                        let (f,a)=trans(&s.value()); let lit=syn::LitStr::new(&f,s.span()); let name=&path.segments[0].ident;
+                        *e=syn::parse2(quote!{ #name(format!(#lit #(, #a)*)) }).unwrap(); return;
                     }
                 }
             }
+        } visit_expr_mut(self,e);
+    }
+}
+
+fn parse_args(ts:TokenStream)->(String,String,String,String,String){
+    let (mut bg,mut fg,mut font,mut color,mut size)=(
+        "white".to_string(),"lightgray".to_string(),"Arial, sans-serif".to_string(),"black".to_string(),"14px".to_string()
+    );
+    let s=ts.to_string(); if s.is_empty(){ return (bg,fg,font,color,size); }
+    for p in s.split(','){
+        if let Some((k,v))=p.split_once('='){
+            let k=k.trim(); let v=v.trim().trim_matches('"');
+            match k{ "bg"=>bg=v.into(),"fg"=>fg=v.into(),"font"=>font=v.into(),"color"=>color=v.into(),"size"=>size=v.into(), _=>{} }
         }
-        visit_mut::visit_expr_mut(self, expr);
-    }
-}
-
-fn find_latex_ranges(s: &str) -> Vec<(usize, usize)> {
-    let mut v = Vec::new();
-    let c: Vec<char> = s.chars().collect();
-    let mut i = 0;
-    while i + 1 < c.len() {
-        if c[i] == '$' && c[i + 1] == '(' {
-            let start = i;
-            i += 2;
-            let mut lvl = 1;
-            while i < c.len() && lvl > 0 {
-                if c[i] == '(' { lvl += 1; }
-                else if c[i] == ')' { lvl -= 1; }
-                i += 1;
-            }
-            if lvl == 0 { v.push((start, i)); }
-        } else { i += 1; }
-    }
-    v
-}
-
-fn is_valid_rust_expression(expr: &str) -> bool {
-    let t = expr.trim();
-    if t.is_empty() { return false; }
-    let ok = |c: char| c.is_alphanumeric() || "_.:+-*/%=!<>&|^?()[] \t".contains(c);
-    t.chars().all(ok)
-}
-
-fn extract_and_process_variables(tpl: &str) -> Vec<(String, String, Option<String>)> {
-    let ranges = find_latex_ranges(tpl);
-    let inside = |pos: usize| -> bool { ranges.iter().any(|(s, e)| pos >= *s && pos < *e) };
-    let mut out = Vec::new();
-    let c: Vec<char> = tpl.chars().collect();
-    let mut i = 0;
-    while i < c.len() {
-        if c[i] == '{' {
-            let start = i;
-            i += 1;
-            let mut b = 1;
-            let mut v = Vec::new();
-            while i < c.len() && b > 0 {
-                if c[i] == '{' { b += 1; }
-                else if c[i] == '}' { b -= 1; }
-                if b > 0 { v.push(c[i]); }
-                i += 1;
-            }
-            if b == 0 && !inside(start) {
-                let var: String = v.iter().collect();
-                if let Some(p) = var.find(':') {
-                    if p > 0 {
-                        let vp = var[..p].trim();
-                        let fp = &var[p..];
-                        if !vp.is_empty() && is_valid_rust_expression(vp) {
-                            if start <= i && i <= c.len() {
-                                let orig: String = c[start..i].iter().collect();
-                                out.push((orig, vp.to_string(), Some(fp.to_string())));
-                            }
-                        }
-                    }
-                } else if !var.trim().is_empty() && is_valid_rust_expression(var.trim()) {
-                    if start <= i && i <= c.len() {
-                        let orig: String = c[start..i].iter().collect();
-                        out.push((orig, var.trim().to_string(), None));
-                    }
-                }
-            }
-        } else {
-            i += 1;
-        }
-    }
-    out
-}
-
-fn parse_gui_args(args: TokenStream) -> (String, String, String, String, String) {
-    let mut bg = "white".to_string();
-    let mut fg = "lightgray".to_string();
-    let mut font = "Arial, sans-serif".to_string();
-    let mut color = "black".to_string();
-    let mut size = "14px".to_string();
-    if !args.is_empty() {
-        let args_str = args.to_string();
-        for pair in args_str.split(',') {
-            let pair = pair.trim();
-            if let Some((key, value)) = pair.split_once('=') {
-                let key = key.trim();
-                let value = value.trim().trim_matches('"');
-                match key {
-                    "bg" => bg = value.to_string(),
-                    "fg" => fg = value.to_string(),
-                    "font" => font = value.to_string(),
-                    "color" => color = value.to_string(),
-                    "size" => size = value.to_string(),
-                    _ => {}
-                }
-            }
-        }
-    }
-    (bg, fg, font, color, size)
+    } (bg,fg,font,color,size)
 }
 
 #[proc_macro_attribute]
-pub fn gui(args: TokenStream, input: TokenStream) -> TokenStream {
-    let mut f = parse_macro_input!(input as ItemFn);
-    FStringTransformer.visit_item_fn_mut(&mut f);
-    let b = &f.block;
-    let (bg, fg, font, color, size) = parse_gui_args(args);
-    let expanded = quote! {
-        #[allow(unused_variables)]
-        fn main() {
-            use ::webrust::serde;
-            use ::webrust::serde_json;
-            
-            fn webrust_format_json_clean(s: &str) -> String {
-                format!(r#"<pre style="font-family:'Courier New',monospace;color:#333;background:#f8f9fa;padding:8px;border-radius:4px;border:1px solid #e2e8f0;white-space:pre-wrap;">{}</pre>"#, s)
-            }
-            fn webrust_format_json_proper<T: serde::Serialize>(data: &T) -> String {
-                let json_value = serde_json::to_value(data).unwrap_or(serde_json::Value::Null);
-                webrust_format_json_value(&json_value, 0)
-            }
-            fn webrust_format_json_value(value: &serde_json::Value, indent: usize) -> String {
-                match value {
-                    serde_json::Value::Array(arr) => {
-                        if arr.is_empty() { return "[]".to_string(); }
-                        if arr.iter().all(|v| matches!(v, serde_json::Value::Number(_))) {
-                            let items: Vec<String> = arr.iter().map(|v| webrust_format_json_value(v, 0)).collect();
-                            return format!("[{}]", items.join(", "));
+pub fn gui(attr:TokenStream,input:TokenStream)->TokenStream{
+    let mut f=parse_macro_input!(input as ItemFn);
+    R.visit_item_fn_mut(&mut f);
+    let (bg,fg,font,color,size)=parse_args(attr); let body=&f.block;
+    let wrapped=quote!{{
+        fn __w_json<T: ::serde::Serialize>(v:&T)->String{
+            fn format_json_custom(val:&::serde_json::Value,depth:usize)->String{
+                match val{
+                    ::serde_json::Value::Array(arr)=>{
+                        if arr.is_empty(){return "[]".into();}
+                        if arr.len()<=3 && arr.iter().all(|v|matches!(v,::serde_json::Value::Number(_))){
+                            return format!("[{}]",arr.iter().map(|v|format_json_custom(v,depth)).collect::<Vec<_>>().join(", "));
                         }
-                        if arr.iter().all(|v| {
-                            if let serde_json::Value::Array(inner) = v {
-                                inner.iter().all(|iv| matches!(iv, serde_json::Value::Number(_)))
-                            } else { false }
-                        }) {
-                            let indent_str = "&nbsp;".repeat((indent + 1) * 4);
-                            let items: Vec<String> = arr.iter().map(|v| webrust_format_json_value(v, indent + 1)).collect();
-                            return format!("[\n{}{}\n{}]", indent_str, items.join(&format!(",\n{}", indent_str)), "&nbsp;".repeat(indent * 4));
-                        }
-                        let indent_str = "&nbsp;".repeat((indent + 1) * 4);
-                        let items: Vec<String> = arr.iter().map(|v| format!("{}{}", indent_str, webrust_format_json_value(v, indent + 1))).collect();
-                        format!("[\n{}\n{}]", items.join(",\n"), "&nbsp;".repeat(indent * 4))
+                        let indent="    ".repeat(depth); let inner="    ".repeat(depth+1);
+                        let items=arr.iter().map(|v|format!("{}{}",inner,format_json_custom(v,depth+1))).collect::<Vec<_>>();
+                        format!("[\n{}\n{}]",items.join(",\n"),indent)
                     }
-                    serde_json::Value::Object(obj) => {
-                        if obj.is_empty() { return "{}".to_string(); }
-                        let indent_str = "&nbsp;".repeat((indent + 1) * 4);
-                        let mut entries: Vec<_> = obj.iter().collect();
-                        entries.sort_by_key(|(k, _)| *k);
-                        let items: Vec<String> = entries.iter().map(|(k, v)| format!("{}\"{}\": {}", indent_str, k, webrust_format_json_value(v, indent + 1))).collect();
-                        format!("{{\n{}\n{}}}", items.join(",\n"), "&nbsp;".repeat(indent * 4))
+                    ::serde_json::Value::Object(obj)=>{
+                        if obj.is_empty(){return "{}".into();}
+                        let indent="    ".repeat(depth); let inner="    ".repeat(depth+1);
+                        let mut entries:Vec<_>=obj.iter().collect(); entries.sort_by_key(|(k,_)|*k);
+                        let items=entries.iter().map(|(k,v)|format!(r#"{}"{}": {}"#,inner,k,format_json_custom(v,depth+1))).collect::<Vec<_>>();
+                        format!("{{\n{}\n{}}}",items.join(",\n"),indent)
                     }
-                    serde_json::Value::String(s) => format!("\"{}\"", s),
-                    serde_json::Value::Number(n) => n.to_string(),
-                    serde_json::Value::Bool(b) => b.to_string(),
-                    serde_json::Value::Null => "null".to_string(),
+                    ::serde_json::Value::String(s)=>format!(r#""{}""#,s),
+                    ::serde_json::Value::Number(n)=>n.to_string(),
+                    ::serde_json::Value::Bool(b)=>b.to_string(),
+                    ::serde_json::Value::Null=>"null".into(),
                 }
             }
-            fn println<T: std::fmt::Display>(text: T) -> webrust::print::PrintBox { webrust::print::println_str(text) }
-            fn print<T: std::fmt::Display>(text: T) -> webrust::print::PrintBox { webrust::print::print_str(text) }
-            use webrust::input::input_with_validation as input;
-            let style_config = webrust::io::gui::StyleConfig {
-                bg: #bg.to_string(),
-                fg: #fg.to_string(),
-                font: #font.to_string(),
-                color: #color.to_string(),
-                size: #size.to_string(),
-            };
-            webrust::io::gui::start_gui_server_with_style(style_config, || { #b });
+            let val=::serde_json::to_value(v).unwrap_or(::serde_json::Value::Null);
+            let escaped=format_json_custom(&val,0).replace('&',"&amp;").replace('<',"&lt;").replace('>',"&gt;").replace(' ',"&nbsp;");
+            format!(r#"<div style="font-family:'Courier New',monospace;color:#1e40af;font-size:12px;line-height:1.3;white-space:pre;">{}</div>"#,escaped)
         }
-    };
-    TokenStream::from(expanded)
+        let style=::webrust::io::gui::StyleConfig{ bg:#bg.into(), fg:#fg.into(), font:#font.into(), color:#color.into(), size:#size.into() };
+        ::webrust::io::gui::start_gui_server_with_style(style,||{ #body });
+    }};
+    f.block=syn::parse2(wrapped).unwrap();
+    TokenStream::from(quote!{ #[allow(unused_variables,dead_code)] #f })
 }
