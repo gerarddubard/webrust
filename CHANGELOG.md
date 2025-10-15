@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Table of Contents
 
-- [Version 1.4.0](#v140)
+- [Version 1.5.0](#v150)
 - [Version 1.3.0](#v130)
 - [Version 1.2.0](#v120)
 - [Version 1.1.0](#v110)
@@ -14,13 +14,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-<a id="v140"></a>
+<a id="v150"></a>
 
-## Version 1.4.0 -- 2025-10-15
+## Version 1.5.0 -- 2025-10-15
 
 ### Overview
 
-Version 1.4.0 introduces optional SQL support, dramatically reduces compilation time for non-SQL builds, and delivers significant rendering performance improvements.
+Version 1.5.0 introduces optional SQL support, dramatically reduces compilation time for non-SQL builds, and delivers significant rendering performance improvements.
 
 ### Added
 
@@ -31,13 +31,13 @@ SQL analytics is now opt-in via the `sql` feature flag, reducing default compila
 **Option A — Default (fast compile):**
 ```toml
 [dependencies]
-webrust = "1.4.0"
+webrust = "1.5.0"
 ```
 
 **Option B — With SQL support:**
 ```toml
 [dependencies]
-webrust = { version = "1.4.0", features = ["sql"] }
+webrust = { version = "1.5.0", features = ["sql"] }
 ```
 
 **SQL capabilities (when enabled):**
@@ -150,8 +150,8 @@ fn main() {
 
 **Simplified SQL execution:**
 ```rust,ignore
-// Before v1.4.0: Complex setup with external database required
-// After v1.4.0: Single function call
+// Before v1.5.0: Complex setup with external database required
+// After v1.5.0: Single function call
 query("SELECT * FROM my_table");
 ```
 
@@ -194,14 +194,14 @@ query("SELECT * FROM my_table");
 
 ```toml
 [dependencies]
-webrust = "1.4.0"
+webrust = "1.5.0"
 ```
 
 DuckDB is bundled when SQL feature is enabled -- no external installation required.
 
 #### Breaking Changes
 
-**None.** Version 1.4.0 maintains full backward compatibility with v1.3.0.
+**None.** Version 1.5.0 maintains full backward compatibility with v1.3.0.
 
 - All existing code continues to work
 - SQL functionality is opt-in via feature flag
@@ -237,9 +237,9 @@ All rendering optimizations apply automatically with no code changes:
 
 ### Performance Metrics
 
-#### Macro Performance (v1.3.0 to v1.4.0)
+#### Macro Performance (v1.3.0 to v1.5.0)
 
-| Operation           | v1.3.0 | v1.4.0 | Improvement |
+| Operation           | v1.3.0 | v1.5.0 | Improvement |
 |---------------------|--------|--------|-------------|
 | Simple (2 vars)     | 1.50μs | 0.85μs | 43% faster  |
 | With LaTeX          | 2.10μs | 1.12μs | 47% faster  |
@@ -250,13 +250,13 @@ All rendering optimizations apply automatically with no code changes:
 | Method            | Time  | Speedup vs format!() |
 |-------------------|-------|----------------------|
 | format!() (int)   | 30ns  | Baseline             |
-| itoa (v1.4.0)     | 10ns  | 3x faster            |
+| itoa (v1.5.0)     | 10ns  | 3x faster            |
 | format!() (float) | 200ns | Baseline             |
-| ryu (v1.4.0)      | 20ns  | 10x faster           |
+| ryu (v1.5.0)      | 20ns  | 10x faster           |
 
 #### Memory Footprint Reduction
 
-| Metric               | v1.3.0    | v1.4.0    | Reduction |
+| Metric               | v1.3.0    | v1.5.0    | Reduction |
 |----------------------|-----------|-----------|-----------|
 | Allocations per op   | 15 allocs | 5 allocs  | 67%       |
 | Memory per op        | 850 bytes | 340 bytes | 60%       |
@@ -372,7 +372,7 @@ fn main() {
 
 Version 1.3.0 introduced native SQL analytics with DuckDB integration and significant rendering optimizations.
 
-**Note:** In v1.4.0, SQL support became optional via feature flag.
+**Note:** In v1.5.0, SQL support became optional via feature flag.
 
 ### Added
 
