@@ -285,7 +285,7 @@ query(r#"
 
   **⚠️ Note on First Compilation**:
 The initial compilation time is longer than in version 1.2.0 due to DuckDB's native 
-integration (~2-3 minutes on first build). However, subsequent incremental builds remain 
+integration (~5-10 minutes on first build). However, subsequent incremental builds remain 
 fast, and the performance gains in SQL query execution far outweigh this one-time cost.
 
 ### **2. Ultra-Responsive Rendering**
@@ -907,7 +907,7 @@ webrust = "1.3.0"
 ```
 
 > **💡 First Build Note**: The initial compilation includes DuckDB's analytical engine, 
-> which takes 2-3 minutes. This is a one-time cost — incremental builds are fast, and 
+> which takes 5-10 minutes. This is a one-time cost — incremental builds are fast, and 
 > you gain native SQL analytics with zero runtime dependencies.
 
 ### **Your First App (30 seconds)**
