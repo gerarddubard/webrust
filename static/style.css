@@ -1,0 +1,73 @@
+/* webrust/static/style.css */
+body {
+    font-family: sans-serif;
+    background: whitesmoke;
+    color: black;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+}
+#terminal {
+    position:relative;
+    background: white;
+    border: 2px solid silver;
+    border-radius: 12px;
+    padding: 20px;
+    height: 90vh;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.table-container {
+    margin: 20px 0;
+    overflow-x: auto;
+}
+table.webrust-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    font-size: 14px;
+    margin: 12px 0;
+}
+table.webrust-table th,
+table.webrust-table td {
+    padding: 10px 14px;
+    border: 1px solid purple;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-radius: 4px;
+}
+.webrust-th-header {
+    background: lightskyblue;
+    color: midnightblue;
+    font-weight: bold;
+    text-align: center;
+}
+.webrust-td-value {
+    color: midnightblue;
+    font-style: italic;
+}
+.webrust-td-number {
+    color: midnightblue;
+    font-style: italic;
+    text-align: right;
+}
+.no-border {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.turtle-stage{position:relative;margin:12px 0}
+.turtle-stage canvas{width:100%;height:auto;display:block;background:transparent}
