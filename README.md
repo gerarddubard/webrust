@@ -961,6 +961,37 @@ Each example is extensively commented and demonstrates best practices.
 
 ---
 
+## 🛠️ **Development Notes**
+
+### **Disk Space Requirements**
+
+WebRust integrates DuckDB and other native libraries, resulting in larger build artifacts:
+- **Debug builds**: ~15-20 GB (includes full debug symbols)
+- **Release builds**: ~5-8 GB (optimized)
+- **Final binary**: ~80-120 MB
+
+**To manage disk space**:
+```bash
+# Clean release builds (keep debug for development)
+cargo clean --release
+
+# Full clean when needed
+cargo clean
+```
+
+### **Recommended Build Configuration**
+
+Add to your `Cargo.toml` for smaller builds:
+```toml
+[profile.release]
+strip = true  # Reduces binary size by ~30%
+lto = "thin"  # Better optimization
+```
+
+---
+
+## 🎯 **WebRust's Vision for Programming's Future**
+
 ## 🎯 **WebRust's Vision for Programming's Future**
 
 ### **1. Syntax Should Be Universal**
