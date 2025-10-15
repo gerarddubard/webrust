@@ -1,35 +1,39 @@
-<!-- Stable anchors for IDEs: defined before any links -->
-<a id="sec-getting-started"></a><a name="sec-getting-started"></a><span id="sec-getting-started"></span>
-<a id="sec-core-philosophy"></a><a name="sec-core-philosophy"></a><span id="sec-core-philosophy"></span>
-
 # 🚀 WebRust — **Python Meets Rust Meets Web Meets Data**
 
 ### *The Revolutionary Framework Bridging Ecosystems*
 
-<div style="text-align:center">
-
-[![WebRust](https://img.shields.io/badge/🦀_WebRust-1.3.0-ff6b35?style=for-the-badge&labelColor=000&logoColor=white)](https://github.com/gerarddubard/webrust)
+[![WebRust](https://img.shields.io/badge/🦀_WebRust-1.4.0-ff6b35?style=for-the-badge&labelColor=000&logoColor=white)](https://github.com/gerarddubard/webrust)
 [![Rust](https://img.shields.io/badge/Rust-1.70+-000?style=for-the-badge&logo=rust)](https://rust-lang.org)
 [![Web Ready](https://img.shields.io/badge/Web-Ready-4285f4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://docs.rs/webrust)
-[![SQL Powered](https://img.shields.io/badge/SQL-DuckDB-ffd700?style=for-the-badge&logo=duckdb&logoColor=white)](https://duckdb.org)
+[![SQL Optional](https://img.shields.io/badge/SQL-Optional-ffd700?style=for-the-badge&logo=duckdb&logoColor=white)](https://duckdb.org)
 [![Python Style](https://img.shields.io/badge/Python-Style-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://crates.io/crates/webrust)
 
-**🔥 Write like Python. Query like SQL. Run like Rust. Deploy as Web. Zero configuration.**
+**🔥 Write like Python. Run like Rust. Deploy as Web. Zero configuration.**
 
-**🆕 NEW in 1.3.0**: Ultra-fast rendering + Native SQL analytics with DuckDB!
+**🆕 NEW in 1.4.0**: Ultra-fast compilation + Optional SQL analytics!
 
 [Documentation](https://docs.rs/webrust) | [Examples](https://github.com/gerarddubard/webrust/tree/main/examples) | [Crates.io](https://crates.io/crates/webrust)
 
+---
 
-<!-- IDE-friendly explicit anchors -->
-<a id="getting-started"></a><a name="getting-started"></a><span id="getting-started"></span>
-<a id="core-philosophy"></a><a name="core-philosophy"></a><span id="core-philosophy"></span>
+## Table of Contents
 
-</div>
+1. [Why WebRust?](#-why-webrust)
+2. [The Problem](#-the-problem-four-painful-paths)
+3. [The Solution](#-the-solution-webrust)
+4. [Core Philosophy](#-core-philosophy-python-ergonomics-in-rust)
+5. [Installation](#-installation)
+6. [Quick Start](#-quick-start)
+7. [API Reference](#-api-reference)
+8. [Examples](#-examples)
+9. [Use Cases](#-use-cases)
+10. [Performance](#-performance)
+11. [Roadmap](#-roadmap)
+12. [Contributing](#-contributing)
 
 ---
 
-## 🌟 **Why WebRust? A Manifesto for 2025**
+## 🌟 Why WebRust?
 
 ### **The Great Divide in Programming**
 
@@ -58,24 +62,11 @@ Yet most data workflows require:
 - **Complex infrastructure**: Database servers, web servers, frontend frameworks
 - **Hours of setup**: Configure connections, manage dependencies, debug integrations
 
-**Why?** Because historically, these were separate domains with different tools.
-
 **WebRust's philosophy**: One language. One file. Instant results. Modern defaults.
-
-### **A Bridge Between Three Worlds**
-
-WebRust isn't just a library — it's a **proposal for the future of programming**:
-
-1. **Syntax Evolution**: Languages should embrace ergonomics without sacrificing performance
-2. **Ecosystem Integration**: Python, Rust, and SQL communities should learn from each other
-3. **Modern Defaults**: In 2025, data tools should be visual, interactive, and instant
-4. **Zero-Configuration Philosophy**: Great tools should work out of the box
-
-WebRust proves these aren't mutually exclusive goals. You can have Python's elegance, Rust's speed, SQL's power, running in a modern web interface, with zero setup.
 
 ---
 
-## 🎯 **The Problem: Four Painful Paths**
+## 🎯 The Problem: Four Painful Paths
 
 ### **Path 1: Terminal Applications (1970s Technology)**
 
@@ -92,10 +83,6 @@ println!("Hello, {}!", name);
 - ❌ No colors, no styling, no interactivity
 - ❌ Can't embed charts, tables, or visualizations
 - ❌ No mathematical notation support
-- ❌ Copy-paste is painful
-- ❌ Screenshots look unprofessional
-
-**In 2025, this is like using a typewriter when you have a smartphone.**
 
 ### **Path 2: Traditional Data Analysis (Tool Soup)**
 
@@ -114,19 +101,12 @@ df = pd.DataFrame(results, columns=['product', 'total'])
 import matplotlib.pyplot as plt
 plt.bar(df['product'], df['total'])
 plt.savefig('chart.png')
-
-# Step 4: Web deployment (Flask/Django)
-# ... 100 more lines of boilerplate
 ```
 
 **Reality Check**:
 - ❌ Three separate languages/tools
 - ❌ Multiple data format conversions
 - ❌ Complex dependency management
-- ❌ Slow iteration cycle (query → export → import → visualize)
-- ❌ Deployment requires web framework
-
-**In 2025, this is like assembling furniture with 20 different tools.**
 
 ### **Path 3: Web Frameworks (Complexity Explosion)**
 
@@ -147,183 +127,50 @@ fn rocket() -> _ {
 **Reality Check**:
 - ❌ Need to learn 3 languages (HTML/CSS/JS)
 - ❌ Separate frontend and backend logic
-- ❌ State management becomes complex
-- ❌ Deployment requires infrastructure
 - ❌ Just wanted to visualize data!
-
-**In 2025, this is like building a car when you just want to go to the store.**
-
-### **Path 4: Desktop GUI Frameworks (Framework Lock-in)**
-
-```rust,ignore
-use eframe::egui;
-
-impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("My App");
-            if ui.button("Click").clicked() {
-                // Complex state management
-            }
-        });
-    }
-}
-```
-
-**Reality Check**:
-- ❌ Learn framework-specific APIs
-- ❌ Platform-specific quirks
-- ❌ Distribution is complicated
-- ❌ Can't easily share via URL
-- ❌ Updates require reinstalling
-
-**In 2025, this is like building native apps when the web exists.**
 
 ---
 
-## ✨ **The WebRust Solution: Elegance Meets Power Meets Data**
-
-### **Same Problems, WebRust Way**
+## ✨ The Solution: WebRust
 
 ```rust,ignore
 use webrust::prelude::*;
 
 #[gui(bg="navy", fg="white", font="Courier New")]
 fn main() {
-    println!("@(cyan, bold, italic)📊 Sales Analytics Dashboard");
+    println!("@(cyan, bold, italic)📊 Data Dashboard");
     
-    // 🆕 NEW in 1.3.0: Native SQL queries with DuckDB!
-    query(r#"
-        CREATE TABLE sales AS SELECT * FROM read_csv_auto('sales.csv');
-        
-        SELECT 
-            product,
-            SUM(amount) AS total_sales,
-            COUNT(*) AS num_transactions
-        FROM sales
-        GROUP BY product
-        ORDER BY total_sales DESC
-    "#);
+    let name: String = input("What's your name?");
+    println!("Hello, {name}! 🎉");
     
-    // Instant interactive visualization
-    let top_products = query_to_hashmap("SELECT product, total_sales FROM ...");
-    chart(&top_products, "bar")
-        .title("Top Products by Revenue")
-        .color("limegreen");
+    let data = vec![10.0, 20.0, 30.0, 40.0, 50.0];
+    chart(&data, "line").title("Trend Analysis");
     
-    // All in one file, zero configuration
+    let squares: Vec<i32> = 0.to(10).then(|x| x * x);
+    table(&squares).header(["Index", "Square"]);
 }
 ```
 
-**What Just Happened?**
-
-✅ **SQL analytics** — Native DuckDB integration with Arrow streaming  
+**What You Get**:
 ✅ **Python-like syntax** — `0.to(10)`, `.when()/.then()`, `.splitby()`  
 ✅ **Styled output** — Colors, fonts, positions with chainable API  
 ✅ **Type-safe inputs** — Real-time validation in the browser  
+✅ **Interactive charts** — 9+ chart types with ECharts  
 ✅ **Automatic web UI** — Browser opens, server runs, zero config  
-✅ **Rust performance** — Compiles to native code, runs blazingly fast  
-✅ **🆕 Ultra-responsive** — Optimized rendering engine (40-60% faster)
+✅ **Rust performance** — Compiles to native code, blazingly fast  
+✅ **Ultra-fast compile** — ~30 seconds initial build
 
-**Run it**: `cargo run` → Browser opens automatically → Professional SQL-powered dashboard.
-
----
-
-## 🆕 **What's New in 1.3.0: Speed Meets SQL**
-
-### **1. Native SQL Analytics with DuckDB**
-
-WebRust 1.3.0 introduces a complete SQL engine powered by DuckDB and Apache Arrow:
-
-```rust,ignore
-# use webrust::prelude::*;
-# #[gui] fn example() {
-// Create and query data in-memory
-query(r#"
-    CREATE TABLE person (id INT, name TEXT, age INT);
-    INSERT INTO person VALUES (1, 'Alice', 30), (2, 'Bob', 25);
-    
-    SELECT name, age FROM person WHERE age > 20 ORDER BY age DESC;
-"#);
-
-// Join multiple tables
-query(r#"
-    CREATE TABLE city (id INT, name TEXT);
-    INSERT INTO city VALUES (1, 'Paris'), (2, 'Lyon');
-    
-    SELECT p.name, c.name AS city
-    FROM person p
-    JOIN city c ON p.city_id = c.id;
-"#);
-
-// Window functions and aggregates
-query(r#"
-    SELECT 
-        name,
-        age,
-        RANK() OVER (ORDER BY age DESC) as age_rank
-    FROM person;
-"#);
-# }
-```
-
-**Key Features**:
-- ✅ **In-memory analytics**: Zero setup, zero dependencies
-- ✅ **Arrow streaming**: Batch-by-batch rendering (handles millions of rows)
-- ✅ **Standard SQL**: Full DuckDB SQL support (CTEs, window functions, joins)
-- ✅ **Auto-formatted tables**: Results stream as styled HTML tables
-- ✅ **Schema inspection**: `SCHEMA SELECT ...` to view column types
-- ✅ **CSV/JSON support**: `read_csv_auto()`, `read_json()` built-in
-- ✅ **Performance**: SIMD-optimized with parallel execution
-
-**Why This Matters**:
-- No PostgreSQL, MySQL, or SQLite installation needed
-- No ORM complexity
-- No context switching between tools
-- Query → Visualize in the same file
-- Perfect for data exploration, reports, and analytics
-
-### **2. Ultra-Responsive Rendering**
-
-WebRust 1.3.0 delivers **40-60% faster** rendering through aggressive optimizations:
-
-**Macro System**:
-- **~0.85μs** per f-string transformation (43% faster than 1.2.0)
-- **~5 allocations** per transformation (67% reduction)
-- **~340 bytes** memory footprint (60% reduction)
-- SIMD pattern matching with `memchr` and `memchr2`
-- Zero-copy optimization with `Cow<str>`
-
-**Number Formatting**:
-- `itoa::Buffer` for integers (3x faster than `format!`)
-- `ryu::Buffer` for floats (10x faster than `format!`)
-- Direct buffer writing, zero allocations
-
-**SQL Rendering**:
-- Thread-local buffers (4KB capacity, reused across rows)
-- SIMD HTML escaping (zero-copy for clean strings)
-- Incremental table streaming (progressive paint)
-- Arrow columnar access (cache-friendly)
-
-**User Experience**:
-- Instant feedback on user input
-- Smooth animations at 60fps
-- No flicker during updates
-- Responsive even with large datasets
+**Run**: `cargo run` → Browser opens instantly → Professional UI
 
 ---
 
-<a id="core-philosophy"></a>
-<a id="sec-core-philosophy"></a>
-## 🧩 **Core Philosophy: Python + SQL Ergonomics in Rust**
-
-WebRust demonstrates that **systems languages can be ergonomic** without sacrificing safety or performance.
+## 🧩 Core Philosophy: Python Ergonomics in Rust
 
 ### **1. Python-like Ranges**
 
 ```rust,ignore
-# use webrust::prelude::*;
-# fn example() {
+use webrust::prelude::*;
+
 // Python: for i in range(10)
 for i in 0.to(10) { }
 
@@ -335,15 +182,13 @@ for c in 'a'.to('f') { }
 
 // Floats and negative steps too!
 for x in 4.0.to(0.0).by(-0.5) { }
-# }
 ```
 
 ### **2. List & Dictionary Comprehensions**
 
 ```rust,ignore
-# use webrust::prelude::*;
+use webrust::prelude::*;
 use std::collections::HashMap;
-# fn example() {
 
 // Python: [x**2 for x in range(10)]
 let squares: Vec<i32> = 0.to(10).then(|x| x * x);
@@ -355,551 +200,103 @@ let evens: Vec<i32> = 0.to(20)
 
 // Python: {x: x**2 for x in range(5)}
 let dict: HashMap<i32, i32> = 0.to(5).then(|x| (x, x * x));
-# }
 ```
 
-**The beauty**: These compile to standard Rust iterators — zero runtime cost!
+**Zero runtime cost** — compiles to standard Rust iterators!
 
 ### **3. Python String Methods**
 
 ```rust,ignore
-# use webrust::prelude::*;
-# fn example() {
+use webrust::prelude::*;
+
 // Python: "a,b,c".split(",")
 let parts = "a,b,c".splitby(",");
 
 // Python: "hello world".split()
 let words = "hello  world".splitby("");
 
-// Python: "L1\nL2\nL3".split("\n")
-let lines = "L1\nL2\nL3".splitby("\n");
-
 // Python: ", ".join(["a", "b", "c"])
 let joined = parts.join(", ");
 
 // Python: "hello".upper()
 let upper = "hello".upper();
-
-// Python: "hello world".title()
-let title = "hello world".title();
-# }
 ```
 
-**One method (`splitby`) handles all split patterns** — delimiter, whitespace, lines — just like Python!
-
-### **4. SQL-First Analytics**
+### **4. F-String Interpolation**
 
 ```rust,ignore
-# use webrust::prelude::*;
-# #[gui] fn example() {
-// SQL: Natural syntax for data queries
-query(r#"
-    -- Load CSV data
-    CREATE TABLE sales AS SELECT * FROM read_csv_auto('data.csv');
-    
-    -- Analyze with window functions
-    SELECT 
-        product,
-        quarter,
-        revenue,
-        SUM(revenue) OVER (PARTITION BY product) AS product_total,
-        RANK() OVER (ORDER BY revenue DESC) AS revenue_rank
-    FROM sales
-    WHERE year = 2024
-    ORDER BY revenue DESC;
-"#);
+use webrust::prelude::*;
 
-// Inspect schema
-query("SCHEMA SELECT * FROM sales");
-
-// Aggregate and visualize
-query(r#"
-    SELECT 
-        product,
-        SUM(revenue) AS total
-    FROM sales
-    GROUP BY product
-    ORDER BY total DESC
-    LIMIT 10;
-"#);
-# }
-```
-
-**DuckDB + Arrow**: OLAP-grade analytics in pure Rust, zero external dependencies!
-
-### **5. F-String Interpolation**
-
-```rust,ignore
-# use webrust::prelude::*;
-# #[gui] fn example() {
-let name = "Alice";
-let age = 30;
-let pi = std::f64::consts::PI;
-
-println!("Hello {name}, you are {age} years old!");
-println!("Next year: {age + 1}");
-println!("PI ≈ {pi:.2}");                    // Format specifiers
-println!("Data: {my_struct:j}");             // JSON pretty-print
-println!("Compact: {my_vec:c}");             // Compact display
-println!("Einstein: $(E = mc^2)");           // LaTeX rendering!
-# }
-```
-
-**Processed at compile-time** — no runtime overhead!
-
----
-
-## 📊 **Beyond Text: Modern Visualizations + SQL**
-
-### **Interactive Charts (ECharts Integration)**
-
-```rust,ignore
-# use webrust::prelude::*;
-use std::collections::HashMap;
-# #[gui] fn example() {
-
-// Bar chart from HashMap
-let sales = HashMap::from([
-    ("Q1", 120.0), ("Q2", 200.0), ("Q3", 150.0), ("Q4", 300.0)
-]);
-chart(&sales, "bar")
-    .title("Quarterly Sales")
-    .color("#2ecc71");
-
-// Line chart from Vec
-let temps = vec![64.4, 67.1, 69.8, 72.5, 70.2];
-chart(&temps, "line")
-    .title("Temperature Trend")
-    .xlabels(vec!["Mon", "Tue", "Wed", "Thu", "Fri"]);
-
-// Pie chart
-let market_share = PieData(
-    vec!["Product A".into(), "Product B".into(), "Product C".into()],
-    vec![45.0, 30.0, 25.0]
-);
-chart(market_share, "pie").title("Market Share 2024");
-# }
-```
-
-**9+ chart types**: line, bar, pie, doughnut, radar, area, scatter, gauge, funnel.
-
-### **Smart Tables (From Any Data + SQL)**
-
-```rust,ignore
-# use webrust::prelude::*;
-use std::collections::HashMap;
-# #[gui] fn example() {
-// From vectors
-let matrix = vec![vec![1, 2, 3], vec![4, 5, 6]];
-table(&matrix).header(["X", "Y", "Z"]);
-
-// 🆕 From SQL queries (auto-streamed as HTML)
-query(r#"
-    SELECT name, age, city
-    FROM person
-    ORDER BY age DESC
-    LIMIT 10;
-"#);  // → Renders as styled table automatically
-
-// With LaTeX support
-let physics = vec![
-    ("Einstein", r"$(E = mc^2)"),
-    ("Schrödinger", r"$(i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi)"),
-];
-table(&physics).header(["Scientist", "Equation"]);
-# }
-```
-
-### **Turtle Graphics & Animations**
-
-```rust,ignore
-# use webrust::prelude::*;
-# #[gui] fn example() {
-coord("cartesian");  // Mathematical coordinates
-
-let turtle = object();
-turtle.color("blue").width(2.0);
-
-// Draw animated square
-for _ in 0.to(4) {
-    turtle.forward(100.0);
-    turtle.right(90.0);
-}
-
-// Animate with easing functions
-turtle.rotate(360.0).ease("elasticOut");
-turtle.scale(1.5, 1.5).ease("sineInOut");
-
-// Hierarchical object groups!
-let car = group();
-
-// Create complex parts
-let wheel1 = object().at(-30.0, 0.0).circle(15.0);
-let wheel2 = object().at(30.0, 0.0).circle(15.0);
-let body = object().rectangle(80.0, 30.0);
-
-// Compose them
-car.add(&wheel1);
-car.add(&wheel2);
-car.add(&body);
-
-// Animate the group (moves all parts together)
-car.translate(200.0, 0.0).ease("linear");
-
-// While individual parts animate independently!
-wheel1.rotate(720.0).ease("linear");  // Wheels spin
-wheel2.rotate(720.0).ease("linear");  // while car moves
-# }
-```
-
-**20+ easing functions**: linear, sine, quad, cubic, elastic, bounce, back, expo, etc.
-
----
-
-## 🏗️ **Architecture: How It Works**
-
-### **The `#[gui]` Macro Magic**
-
-When you write:
-
-```rust,ignore
-# use webrust::prelude::*;
-#[gui(bg="navy", fg="white")]
+#[gui]
 fn main() {
-    println!("Hello!");
-    query("SELECT 1 as test;");
+    let name = "Alice";
+    let age = 30;
+    let pi = std::f64::consts::PI;
+    
+    println!("Hello {name}, you are {age} years old!");
+    println!("Next year: {age + 1}");
+    println!("PI ≈ {pi:.2}");                    // Format specifiers
+    println!("Data: {my_struct:j}");             // JSON pretty-print
+    println!("Einstein: $(E = mc^2)");           // LaTeX rendering!
 }
 ```
 
-WebRust automatically:
+### **5. SQL Integration (Optional)**
 
-1. **Transforms f-strings** at compile-time (`{var}` → `format!()`)
-2. **Starts HTTP server** on `127.0.0.1:8080`
-3. **Opens browser** automatically
-4. **Serves modern UI** with MathJax, ECharts, D3.js, Two.js
-5. **Initializes DuckDB** in-memory database
-6. **Handles bidirectional communication** (Rust ↔ JavaScript)
-7. **Auto-shuts down** when browser closes (3s timeout)
-
-**You write Python-like Rust with SQL. WebRust handles the web and database.**
-
-### **Zero-Cost Abstractions**
+When `features = ["sql"]` is enabled:
 
 ```rust,ignore
-# use webrust::prelude::*;
-# fn example() {
-// This...
-let squares: Vec<i32> = 0.to(10).then(|x| x * x);
+use webrust::prelude::*;
 
-// ...compiles to the same machine code as:
-let squares: Vec<i32> = (0..10).map(|x| x * x).collect();
-# }
-```
-
-**All Python-like syntax is compile-time sugar** — no runtime overhead!
-
-### **Type-Safe Everything**
-
-```rust,ignore
-# use webrust::prelude::*;
-# #[gui] fn example() {
-let age: i32 = input("Age:");
-let height: f64 = input("Height:");
-let ok: bool = input("Confirm:");
-# }
-```
-
-**Validation happens twice**:
-1. **Client-side (JavaScript)** — Immediate feedback in browser
-2. **Server-side (Rust)** — Type-safe parsing with helpful errors
-
-### **SQL Performance Architecture**
-
-```rust,ignore
-// Under the hood, query() does:
-// 1. Parse SQL (DuckDB parser)
-// 2. Execute query (multi-threaded)
-// 3. Stream results via Arrow batches
-// 4. Format as HTML progressively
-// 5. Send to browser incrementally
-
-// All optimized with:
-// - SIMD pattern matching
-// - Zero-copy string handling
-// - Thread-local buffers
-// - Columnar data access
-```
-
-**Result**: Query millions of rows, display instantly, no memory bloat.
-
----
-
-## 🌍 **Real-World Use Cases**
-
-### **1. Data Analytics & Business Intelligence**
-
-```rust,ignore
-# use webrust::prelude::*;
-use std::collections::HashMap;
-
-#[gui(bg="navy", fg="white")]
+#[gui]
 fn main() {
-    println!("@(cyan, bold)📊 Sales Analytics Dashboard");
-    
-    // 🆕 Load and analyze CSV data with SQL
     query(r#"
         CREATE TABLE sales AS SELECT * FROM read_csv_auto('sales.csv');
         
-        -- Regional breakdown
         SELECT 
-            region,
+            product,
             SUM(amount) AS total_sales,
-            COUNT(DISTINCT customer_id) AS unique_customers,
-            AVG(amount) AS avg_transaction
+            COUNT(*) AS transactions
         FROM sales
-        WHERE date >= '2024-01-01'
-        GROUP BY region
-        ORDER BY total_sales DESC;
-    "#);
-    
-    // 🆕 Time series analysis with window functions
-    query(r#"
-        SELECT 
-            DATE_TRUNC('month', date) AS month,
-            SUM(amount) AS monthly_total,
-            SUM(SUM(amount)) OVER (
-                ORDER BY DATE_TRUNC('month', date)
-                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-            ) AS running_total
-        FROM sales
-        GROUP BY month
-        ORDER BY month;
-    "#);
-    
-    // Grid-based dashboard
-    grid(2, 2);
-    
-    // Top products chart
-    let (x, y) = cell(0, 0, "center");
-    let products = query_to_hashmap(r#"
-        SELECT product, SUM(amount) AS total
-        FROM sales GROUP BY product ORDER BY total DESC LIMIT 10
-    "#);
-    chart(&products, "bar")
-        .title("Top 10 Products")
-        .at(x, y)
-        .size(*CW * 95 / 100, *CH * 90 / 100);
-    
-    // Trend line
-    let (x, y) = cell(0, 1, "center");
-    let monthly_data = query_to_vec("SELECT month, total FROM ...");
-    chart(&monthly_data, "line")
-        .title("Monthly Revenue Trend")
-        .at(x, y)
-        .size(*CW * 95 / 100, *CH * 90 / 100);
-}
-```
-
-**Perfect for**: Business reports, data exploration, executive dashboards, KPI monitoring.
-
-**Why WebRust Wins**: One file, SQL + charts, zero database setup, instant results.
-
-### **2. Education & Data Science Teaching**
-
-```rust,ignore
-# use webrust::prelude::*;
-#[gui]
-fn main() {
-    println!("@(blue, bold)📚 SQL Tutorial: Joins & Aggregations\n");
-    
-    // Create sample data
-    query(r#"
-        CREATE TABLE students (id INT, name TEXT, major TEXT);
-        CREATE TABLE grades (student_id INT, course TEXT, grade INT);
-        
-        INSERT INTO students VALUES 
-            (1, 'Alice', 'CS'), (2, 'Bob', 'Math'), (3, 'Charlie', 'CS');
-        
-        INSERT INTO grades VALUES
-            (1, 'Algorithms', 95), (1, 'Databases', 88),
-            (2, 'Calculus', 92), (3, 'Algorithms', 78);
-    "#);
-    
-    println!("@(green)Step 1: Simple JOIN");
-    query(r#"
-        SELECT s.name, g.course, g.grade
-        FROM students s
-        JOIN grades g ON s.id = g.student_id
-        ORDER BY s.name, g.grade DESC;
-    "#);
-    
-    println!("\n@(green)Step 2: Aggregation with GROUP BY");
-    query(r#"
-        SELECT 
-            s.name,
-            AVG(g.grade) AS average_grade,
-            COUNT(*) AS num_courses
-        FROM students s
-        JOIN grades g ON s.id = g.student_id
-        GROUP BY s.name
-        ORDER BY average_grade DESC;
-    "#);
-    
-    println!("\n@(green)Step 3: Window Functions");
-    query(r#"
-        SELECT 
-            name,
-            course,
-            grade,
-            AVG(grade) OVER (PARTITION BY name) AS student_avg,
-            RANK() OVER (ORDER BY grade DESC) AS overall_rank
-        FROM students s
-        JOIN grades g ON s.id = g.student_id;
-    "#);
-    
-    // Visualize grade distribution
-    let grade_dist = query_to_vec("SELECT grade FROM grades");
-    chart(&grade_dist, "bar").title("Grade Distribution");
-}
-```
-
-**Perfect for**: SQL education, data science courses, interactive textbooks, workshops.
-
-**Why WebRust Wins**: Students see queries + results + visualizations instantly.
-
-### **3. Scientific Computing with SQL**
-
-```rust,ignore
-# use webrust::prelude::*;
-#[gui]
-fn main() {
-    println!("@(purple, bold)🔬 Experimental Data Analysis\n");
-    
-    // Load experimental measurements
-    query(r#"
-        CREATE TABLE measurements AS 
-        SELECT * FROM read_csv_auto('experiment_data.csv');
-        
-        -- Statistical summary
-        SELECT 
-            experiment_id,
-            COUNT(*) AS sample_size,
-            AVG(value) AS mean,
-            STDDEV(value) AS std_dev,
-            MIN(value) AS min_value,
-            MAX(value) AS max_value
-        FROM measurements
-        GROUP BY experiment_id;
-    "#);
-    
-    // Outlier detection with window functions
-    query(r#"
-        WITH stats AS (
-            SELECT 
-                *,
-                AVG(value) OVER (PARTITION BY experiment_id) AS mean,
-                STDDEV(value) OVER (PARTITION BY experiment_id) AS std_dev
-            FROM measurements
-        )
-        SELECT 
-            experiment_id,
-            timestamp,
-            value,
-            CASE 
-                WHEN ABS(value - mean) > 3 * std_dev THEN 'Outlier'
-                ELSE 'Normal'
-            END AS classification
-        FROM stats
-        WHERE classification = 'Outlier';
-    "#);
-    
-    // Time series visualization
-    let timeseries = query_to_vec(r#"
-        SELECT timestamp, AVG(value) AS avg_value
-        FROM measurements
-        GROUP BY timestamp
-        ORDER BY timestamp
-    "#);
-    chart(&timeseries, "line").title("Measurement Time Series");
-    
-    // LaTeX formulas
-    println!(r"Statistical significance: $(p < 0.05)");
-    println!(r"Standard error: $(SE = \frac{\sigma}{\sqrt{n}})");
-}
-```
-
-**Perfect for**: Lab data analysis, research notebooks, experimental reports.
-
-**Why WebRust Wins**: SQL analytics + LaTeX + charts in one environment.
-
-### **4. Log Analysis & Monitoring**
-
-```rust,ignore
-# use webrust::prelude::*;
-#[gui]
-fn main() {
-    println!("@(red, bold)🔍 Server Log Analysis\n");
-    
-    // Parse and analyze logs
-    query(r#"
-        CREATE TABLE logs AS 
-        SELECT * FROM read_csv_auto('server_logs.csv');
-        
-        -- Error rate by hour
-        SELECT 
-            DATE_TRUNC('hour', timestamp) AS hour,
-            COUNT(*) AS total_requests,
-            SUM(CASE WHEN status >= 400 THEN 1 ELSE 0 END) AS errors,
-            ROUND(100.0 * SUM(CASE WHEN status >= 400 THEN 1 ELSE 0 END) / COUNT(*), 2) AS error_rate
-        FROM logs
-        WHERE timestamp >= NOW() - INTERVAL 24 HOURS
-        GROUP BY hour
-        ORDER BY hour DESC;
-    "#);
-    
-    // Top error endpoints
-    query(r#"
-        SELECT 
-            endpoint,
-            status,
-            COUNT(*) AS occurrences
-        FROM logs
-        WHERE status >= 400
-        GROUP BY endpoint, status
-        ORDER BY occurrences DESC
-        LIMIT 10;
-    "#);
-    
-    // Response time percentiles
-    query(r#"
-        SELECT 
-            endpoint,
-            PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY response_time) AS p50,
-            PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY response_time) AS p95,
-            PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY response_time) AS p99
-        FROM logs
-        GROUP BY endpoint
-        ORDER BY p99 DESC;
+        GROUP BY product
+        ORDER BY total_sales DESC
+        LIMIT 10
     "#);
 }
 ```
-
-**Perfect for**: DevOps dashboards, incident analysis, performance monitoring.
-
-**Why WebRust Wins**: Parse logs, run SQL, visualize alerts — all in real-time.
 
 ---
 
-<a id="getting-started"></a>
-<a id="sec-getting-started"></a>
-## 🚀 **Getting Started**
+## 🚀 Installation
 
-### **Installation**
+### **Option 1: Fast Install (Recommended)**
 
 ```toml
 [dependencies]
-webrust = "1.3.0"
+webrust = "1.4.0"
 ```
+
+✅ Compiles in **~30 seconds**  
+✅ Python-like syntax  
+✅ Web GUI with charts & tables  
+✅ LaTeX rendering  
+✅ Turtle graphics
+
+### **Option 2: With SQL Analytics**
+
+```toml
+[dependencies]
+webrust = { version = "1.4.0", features = ["sql"] }
+```
+
+✅ Everything from Option 1  
+✅ **Plus**: DuckDB integration  
+✅ **Plus**: Native SQL queries  
+⚠️ First compile: **2-5 minutes**
+
+---
+
+## 🎬 Quick Start
 
 ### **Your First App (30 seconds)**
 
@@ -911,23 +308,437 @@ fn main() {
     let name: String = input("What's your name?");
     println!("Hello, {name}! 🎉");
     
-    // 🆕 NEW: SQL analytics built-in!
-    query("SELECT 'WebRust' AS framework, 1.3 AS version;");
-    
     let nums = vec![10.0, 20.0, 30.0, 40.0, 50.0];
     chart(&nums, "line").title("My First Chart");
 }
 ```
 
-**Run**: `cargo run` → Browser opens → Professional UI with SQL support.
+**Run**: `cargo run` → Browser opens → Professional UI appears instantly.
 
 ---
 
-## 📚 **Rich Examples**
+## 🧭 API Reference
 
-WebRust includes comprehensive examples demonstrating every feature:
+### **Module: `db` — SQL (DuckDB)**
+
+*Requires `features = ["sql"]`*
+
+#### `query(sql: &str)`
+Execute one or more SQL queries with instant display in browser.
+
+```rust,ignore
+query("SELECT * FROM users WHERE age > 18");
+
+query(r#"
+    CREATE TABLE sales AS SELECT * FROM read_csv_auto('data.csv');
+    SELECT product, SUM(amount) FROM sales GROUP BY product;
+"#);
+```
+
+#### `query_to_hashmap(sql: &str) -> HashMap<String, f64>`
+Execute query and return results as HashMap (useful for charts).
+
+```rust,ignore
+let data = query_to_hashmap("SELECT region, SUM(sales) FROM ...");
+chart(&data, "bar");
+```
+
+#### `query_to_vec(sql: &str) -> Vec<(String, f64)>`
+Execute query and return results as Vec of tuples.
+
+---
+
+### **Module: `graphic` — Turtle & Animations**
+
+#### `object() -> DrawableObject`
+Create a drawable object with turtle graphics.
+
+**Chainable methods:**
+
+**Position & Movement:**
+- `.at(x: f64, y: f64)` — Set position
+- `.to(x: f64, y: f64)` — Move to position
+- `.forward(distance: f64)` — Move forward
+- `.right(angle: f64)` — Turn right (degrees)
+- `.left(angle: f64)` — Turn left (degrees)
+- `.penup()` — Lift pen (don't draw)
+- `.pendown()` — Lower pen (draw)
+
+**Shapes:**
+- `.circle(radius: f64)` — Draw circle
+- `.rectangle(width: f64, height: f64)` — Draw rectangle
+- `.square(size: f64)` — Draw square
+- `.ellipse(rx: f64, ry: f64)` — Draw ellipse
+- `.arc(radius: f64, angle: f64)` — Draw arc
+- `.rhombus(width: f64, height: f64)` — Draw rhombus
+- `.parallelogram(width: f64, height: f64, skew: f64)` — Draw parallelogram
+- `.polygon(sides: i32, radius: f64)` — Draw regular polygon
+
+**Style:**
+- `.color(color: &str)` — Set color ("red", "#ff0000")
+- `.width(width: f64)` — Set line width
+- `.fill(color: &str)` — Fill shape with color
+
+**Transformations & Animation:**
+- `.speed(speed: f64)` — Set animation speed
+- `.rotate(angle: f64)` — Rotate object
+- `.translate(x: f64, y: f64)` — Move object
+- `.scale(sx: f64, sy: f64)` — Scale object
+- `.reflect(axis: &str)` — Reflect ("x", "y")
+- `.ease(easing: &str)` — Animation easing function
+
+**Easing functions:** `linear`, `sineIn`, `sineOut`, `sineInOut`, `quadIn`, `quadOut`, `quadInOut`, `cubicIn`, `cubicOut`, `cubicInOut`, `elasticIn`, `elasticOut`, `elasticInOut`, `bounceIn`, `bounceOut`, `bounceInOut`, `backIn`, `backOut`, `backInOut`, `expoIn`, `expoOut`, `expoInOut`
+
+**Example:**
+```rust,ignore
+use webrust::prelude::*;
+
+#[gui]
+fn main() {
+    coord("cartesian");
+    
+    let turtle = object();
+    turtle.color("blue").width(2.0);
+    
+    for _ in 0.to(4) {
+        turtle.forward(100.0);
+        turtle.right(90.0);
+    }
+    
+    turtle.rotate(360.0).ease("elasticOut");
+}
+```
+
+#### `group() -> Group`
+Create a hierarchical group of objects.
+
+**Methods:**
+- `.add(&object)` — Add object to group
+- `.translate(x: f64, y: f64)` — Move entire group
+- `.rotate(angle: f64)` — Rotate entire group
+- `.ease(easing: &str)` — Animate entire group
+
+**Example:**
+```rust,ignore
+let car = group();
+let wheel1 = object().at(-30.0, 0.0).circle(15.0);
+let wheel2 = object().at(30.0, 0.0).circle(15.0);
+car.add(&wheel1);
+car.add(&wheel2);
+car.translate(200.0, 0.0);
+```
+
+---
+
+### **Module: `io` — I/O, Styled Printing & GUI Server**
+
+#### `print!(...)` / `println!(...)`
+Print with f-string interpolation, inline styles, and LaTeX support.
+
+**Basic usage:**
+```rust,ignore
+println!("Hello {name}!");
+println!("Result: {value:.2}");
+```
+
+**Inline styles:**
+```rust,ignore
+println!("@(red)Error: File not found");
+println!("@(cyan, bold)🎉 Success!");
+println!("@(green, italic, underline)Important note");
+```
+
+**Available styles:** `red`, `green`, `blue`, `cyan`, `yellow`, `magenta`, `white`, `black`, `bold`, `italic`, `underline`
+
+**LaTeX math:**
+```rust,ignore
+println!("Einstein: $(E = mc^2)");
+println!("Quadratic: $(x = \frac{-b \pm \sqrt{b^2-4ac}}{2a})");
+```
+
+**Format specifiers:**
+- `{var:j}` — JSON pretty-print
+- `{var:c}` — Compact display
+- `{var:.2}` — Float with 2 decimals
+
+#### `input<T>(prompt: &str) -> T`
+Type-safe input with browser validation.
+
+```rust,ignore
+let name: String = input("Enter your name:");
+let age: i32 = input("Enter your age:");
+let height: f64 = input("Enter your height:");
+let confirmed: bool = input("Confirm?");
+```
+
+**Validation happens twice:**
+1. Client-side (JavaScript) — Immediate feedback
+2. Server-side (Rust) — Type-safe parsing
+
+#### `try_input<T>(prompt: &str) -> Result<T, E>`
+Input with error handling.
+
+```rust,ignore
+match try_input::<i32>("Age:") {
+    Ok(age) => println!("Age: {age}"),
+    Err(e) => println!("Invalid input: {e}"),
+}
+```
+
+#### `input_with_validation<T>(prompt: &str, validator: F) -> T`
+Input with custom validation function.
+
+```rust,ignore
+let age = input_with_validation("Age:", |&x: &i32| x >= 18 && x <= 100);
+```
+
+#### `add_output(text: &str)`
+Add output to browser without newline.
+
+#### `add_output_new_line(text: &str)`
+Add output to browser with newline.
+
+#### `add_output_same_line(text: &str)`
+Replace current line in browser.
+
+#### `start_gui_server()`
+Start GUI server with default styling.
+
+#### `start_gui_server_with_style(config: StyleConfig)`
+Start GUI server with custom styling.
+
+---
+
+### **Module: `iter` — Ranges, Enumerate, Comprehensions**
+
+#### Ranges: `start.to(end).by(step)`
+
+**Integer ranges:**
+```rust,ignore
+for i in 0.to(10) { }           // 0, 1, 2, ..., 9
+for i in 0.to(100).by(5) { }    // 0, 5, 10, ..., 95
+```
+
+**Float ranges:**
+```rust,ignore
+for x in 0.0.to(10.0).by(0.5) { }    // 0.0, 0.5, 1.0, ..., 9.5
+for x in 5.0.to(0.0).by(-0.5) { }    // 5.0, 4.5, 4.0, ..., 0.5
+```
+
+**Character ranges:**
+```rust,ignore
+for c in 'a'.to('z') { }    // a, b, c, ..., y
+for c in 'A'.to('F') { }    // A, B, C, D, E
+```
+
+#### Comprehensions: `.when(pred).then(mapper)`
+
+**Map transformation:**
+```rust,ignore
+let squares: Vec<i32> = 0.to(10).then(|x| x * x);
+```
+
+**Filter and transform:**
+```rust,ignore
+let evens: Vec<i32> = 0.to(20)
+    .when(|&x| x % 2 == 0)
+    .then(|x| x);
+```
+
+**Dictionary construction:**
+```rust,ignore
+use std::collections::HashMap;
+let dict: HashMap<i32, i32> = 0.to(5).then(|x| (x, x * x));
+```
+
+#### `enumerate(iter) -> EnumeratedIter`
+Add indices to iterator.
+
+```rust,ignore
+for (i, value) in enumerate(vec![10, 20, 30]) {
+    println!("{i}: {value}");
+}
+```
+
+---
+
+### **Module: `layout` — Coordinates & Grids**
+
+#### `coord(mode: &str)`
+Set coordinate system mode.
+
+```rust,ignore
+coord("css");         // CSS coordinates (top-left origin, Y down)
+coord("cartesian");   // Cartesian coordinates (center origin, Y up)
+```
+
+#### `grid(rows: i32, cols: i32)`
+Create responsive grid layout.
+
+```rust,ignore
+grid(2, 3);  // 2 rows, 3 columns
+```
+
+#### `cell(row: i32, col: i32, anchor: &str) -> (f64, f64)`
+Calculate position for grid cell.
+
+**Anchor options:** `"topleft"`, `"top"`, `"topright"`, `"left"`, `"center"`, `"right"`, `"bottomleft"`, `"bottom"`, `"bottomright"`
+
+```rust,ignore
+let (x, y) = cell(0, 1, "center");
+chart(&data, "bar").at(x, y);
+```
+
+#### `grid_size() -> (f64, f64)`
+Get total grid dimensions.
+
+#### `cell_size() -> (f64, f64)`
+Get individual cell dimensions.
+
+#### `size_pct(width_pct: f64, height_pct: f64) -> (f64, f64)`
+Calculate size as percentage of cell.
+
+---
+
+### **Module: `text` — String Methods (Python-like)**
+
+#### `.splitby(pattern: &str) -> Vec<String>`
+Split string by pattern.
+
+```rust,ignore
+let parts = "a,b,c".splitby(",");           // ["a", "b", "c"]
+let words = "hello  world".splitby("");     // ["hello", "world"] (whitespace)
+let lines = "L1\nL2\nL3".splitby("\n");    // ["L1", "L2", "L3"]
+```
+
+#### `.join(separator: &str) -> String`
+Join vector of strings.
+
+```rust,ignore
+let joined = vec!["a", "b", "c"].join(", ");  // "a, b, c"
+```
+
+#### `.upper() -> String`
+Convert to uppercase.
+
+```rust,ignore
+let upper = "hello".upper();  // "HELLO"
+```
+
+#### `.lower() -> String`
+Convert to lowercase.
+
+```rust,ignore
+let lower = "HELLO".lower();  // "hello"
+```
+
+#### `.title() -> String`
+Convert to title case.
+
+```rust,ignore
+let title = "hello world".title();  // "Hello World"
+```
+
+---
+
+### **Module: `viz` — Tables & Charts**
+
+#### Tables
+
+##### `table(data) -> Table`
+Create table from data.
+
+**Data types supported:**
+- `Vec<Vec<T>>` — 2D vector
+- `Vec<(T, U)>` — Vector of tuples
+- `HashMap<K, V>` — HashMap
+
+**Chainable methods:**
+- `.header(headers: &[&str])` — Set column headers
+- `.merge()` — Merge adjacent cells with same value
+- `.at(x: f64, y: f64)` — Position table
+- `.pivot()` — Transpose table
+- `.latex()` — Enable LaTeX rendering in cells
+
+**Example:**
+```rust,ignore
+let matrix = vec![vec![1, 2, 3], vec![4, 5, 6]];
+table(&matrix).header(["X", "Y", "Z"]);
+
+let physics = vec![
+    ("Einstein", r"$(E = mc^2)"),
+    ("Schrödinger", r"$(i\hbar\frac{\partial}{\partial t}\Psi)"),
+];
+table(&physics).header(["Scientist", "Equation"]).latex();
+```
+
+#### Charts
+
+##### `chart(data, chart_type: &str) -> Chart`
+Create interactive chart.
+
+**Chart types supported:**
+- `"line"` — Line chart
+- `"bar"` — Bar chart
+- `"pie"` — Pie chart
+- `"area"` — Area chart
+- `"doughnut"` — Doughnut chart
+- `"funnel"` — Funnel chart
+- `"radar"` — Radar/spider chart
+- `"gauge"` — Gauge chart
+- `"scatter"` — Scatter plot
+- `"heatmap"` — Heatmap
+
+**Data types supported:**
+- `Vec<f64>` — Simple values
+- `Vec<(String, f64)>` — Labeled values
+- `HashMap<String, f64>` — Key-value pairs
+- `PieData(labels, values)` — Pie chart data
+
+**Chainable methods:**
+- `.title(title: &str)` — Set chart title
+- `.xlabels(labels: Vec<&str>)` — Set X-axis labels
+- `.ylabels(labels: Vec<&str>)` — Set Y-axis labels
+- `.color(color: &str)` — Set primary color
+- `.colors(colors: Vec<&str>)` — Set multiple colors
+- `.at(x: f64, y: f64)` — Position chart
+- `.size(width: f64, height: f64)` — Set chart dimensions
+- `.legend(show: bool)` — Show/hide legend
+- `.tooltip(show: bool)` — Show/hide tooltips
+
+**Example:**
+```rust,ignore
+use std::collections::HashMap;
+
+// Bar chart
+let sales = HashMap::from([
+    ("Q1", 120.0), ("Q2", 200.0),
+    ("Q3", 150.0), ("Q4", 300.0)
+]);
+chart(&sales, "bar")
+    .title("Quarterly Sales")
+    .color("#2ecc71");
+
+// Line chart with labels
+let temps = vec![64.4, 67.1, 69.8, 72.5, 70.2];
+chart(&temps, "line")
+    .title("Temperature Trend")
+    .xlabels(vec!["Mon", "Tue", "Wed", "Thu", "Fri"]);
+
+// Pie chart
+let market = PieData(
+    vec!["Product A".into(), "Product B".into(), "Product C".into()],
+    vec![45.0, 30.0, 25.0]
+);
+chart(market, "pie").title("Market Share");
+```
+
+---
+
+## 📚 Examples
 
 ```bash
+# Core features (fast compile):
 cargo run --example simpleio      # Inputs, styling, positioning
 cargo run --example latex         # LaTeX mathematical notation
 cargo run --example advancedio    # Advanced I/O, tables, formatting
@@ -935,156 +746,221 @@ cargo run --example string        # Python-like string methods
 cargo run --example utils         # Ranges, enumerate, comprehensions
 cargo run --example table         # Table generation & formatting
 cargo run --example chart         # All 9+ chart types
-cargo run --example sql           # 🆕 SQL analytics with DuckDB!
 cargo run --example turtle        # Turtle graphics & animations
-cargo run --example mixed         # Complete dashboard with grid layout
+cargo run --example mixed         # Complete dashboard layout
+
+# SQL features (requires --features sql):
+cargo run --example sql --features sql    # SQL analytics with DuckDB
 ```
 
-Each example is extensively commented and demonstrates best practices.
+---
 
-**🆕 Must-see `py_sql`**: Shows the full power of DuckDB integration with:
-- CREATE/INSERT/SELECT/JOIN operations
-- Window functions and aggregates
-- CSV loading and JSON processing
-- Running totals and rankings
-- Schema inspection
-- UDF (macro) definitions
+## 🌍 Use Cases
+
+### **1. Rapid Prototyping**
+
+```rust,ignore
+use webrust::prelude::*;
+
+#[gui]
+fn main() {
+    println!("@(cyan, bold)🎨 Product Demo");
+    
+    let choice: String = input("Select feature (A/B/C):");
+    
+    match choice.as_str() {
+        "A" => {
+            let data = vec![10.0, 25.0, 40.0, 35.0];
+            chart(&data, "bar").title("Performance");
+        }
+        "B" => {
+            coord("cartesian");
+            let circle = object().circle(50.0);
+            circle.rotate(360.0).ease("elasticOut");
+        }
+        _ => println!("@(red)Invalid choice"),
+    }
+}
+```
+
+### **2. Data Visualization**
+
+```rust,ignore
+use webrust::prelude::*;
+use std::collections::HashMap;
+
+#[gui]
+fn main() {
+    let sales = HashMap::from([
+        ("Q1", 120.0), ("Q2", 200.0),
+        ("Q3", 150.0), ("Q4", 300.0)
+    ]);
+    
+    chart(&sales, "bar").title("Quarterly Revenue");
+}
+```
+
+### **3. Educational Tools**
+
+```rust,ignore
+use webrust::prelude::*;
+
+#[gui]
+fn main() {
+    println!("@(purple, bold)📚 Fibonacci Sequence");
+    
+    let mut fib = vec![0i64, 1i64];
+    for i in 2..15 {
+        fib.push(fib[i-1] + fib[i-2]);
+    }
+    
+    table(&fib).header(["Index", "Value"]);
+    
+    println!(r"Golden ratio: $(\phi = \frac{1+\sqrt{5}}{2})");
+}
+```
+
+### **4. Scientific Computing**
+
+```rust,ignore
+use webrust::prelude::*;
+
+#[gui]
+fn main() {
+    coord("cartesian");
+    
+    let v0 = 50.0;
+    let angle = 45.0_f64.to_radians();
+    let g = 9.81;
+    
+    let trajectory: Vec<(f64, f64)> = (0..100).then(|i| {
+        let t = i as f64 * 0.1;
+        let x = v0 * angle.cos() * t;
+        let y = v0 * angle.sin() * t - 0.5 * g * t * t;
+        (x, y.max(0.0))
+    });
+    
+    let path = object();
+    path.color("red").width(2.0);
+    for (x, y) in trajectory {
+        path.line(x - 1.0, y, x, y);
+    }
+}
+```
+
+### **5. Data Analytics with SQL** *(requires `features = ["sql"]`)*
+
+```rust,ignore
+use webrust::prelude::*;
+
+#[gui]
+fn main() {
+    query(r#"
+        CREATE TABLE logs AS 
+        SELECT * FROM read_csv_auto('access_logs.csv');
+        
+        SELECT 
+            DATE_TRUNC('hour', timestamp) AS hour,
+            COUNT(*) AS requests,
+            AVG(response_time) AS avg_latency
+        FROM logs
+        WHERE timestamp >= NOW() - INTERVAL 24 HOURS
+        GROUP BY hour
+        ORDER BY hour DESC
+    "#);
+}
+```
 
 ---
 
-## 🎯 **WebRust's Vision for Programming's Future**
+## ⚡ Performance
 
-### **1. Syntax Should Be Universal**
+### **Compilation Time**
 
-Good ideas shouldn't be language-specific. If Python's `range(10)` is intuitive, why can't Rust have `0.to(10)`? If SQL's declarative queries work, why not integrate them natively?
+| Configuration    | First Build  | Subsequent Builds |
+|------------------|--------------|-------------------|
+| Default (no SQL) | ~30 seconds  | ~1-2 seconds      |
+| With SQL feature | 2-5 minutes  | ~1-2 seconds      |
 
-**WebRust proves syntax can evolve without breaking performance or safety.**
+### **Runtime Performance (v1.4.0)**
 
-### **2. Ecosystems Should Talk**
+- F-string transformation: ~0.85μs per operation (43% faster)
+- Memory allocations: ~5 per transformation (67% reduction)
+- Memory footprint: ~340 bytes per transformation (60% reduction)
 
-Python developers bring 30 years of ergonomic patterns. Rust brings safety and speed. SQL brings declarative data power. These communities should learn from each other, not stay isolated.
+**Techniques:**
+- SIMD pattern matching via `memchr`
+- Zero-copy optimization with `Cow<str>`
+- Optimized number formatting (`itoa`, `ryu`)
 
-**WebRust builds bridges, not walls.**
-
-### **3. Defaults Should Be Modern**
-
-In 2025, "Hello, World!" shouldn't be monochrome terminal text. Data analysis shouldn't require three tools. It should be:
-- ✅ **Styled** (colors, fonts, layouts)
-- ✅ **Interactive** (inputs, buttons, charts)
-- ✅ **Analytical** (SQL queries, aggregations)
-- ✅ **Shareable** (runs in browser, URL-accessible)
-- ✅ **Visual** (supports math, graphics, animations)
-
-**WebRust makes the modern default effortless.**
-
-### **4. Performance Should Be Invisible**
-
-Users shouldn't think about performance. Fast should be the default:
-- ✅ Sub-microsecond f-string compilation
-- ✅ Zero-copy string handling
-- ✅ SIMD-optimized rendering
-- ✅ Arrow columnar processing
-- ✅ Multi-threaded SQL execution
-
-**WebRust makes speed automatic.**
-
-### **5. Complexity Should Be Optional**
-
-Want to make a simple script? Use `println()`.
-Want to add styling? Chain `.color()`.
-Want a chart? Call `chart()`.
-Want SQL analytics? Call `query()`.
-Want animations? Add `.ease()`.
-
-**Each layer of complexity is opt-in**, not mandatory.
+**Result**: 60fps animations, instant feedback
 
 ---
 
-## 🔮 **What's Next?**
+## 🔮 Roadmap
 
-WebRust is actively evolving with:
-
-- 🎨 **More chart types** (sankey, treemap, 3D plots, heatmaps)
-- 🗄️ **Persistent databases** (SQLite, PostgreSQL connectors)
-- 🧩 **Component system** (reusable UI widgets)
-- 🌐 **Static export** (generate standalone HTML)
-- 📱 **Mobile optimization** (responsive by default)
-- 🔌 **Plugin ecosystem** (community extensions)
-- 🌍 **i18n support** (multi-language UIs)
-- ⚡ **WebAssembly target** (run in-browser)
-
-**Join us in reimagining what programming can be.**
+- 🎨 **More chart types** (sankey, treemap, 3D plots)
+- 🗄️ **Database connectors** (PostgreSQL, MySQL)
+- 🧩 **Component system** (reusable widgets)
+- 🌐 **Static export** (standalone HTML)
+- 📱 **Mobile optimization** (responsive)
 
 ---
 
-## 🤝 **Contributing**
+## 🤝 Contributing
 
-WebRust welcomes contributions! Whether you:
-
-- 🐛 Found a bug → [Open an issue](https://github.com/gerarddubard/webrust/issues)
-- 💡 Have an idea → [Start a discussion](https://github.com/gerarddubard/webrust/discussions)
-- 📝 Want to improve docs → PRs welcome!
-- 🎨 Built something cool → [Share it](https://github.com/gerarddubard/webrust/discussions/show-and-tell)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/gerarddubard/webrust/issues)
+- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/gerarddubard/webrust/discussions)
+- 📝 **Documentation**: PRs welcome!
+- 🎨 **Show & Tell**: [Share your projects](https://github.com/gerarddubard/webrust/discussions/show-and-tell)
 
 **Community principles**:
 - Keep it Pythonic (readable, intuitive)
-- Keep it Rusty (safe, fast, expressive)
-- Keep it analytical (SQL-powered)
-- Keep it simple (zero-config, batteries-included)
+- Keep it Rusty (safe, fast)
+- Keep it simple (zero-config)
+- Keep it optional (SQL when needed)
 
 ---
 
-## 📄 **License**
+## 📄 License
 
-MIT License — see [LICENSE](https://github.com/gerarddubard/webrust/blob/main/LICENSE) for details.
-
----
-
-## 🙏 **Acknowledgments**
-
-WebRust stands on the shoulders of giants:
-
-- **Python community** — For showing us ergonomics matter
-- **Rust community** — For proving safety and speed coexist
-- **SQL community** — For decades of declarative data wisdom
-- **Web standards** — For creating the universal platform
-- **Open source** — For enabling collaboration
-
-Special thanks to the creators of:
-- [DuckDB](https://duckdb.org/) — Blazing-fast analytical database
-- [Apache Arrow](https://arrow.apache.org/) — Columnar data standard
-- [tiny_http](https://crates.io/crates/tiny_http) — Simple HTTP server
-- [serde](https://crates.io/crates/serde) — Serialization framework
-- [MathJax](https://www.mathjax.org/) — Beautiful math rendering
-- [ECharts](https://echarts.apache.org/) — Powerful charting library
-- [Two.js](https://two.js.org/) — 2D drawing API
+MIT License — see [LICENSE](https://github.com/gerarddubard/webrust/blob/main/LICENSE).
 
 ---
 
-## 🌟 **The Bottom Line**
+## 🙏 Acknowledgments
 
-**It's 2025.** We have the technology to make programming:
-- More intuitive (Python-like syntax)
-- More powerful (SQL analytics)
-- More safe (Rust's type system)
-- More visual (browser-based UIs)
-- More performant (SIMD optimization)
-- More accessible (zero configuration)
-
-**WebRust proves it's possible.** We're not asking you to choose between Python and Rust, between simplicity and performance, between terminal and web, between code and data.
-
-**We're showing you can have it all.**
+- **Python community** — For ergonomics
+- **Rust community** — For safety & speed
+- **SQL community** — For declarative data power
+- [DuckDB](https://duckdb.org/) — Analytical database
+- [Apache Arrow](https://arrow.apache.org/) — Columnar data
+- [tiny_http](https://crates.io/crates/tiny_http) — HTTP server
+- [serde](https://crates.io/crates/serde) — Serialization
+- [MathJax](https://www.mathjax.org/) — Math rendering
+- [ECharts](https://echarts.apache.org/) — Charts
+- [Two.js](https://two.js.org/) — 2D graphics
 
 ---
 
-<div style="text-align:center">
+## 🌟 The Bottom Line
 
-### 🦀 **Write Python. Query SQL. Think Rust. Ship Web.** 🌐
+**It's 2025.** Programming should be:
+- **Intuitive** (Python-like syntax)
+- **Safe** (Rust's type system)
+- **Visual** (browser-based UIs)
+- **Fast** (sub-second compilation by default)
+- **Powerful** (SQL when you need it)
+- **Accessible** (zero configuration)
+
+**WebRust proves it's possible.**
+
+---
+
+### 🦀 **Write Python. Think Rust. Ship Web.** 🌐
 
 **[Get Started Now](https://docs.rs/webrust)** | **[View Examples](https://github.com/gerarddubard/webrust/tree/main/examples)** | **[Join Discussion](https://github.com/gerarddubard/webrust/discussions)**
 
 ---
 
-*Made with ❤️ for developers who believe programming should be joyful, powerful, and fast*
-
-</div>
+*Made with ❤️ for developers who believe programming should be joyful and fast*
