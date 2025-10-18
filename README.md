@@ -201,22 +201,22 @@ use webrust::prelude::*;
 
 // Range iteration
 for i in 0.to(10) {
-    println!("{i}");
+    println("{i}");
 }
 
 // Step specification
 for i in 0.to(100).by(5) {
-    println!("{i}");
+    println("{i}");
 }
 
 // Character ranges
 for c in 'a'.to('z') {
-    println!("{c}");
+    println("{c}");
 }
 
 // Floating-point and negative steps
 for x in 4.0.to(0.0).by(-0.5) {
-    println!("{x}");
+    println("{x}");
 }
 ```
 
@@ -271,19 +271,19 @@ fn main() {
     let pi = std::f64::consts::PI;
     
     // Variable interpolation
-    println!("Hello {name}, you are {age} years old");
+    println("Hello {name}, you are {age} years old");
     
     // Expressions
-    println!("Next year: {age + 1}");
+    println("Next year: {age + 1}");
     
     // Format specifiers
-    println!("PI approx {pi:.2}");
+    println("PI approx {pi:.2}");
     
     // JSON serialization
-    println!("Data: {my_struct:j}");
+    println("Data: {my_struct:j}");
     
     // LaTeX rendering
-    println!("$(E = mc^2)");
+    println("$(E = mc^2)");
 }
 ```
 
@@ -456,10 +456,10 @@ use webrust::prelude::*;
 
 #[gui(bg="navy", fg="white", font="Courier New")]
 fn main() {
-    println!("@(cyan, bold, italic)Data Dashboard");
+    println("@(cyan, bold, italic)Data Dashboard");
     
     let name: String = input("What's your name?");
-    println!("Hello, {name}!");
+    println("Hello, {name}!");
     
     let data = vec![10.0, 20.0, 30.0, 40.0, 50.0];
     chart(&data, "line").title("Trend Analysis");
@@ -519,7 +519,7 @@ fn main() {
         path.line(x - 1.0, y, x, y);
     }
     
-    println!(r"$(y = v_0 \sin\theta \cdot t - \frac{1}{2}gt^2)");
+    println(r"$(y = v_0 \sin\theta \cdot t - \frac{1}{2}gt^2)");
 }
 ```
 
