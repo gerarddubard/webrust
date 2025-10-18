@@ -31,6 +31,7 @@
 // * Inline math: $(...)$ for short expressions
 // * Display math: $(\begin{...}...\end{...})$ for structured content
 // * Combine with color styling: @(blue)Text@() $(formula)$
+// * Use separate $(...)$ expressions for clarity (see examples below)
 
 use webrust::prelude::*;
 
@@ -95,9 +96,9 @@ fn main() {
 
     println(r"@(purple)Trigonometry:@() $(\sin^2(\theta) + \cos^2(\theta) = 1)");
 
-    println(r"@(darkorange)Complex numbers:@() $(e^{i\pi} + 1 = 0)$ (Euler's identity)");
+    println(r"@(darkorange)Complex numbers:@() $(e^{i\pi} + 1 = 0) (Euler's identity)");
 
-    println(r"@(darkcyan)Calculus:@() $(\frac{d}{dx}\sin(x) = \cos(x))$ and $(\int x^2 dx = \frac{x^3}{3} + C)");
+    println(r"@(darkcyan)Calculus:@() $(\frac{d}{dx}\sin(x) = \cos(x)) and $(\int x^2 dx = \frac{x^3}{3} + C)");
 
     // -------------------------------------------------------------------------
     // 3) LaTeX Integration - Display Math
@@ -111,7 +112,7 @@ fn main() {
     println(r"$(\begin{cases} x + y = 5 \\ 2x - y = 1 \end{cases})");
 
     println("\nFourier transform:");
-    println(r"$(\mathcal{F}\{f(t)\} = \int_{-\infty}^{\infty} f(t) e^{-2\pi i \xi t} dt)");
+    println(r"$(\mathcal{F}\{f(t)\} = \int_{-\infty}^{\infty} f(t) e^{-2\pi i \xi t} \, dt)");
 
     println("\nSummation formula:");
     println(r"$(\sum_{i=1}^n i = \frac{n(n+1)}{2})");
@@ -126,14 +127,14 @@ fn main() {
     let c = (a*a + b*b).sqrt();
 
     println("@(darkgreen)Given:@() a = {a} and b = {b}");
-    println(r"@(darkblue)Then:@() c = $(\sqrt{a^2 + b^2})$ = {c:.2}");
+    println(r"@(darkblue)Then:@() c = $(\sqrt{a^2 + b^2}) = {c:.2}");
 
     let angle = std::f64::consts::PI / 4.0;
     let sin_val = angle.sin();
     let cos_val = angle.cos();
 
-    println(r"@(purple)Angle:@() $(\theta = \frac{\pi}{4})$ ≈ {angle:.3} radians");
-    println(r"@(darkorange)Values:@() $(\sin(\theta))$ = {sin_val:.3}, $(\cos(\theta))$ = {cos_val:.3}");
+    println(r"@(purple)Angle:@() $(\theta = \frac{\pi}{4}) ≈ {angle:.3} radians");
+    println(r"@(darkorange)Values:@() $(\sin(\theta)) = {sin_val:.3}, $(\cos(\theta)) = {cos_val:.3}");
 
     // -------------------------------------------------------------------------
     // 5) Scientific Notation with LaTeX
@@ -141,10 +142,11 @@ fn main() {
     println("\n@(darkred, bold)5. Scientific Notation with LaTeX");
     println("@(darkcyan)Physical constants:");
 
-    println(r"Planck constant: $(h = 6.62607015 \times 10^{-34})$ $(m^2 kg / s)$");
-    println(r"Speed of light: $(c = 2.998 \times 10^{8})$ m/s");
-    println(r"Avogadro number: $(N_A = 6.022 \times 10^{23})$ $(mol^{-1})$");
-    println(r"Energy-mass relation: $(E = mc^2 = m \times 8.988 \times 10^{16})$");
+    // ✅ Units inside the LaTeX expression
+    println(r"Planck constant: $(h = 6.62607015 \times 10^{-34} \, \text{J·s})");
+    println(r"Speed of light: $(c = 2.998 \times 10^{8} \, \text{m/s})");
+    println(r"Avogadro number: $(N_A = 6.022 \times 10^{23} \, \text{mol}^{-1})");
+    println(r"Gravitational constant: $(G = 6.674 \times 10^{-11} \, \text{N·m}^2\text{/kg}^2)");
 
     // -------------------------------------------------------------------------
     // 6) Complex Mathematical Expressions

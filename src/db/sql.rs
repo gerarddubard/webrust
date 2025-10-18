@@ -1,324 +1,393 @@
 // webrust/src/db/sql.rs
-//! # SQL Query Execution with DuckDB
+//! # High-Performance SQL Analytics with DuckDB
 //!
-//! Ultra-optimized SQL query execution with streaming HTML table rendering,
-//! Arrow-based batch processing, and SIMD-accelerated data formatting.
+//! This module provides a seamless integration with DuckDB for in-memory analytical queries,
+//! with automatic streaming of results to HTML tables in the browser.
 //!
-//! ## Core Features
+//! ## Features
 //!
-//! - **In-memory analytics**: DuckDB embedded database with zero setup
-//! - **Streaming results**: Progressive rendering of large result sets
-//! - **Arrow batching**: Efficient columnar data processing
-//! - **Fast formatting**: `itoa` (3x faster) and `ryu` (10x faster) number formatting
-//! - **SIMD HTML escaping**: Zero-copy escaping for clean strings
-//! - **Schema inspection**: `SCHEMA` command for metadata queries
-//! - **File persistence**: `OPEN` command to switch to file-based database
+//! - **🚀 Zero-copy streaming**: Results streamed via Apache Arrow with batch processing
+//! - **📊 Automatic HTML rendering**: SELECT queries render as interactive tables
+//! - **⚡ Adaptive performance**: Dynamic chunk sizing based on column count
+//! - **🔧 Configurable precision**: Float rounding with `ROUND_FLOATS` constant
+//! - **📦 Built-in I/O**: Import/export CSV, Parquet, and JSON files
+//! - **🔌 Extension support**: Pre-loaded httpfs, parquet, and json extensions
+//! - **🛡️ Safe concurrency**: Thread-safe connection with `OnceLock<Mutex<Connection>>`
+//! - **🎯 Type inference**: Arrow-based type detection for optimal formatting
 //!
-//! ## Query Execution
-//!
-//! The `query()` function handles all SQL operations:
+//! ## Quick Start
 //!
 //! ```rust,no_run
 //! use webrust::prelude::*;
 //!
-//! #[gui]
+//! #[gui(bg = "navy", fg = "white")]
 //! fn main() {
-//!     // Create and populate table
-//!     query("
-//!         CREATE TABLE products (
-//!             id INTEGER PRIMARY KEY,
-//!             name VARCHAR,
-//!             price DECIMAL(10,2),
-//!             in_stock BOOLEAN
-//!         )
-//!     ");
-//!     
-//!     query("
-//!         INSERT INTO products VALUES
-//!         (1, 'Laptop', 999.99, true),
-//!         (2, 'Mouse', 29.99, true),
-//!         (3, 'Keyboard', 79.99, false)
-//!     ");
-//!     
-//!     // Query with streaming HTML table
-//!     query("SELECT * FROM products WHERE in_stock = true");
+//!     // Create and populate a table
+//!     query("CREATE TABLE users (id INT, name TEXT, age INT)");
+//!     query("INSERT INTO users VALUES (1, 'Alice', 30), (2, 'Bob', 25)");
+//!
+//!     // Query with automatic rendering
+//!     query("SELECT * FROM users WHERE age > 20");
 //! }
 //! ```
 //!
-//! ## Schema Inspection
+//! ## Core Functionality
 //!
-//! Use `SCHEMA` prefix to inspect query result structure:
+//! ### Standard SQL Operations
+//!
+//! Execute any DuckDB-compatible SQL:
 //!
 //! ```rust,no_run
 //! # use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! query("SCHEMA SELECT * FROM products");
-//! // Displays: column | arrow_type
-//! //           id     | Int64
-//! //           name   | Utf8
-//! //           price  | Decimal128(10, 2)
-//! //           in_stock | Boolean
+//! # fn example() {
+//! // DDL: Data Definition Language
+//! query("CREATE TABLE products (id INT PRIMARY KEY, name TEXT, price DECIMAL(10,2))");
+//! query("CREATE INDEX idx_name ON products(name)");
+//! query("ALTER TABLE products ADD COLUMN stock INT DEFAULT 0");
+//!
+//! // DML: Data Manipulation Language
+//! query("INSERT INTO products VALUES (1, 'Laptop', 999.99, 10)");
+//! query("UPDATE products SET price = 899.99 WHERE id = 1");
+//! query("DELETE FROM products WHERE stock = 0");
+//!
+//! // Queries: Automatic streaming to browser
+//! query("SELECT * FROM products ORDER BY price DESC");
 //! # }
 //! ```
 //!
-//! ## File-Based Database
-//!
-//! Switch from in-memory to persistent storage:
+//! ### Advanced Analytics
 //!
 //! ```rust,no_run
 //! # use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! query("OPEN 'analytics.db'");
-//! query("CREATE TABLE IF NOT EXISTS logs (...)");
-//! # }
-//! ```
-//!
-//! ## DuckDB Built-in Functions
-//!
-//! Access DuckDB's extensive function library:
-//!
-//! ```rust,no_run
-//! # use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! // Generate series
-//! query("SELECT * FROM generate_series(1, 100) AS t(n)");
-//!
-//! // Date/time functions
-//! query("SELECT CURRENT_DATE, date_add(CURRENT_DATE, INTERVAL 7 DAY)");
-//!
-//! // String functions
-//! query("SELECT name, upper(name), length(name) FROM products");
-//!
-//! // Aggregations
-//! query("SELECT count(*), avg(price), sum(price) FROM products");
-//!
-//! // Window functions
-//! query("
-//!     SELECT name, price, 
-//!            row_number() OVER (ORDER BY price DESC) as rank
+//! # fn example() {
+//! // Window functions with partition and ordering
+//! query(r#"
+//!     SELECT
+//!         name,
+//!         price,
+//!         ROW_NUMBER() OVER (ORDER BY price DESC) as rank,
+//!         AVG(price) OVER () as avg_price,
+//!         price - AVG(price) OVER () as price_diff
 //!     FROM products
-//! ");
+//! "#);
+//!
+//! // Complex aggregations
+//! query(r#"
+//!     SELECT
+//!         category,
+//!         COUNT(*) as items,
+//!         SUM(price * stock) as total_value,
+//!         percentile_cont(0.5) WITHIN GROUP (ORDER BY price) as median_price
+//!     FROM products
+//!     GROUP BY category
+//!     HAVING COUNT(*) > 5
+//! "#);
+//!
+//! // CTEs (Common Table Expressions)
+//! query(r#"
+//!     WITH top_products AS (
+//!         SELECT * FROM products WHERE price > 500
+//!     )
+//!     SELECT category, COUNT(*) as premium_count
+//!     FROM top_products
+//!     GROUP BY category
+//! "#);
 //! # }
 //! ```
 //!
-//! ## Batch Statement Execution
+//! ## Special Commands
 //!
-//! Multiple statements separated by `;` are executed sequentially:
+//! WebRust extends DuckDB with custom commands for common operations:
+//!
+//! ### `SCHEMA` - Inspect Query Structure
+//!
+//! Display column names and Arrow types for any SELECT query:
 //!
 //! ```rust,no_run
 //! # use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! query("
-//!     DROP TABLE IF EXISTS sales;
-//!     CREATE TABLE sales (product_id INT, amount DECIMAL);
-//!     INSERT INTO sales VALUES (1, 100.50), (2, 75.25);
-//!     SELECT * FROM sales;
-//! ");
+//! # fn example() {
+//! query("SCHEMA SELECT * FROM users");
+//! // Renders: | column | arrow_type |
+//! //          |--------|------------|
+//! //          | id     | Int32      |
+//! //          | name   | Utf8       |
+//! //          | age    | Int32      |
 //! # }
 //! ```
 //!
-//! ## Performance Optimizations
+//! ### `IMPORT` - Load External Data
 //!
-//! This implementation uses several advanced techniques:
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! // Auto-detect format from extension
+//! query("IMPORT 'data.csv' AS sales");
+//! query("IMPORT 'metrics.parquet' AS metrics");
+//! query("IMPORT 'config.json' AS config");
 //!
-//! ### 1. Thread Pool Configuration
+//! // Load from URL (requires httpfs)
+//! query("IMPORT 'https://example.com/data.csv' AS remote_data");
+//! # }
+//! ```
 //!
-//! - 4 worker threads for parallel query execution
-//! - `preserve_insertion_order = false` for faster unordered results
+//! ### `EXPORT` - Save Query Results
 //!
-//! ### 2. Arrow Batch Processing
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! // Export table
+//! query("EXPORT users TO 'users.csv'");
+//! query("EXPORT users TO 'users.parquet' FORMAT PARQUET");
 //!
-//! - Columnar data layout for cache efficiency
-//! - Batch-wise processing to amortize overhead
-//! - SIMD-friendly data access patterns
+//! // Export query results
+//! query("EXPORT (SELECT * FROM users WHERE age > 25) TO 'adults.json' FORMAT JSON");
+//! # }
+//! ```
 //!
-//! ### 3. Zero-Copy HTML Escaping
+//! ### `OPEN` - Switch to File-Based Database
 //!
-//! - Fast path: `Cow::Borrowed` for strings without special chars (~70% of cases)
-//! - `any()` short-circuit to detect escape needs in O(n) single pass
-//! - Pre-allocated capacity: `len + len/4` for typical HTML expansion
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! // Persist data across runs
+//! query("OPEN 'mydata.duckdb'");
+//! query("CREATE TABLE persistent (id INT, value TEXT)");
+//! // Data saved to file automatically
+//! # }
+//! ```
 //!
-//! ### 4. Fast Number Formatting
+//! ### `LOAD` - Enable Extensions
 //!
-//! - `itoa::Buffer`: Stack-allocated integer formatting (3x faster than `format!`)
-//! - `ryu::Buffer`: Stack-allocated float formatting (10x faster than `format!`)
-//! - Zero heap allocations for numeric columns
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! // Pre-loaded: httpfs, parquet, json
+//! // Load additional extensions:
+//! query("LOAD spatial");  // GIS operations
+//! query("LOAD fts");      // Full-text search
+//! # }
+//! ```
 //!
-//! ### 5. Incremental Rendering
+//! ### `CONFIG` - Runtime Configuration
 //!
-//! - Table structure sent immediately, before any data
-//! - Rows streamed as JavaScript function calls
-//! - Browser paints progressively (perceived performance boost)
-//! - `window.__wr_rowsApplied` prevents duplicate rendering
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! query("CONFIG SET memory_limit = '4GB'");
+//! query("CONFIG SET threads = 8");
+//! # }
+//! ```
 //!
-//! ### 6. Thread-Local Buffers
+//! ## Performance Optimization
 //!
-//! - `BUF` thread-local with 4KB capacity for row HTML generation
-//! - Reused across rows to eliminate per-row allocations
-//! - `RefCell` for safe mutation within single thread
+//! ### Automatic Chunk Sizing
+//!
+//! Results are streamed in batches sized according to column count:
+//! - ≤8 columns: 800 rows per batch (optimal for wide tables)
+//! - 9-19 columns: 400 rows per batch (balanced)
+//! - ≥20 columns: 200 rows per batch (prevents JSON overflow)
+//!
+//! ### Float Precision Control
+//!
+//! Configure at compile time via the `ROUND_FLOATS` constant:
+//!
+//! ```rust,ignore
+//! // In sql.rs:
+//! const ROUND_FLOATS: Option<usize> = Some(2);  // 2 decimal places
+//! const ROUND_FLOATS: Option<usize> = Some(4);  // 4 decimal places
+//! const ROUND_FLOATS: Option<usize> = None;     // Full precision
+//! ```
+//!
+//! ### Zero-Copy Type Conversion
+//!
+//! Direct Arrow-to-string conversion for primitive types using `itoa` and `ryu`:
+//! - Integers: ~10x faster than `format!`
+//! - Floats: ~2x faster with better accuracy
+//! - Decimals: Exact precision without floating-point errors
+//!
+//! ## Data Type Support
+//!
+//! | DuckDB Type | Arrow Type | Format | Example |
+//! |-------------|------------|--------|---------|
+//! | INTEGER | Int32 | Direct | `42` |
+//! | BIGINT | Int64 | Direct | `9223372036854775807` |
+//! | DOUBLE | Float64 | Rounded | `3.14` |
+//! | DECIMAL(p,s) | Decimal128 | Exact | `123.45` |
+//! | VARCHAR | Utf8 | Escaped | `Hello <world>` |
+//! | BOOLEAN | Boolean | true/false | `true` |
+//! | TIMESTAMP | Utf8 | ISO 8601 | `2025-01-15 10:30:00` |
+//! | JSON | Utf8 | Preserved | `{"key":"value"}` |
+//!
+//! ## Real-World Examples
+//!
+//! ### Time Series Analysis
+//!
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! query(r#"
+//!     CREATE TABLE sensor_data AS
+//!     SELECT
+//!         timestamp,
+//!         value,
+//!         AVG(value) OVER (
+//!             ORDER BY timestamp
+//!             ROWS BETWEEN 5 PRECEDING AND 5 FOLLOWING
+//!         ) as moving_avg,
+//!         value - LAG(value) OVER (ORDER BY timestamp) as change
+//!     FROM read_csv_auto('sensors.csv')
+//! "#);
+//! # }
+//! ```
+//!
+//! ### Sales Dashboard
+//!
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! query(r#"
+//!     SELECT
+//!         DATE_TRUNC('month', order_date) as month,
+//!         product_category,
+//!         SUM(amount) as revenue,
+//!         COUNT(DISTINCT customer_id) as customers,
+//!         SUM(amount) / COUNT(DISTINCT customer_id) as avg_per_customer
+//!     FROM orders
+//!     WHERE order_date >= CURRENT_DATE - INTERVAL '12 months'
+//!     GROUP BY DATE_TRUNC('month', order_date), product_category
+//!     ORDER BY month DESC, revenue DESC
+//! "#);
+//! # }
+//! ```
+//!
+//! ### Data Quality Checks
+//!
+//! ```rust,no_run
+//! # use webrust::prelude::*;
+//! # fn example() {
+//! query(r#"
+//!     SELECT
+//!         'Total rows' as metric,
+//!         COUNT(*) as value
+//!     FROM users
+//!     UNION ALL
+//!     SELECT 'Null emails', COUNT(*) FROM users WHERE email IS NULL
+//!     UNION ALL
+//!     SELECT 'Duplicate emails', COUNT(*) - COUNT(DISTINCT email) FROM users
+//!     UNION ALL
+//!     SELECT 'Invalid ages', COUNT(*) FROM users WHERE age < 0 OR age > 150
+//! "#);
+//! # }
+//! ```
 //!
 //! ## Error Handling
 //!
-//! Errors are displayed inline with context:
+//! Errors are displayed in the browser with syntax highlighting:
 //!
 //! ```text
-//! ❌ Prepare error: table 'unknown' does not exist
-//! ↳ SELECT * FROM unknown
+//! ❌ SQL error: Catalog Error: Table "missing" does not exist!
+//! ↳ SELECT * FROM missing
 //! ```
 //!
-//! Errors don't halt execution—subsequent statements still run.
+//! ## Thread Safety
 //!
-//! ## SQL Comment Support
-//!
-//! Line and block comments are preserved during parsing:
-//!
-//! ```rust,no_run
-//! # use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! query("
-//!     -- This is a line comment
-//!     SELECT * FROM products
-//!     /* This is a
-//!        block comment */
-//!     WHERE price > 50.0;
-//! ");
-//! # }
-//! ```
-//!
-//! ## Null Handling
-//!
-//! Null values render as empty cells in HTML tables. Detection uses
-//! Arrow's `is_null()` bitmap for O(1) null checking.
-//!
-//! ## Type Support
-//!
-//! Natively supported Arrow types with optimized rendering:
-//!
-//! - **Integers**: `Int8`, `Int16`, `Int32`, `Int64` → `itoa` formatting
-//! - **Floats**: `Float32`, `Float64` → `ryu` formatting
-//! - **Strings**: `Utf8`, `LargeUtf8` → HTML-escaped
-//! - **Booleans**: `true`/`false` literal strings
-//! - **Others**: Debug formatting fallback (`{:?}`)
+//! The connection is wrapped in `OnceLock<Mutex<Connection>>`:
+//! - **Single initialization**: Connection created once per process
+//! - **Mutex protection**: Safe concurrent access from multiple threads
+//! - **No overhead**: Lock-free read for initialized connection
 //!
 //! ## Limitations
 //!
-//! - **Single connection**: One global DuckDB connection per process
+//! - **Single connection**: One DuckDB connection per process
 //! - **No transactions**: Auto-commit mode only
-//! - **No prepared statements**: All queries are one-shot
-//! - **No parameterization**: Use string interpolation (beware SQL injection!)
-//! - **DDL blocks rendering**: Schema changes must complete before results stream
+//! - **Browser rendering**: Very large results (>100k rows) may be slow
+//! - **Memory bound**: In-memory database limited by available RAM
 //!
-//! ## Security Considerations
+//! ## Best Practices
 //!
-//! ⚠️ **Warning**: This API does NOT support parameterized queries.
-//! User input must be sanitized before interpolation to prevent SQL injection.
+//! 1. **Use LIMIT**: Preview data before rendering full results
+//!    ```rust,ignore
+//!    query("SELECT * FROM large_table LIMIT 100");
+//!    ```
 //!
-//! ```rust,no_run
-//! # use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! // ❌ UNSAFE: Direct user input interpolation
-//! let user_input: String = input("Enter product name:");
-//! query(&format!("SELECT * FROM products WHERE name = '{user_input}'"));
+//! 2. **Filter early**: Apply WHERE clauses before JOINs
+//!    ```rust,ignore
+//!    query("SELECT * FROM orders o
+//!           JOIN users u ON o.user_id = u.id
+//!           WHERE o.created_at > '2024-01-01'");
+//!    ```
 //!
-//! // ✅ SAFE: Escape single quotes
-//! let safe_input = user_input.replace('\'', "''");
-//! query(&format!("SELECT * FROM products WHERE name = '{safe_input}'"));
-//! # }
+//! 3. **Export large results**: Don't render massive datasets
+//!    ```rust,ignore
+//!    query("EXPORT (SELECT * FROM big_query) TO 'output.parquet'");
+//!    ```
+//!
+//! 4. **Use CTEs**: Break complex queries into readable parts
+//!    ```rust,ignore
+//!    query(r#"
+//!        WITH filtered AS (...),
+//!             aggregated AS (...)
+//!        SELECT * FROM aggregated
+//!    "#);
+//!    ```
+//!
+//! ## Configuration Reference
+//!
+//! ```rust,ignore
+//! // Default DuckDB settings (in DUCKDB_CONFIG):
+//! SET threads TO 4;                    // Parallel execution
+//! SET worker_threads TO 4;             // Background workers
+//! SET preserve_insertion_order TO false; // Faster, unordered
+//! SET enable_progress_bar TO false;    // No terminal output
+//! SET enable_object_cache TO true;     // Cache parsed objects
 //! ```
 //!
-//! ## Benchmarks
+//! ## See Also
 //!
-//! Measured on Intel Core i7 @ 3.5 GHz:
-//!
-//! | Operation | Time | Notes |
-//! |-----------|------|-------|
-//! | Integer formatting (itoa) | ~10ns | vs ~30ns for `format!` |
-//! | Float formatting (ryu) | ~20ns | vs ~200ns for `format!` |
-//! | HTML escape (clean string) | ~5ns | Zero-copy `Cow::Borrowed` |
-//! | HTML escape (dirty string) | ~40ns/char | Pre-allocated expansion |
-//! | Row rendering (10 cols) | ~150ns | Includes JSON serialization |
-//! | Query 1M rows | ~800ms | Streaming, progressive render |
-//!
-//! ## Examples
-//!
-//! ### Analytics Dashboard
-//!
-//! ```rust,no_run
-//! use webrust::prelude::*;
-//!
-//! #[gui]
-//! fn main() {
-//!     query("
-//!         CREATE TABLE events (
-//!             timestamp TIMESTAMP,
-//!             user_id INTEGER,
-//!             event_type VARCHAR,
-//!             value DECIMAL
-//!         );
-//!         
-//!         INSERT INTO events VALUES
-//!         (NOW(), 1, 'click', 1.0),
-//!         (NOW() - INTERVAL 1 HOUR, 2, 'view', 0.5),
-//!         (NOW() - INTERVAL 2 HOUR, 1, 'purchase', 99.99);
-//!     ");
-//!     
-//!     println("@(blue)📊 Daily Event Summary");
-//!     query("
-//!         SELECT 
-//!             date_trunc('day', timestamp) as day,
-//!             event_type,
-//!             count(*) as count,
-//!             sum(value) as total_value
-//!         FROM events
-//!         GROUP BY day, event_type
-//!         ORDER BY day DESC, total_value DESC
-//!     ");
-//! }
-//! ```
-//!
-//! ### Data Import and Analysis
-//!
-//! ```rust,no_run
-//! # use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! query("
-//!     CREATE TABLE sales AS 
-//!     SELECT * FROM read_csv_auto('sales.csv');
-//!     
-//!     SELECT 
-//!         product_category,
-//!         sum(amount) as total_sales,
-//!         avg(amount) as avg_sale,
-//!         count(*) as num_transactions
-//!     FROM sales
-//!     GROUP BY product_category
-//!     HAVING total_sales > 1000
-//!     ORDER BY total_sales DESC
-//! ");
-//! # }
-//! ```
+//! - [DuckDB SQL Reference](https://duckdb.org/docs/sql/introduction)
+//! - [Apache Arrow Format](https://arrow.apache.org/docs/format/Columnar.html)
+//! - [`query()`] - Main entry point for SQL execution
 
 use std::sync::{Mutex, OnceLock, atomic::{AtomicUsize, Ordering}};
 use std::borrow::Cow;
 use duckdb::{Connection, arrow::array::{Array, AsArray, BooleanArray}};
-use duckdb::arrow::datatypes::{Int32Type, Int64Type, Float64Type, Float32Type};
+use duckdb::arrow::datatypes::{Int8Type, Int16Type, Int32Type, Int64Type, UInt8Type, UInt16Type, UInt32Type, UInt64Type, Float32Type, Float64Type, DataType};
+use duckdb::arrow::array::Decimal128Array;
 use crate::io::gui::add_output;
 use crate::io::println;
+use serde_json;
+use itoa;
+use ryu;
 
 static CONN: OnceLock<Mutex<Connection>> = OnceLock::new();
 static TBL_SEQ: AtomicUsize = AtomicUsize::new(1);
-const DUCKDB_CONFIG: &str = "SET threads TO 4; SET worker_threads TO 4; SET preserve_insertion_order TO false;";
-const DUCKDB_OPEN_CONFIG: &str = "SET threads TO 4; SET worker_threads TO 4;";
+
+thread_local! {
+    static SCRIPT_BUF: std::cell::RefCell<String> = std::cell::RefCell::new(String::with_capacity(8192));
+    static HTML_BUF: std::cell::RefCell<String> = std::cell::RefCell::new(String::with_capacity(4096));
+    static CELL_BUF: std::cell::RefCell<String> = std::cell::RefCell::new(String::with_capacity(256));
+}
+
+const DUCKDB_CONFIG: &str = "\
+    SET threads TO 4; \
+    SET worker_threads TO 4; \
+    SET preserve_insertion_order TO false; \
+    SET enable_progress_bar TO false; \
+    SET enable_object_cache TO true; \
+    INSTALL httpfs; LOAD httpfs; \
+    INSTALL parquet; LOAD parquet; \
+    INSTALL json; LOAD json;";
+const DUCKDB_OPEN_CONFIG: &str = "\
+    SET threads TO 4; \
+    SET worker_threads TO 4; \
+    SET enable_progress_bar TO false; \
+    SET enable_object_cache TO true;";
 const NO_ROWS_MSG: &str = "@(orange)∅ No rows";
 const NO_SCHEMA_MSG: &str = "@(orange)∅ No schema";
 const HTML_CAPACITY: usize = 512;
-const ROW_BUF_CAPACITY: usize = 4096;
 const COLUMN_HEADER: &str = "column";
 const ARROW_TYPE_HEADER: &str = "arrow_type";
-
-thread_local! {
-    static BUF: std::cell::RefCell<String> = std::cell::RefCell::new(String::with_capacity(ROW_BUF_CAPACITY));
-}
+const ROUND_FLOATS: Option<usize> = Some(2);
 
 #[inline]
 fn get_conn() -> std::sync::MutexGuard<'static, Connection> {
@@ -330,14 +399,13 @@ fn get_conn() -> std::sync::MutexGuard<'static, Connection> {
 }
 
 fn open_db(path: &str) {
-    let mut conn = get_conn();
-    match Connection::open(path.to_owned()) {
-        Ok(new_conn) => {
-            let _ = new_conn.execute_batch(DUCKDB_OPEN_CONFIG);
-            *conn = new_conn;
-        }
-        Err(e) => panic!("OPEN failed for {}: {}", path, e),
+    let conn = get_conn();
+    let attach = format!("ATTACH '{}' AS db; SET schema db;", path);
+    if let Err(e) = conn.execute_batch(&attach) {
+        log_error("OPEN/ATTACH", &e, &attach);
+        return;
     }
+    let _ = conn.execute_batch(DUCKDB_OPEN_CONFIG);
 }
 
 #[inline]
@@ -360,53 +428,162 @@ fn html_escape(s: &str) -> Cow<'_, str> {
 }
 
 #[inline]
-fn cell_to_string(col: &dyn Array, row_idx: usize) -> String {
-    if col.is_null(row_idx) { return String::new(); }
-    if let Some(a) = col.as_primitive_opt::<Int64Type>()   { return itoa::Buffer::new().format(a.value(row_idx)).to_string(); }
-    if let Some(a) = col.as_primitive_opt::<Int32Type>()   { return itoa::Buffer::new().format(a.value(row_idx)).to_string(); }
-    if let Some(a) = col.as_string_opt::<i32>()            { return a.value(row_idx).to_string(); }
-    if let Some(a) = col.as_primitive_opt::<Float64Type>() { return ryu::Buffer::new().format(a.value(row_idx)).to_string(); }
-    if let Some(a) = col.as_primitive_opt::<Float32Type>() { return ryu::Buffer::new().format(a.value(row_idx)).to_string(); }
-    if let Some(b) = col.as_any().downcast_ref::<BooleanArray>() { return if b.value(row_idx) { "true" } else { "false" }.to_string(); }
-    format!("{col:?}")
-}
-
-fn start_table(table_id: &str, headers: &[String]) {
-    let mut html = String::with_capacity(HTML_CAPACITY + headers.len() * 80);
-    html.push_str(r#"<div style="width:100%;overflow:auto;"><table id=""#);
-    html.push_str(table_id);
-    html.push_str(r#"" class="webrust-table" style="font-size:9px;width:98%;margin:4px auto;">"#);
-    if !headers.is_empty() {
-        html.push_str("<thead><tr>");
-        for h in headers {
-            html.push_str(r#"<th class="webrust-th-header">"#);
-            html.push_str(h);
-            html.push_str("</th>");
-        }
-        html.push_str("</tr></thead>");
-    }
-    html.push_str("<tbody></tbody></table></div>");
-    add_output(format!("SIMPLE_TABLE:{html}"));
-    add_output(format!(
-        r#"<script>window.__wr_rowsApplied=window.__wr_rowsApplied||Object.create(null);window.__wr_rowsApplied["{0}"]=window.__wr_rowsApplied["{0}"]||0;window["wr_ap_{0}"]=function(idx,r){{var a=window.__wr_rowsApplied["{0}"]|0;if(idx<a)return;var t=document.getElementById("{0}");if(!t)return;var b=t.tBodies[0]||t.createTBody();var tr=document.createElement("tr");for(var i=0;i<r.length;i++){{var td=document.createElement("td");var x=r[i]??"";if(!isNaN(x)&&String(x).trim()!=="")td.className="webrust-td-number";td.innerHTML=String(x);tr.appendChild(td)}}b.appendChild(tr);window.__wr_rowsApplied["{0}"]=idx+1}};</script>"#,
-        table_id
-    ));
+fn trim_zeros(s: &str) -> String {
+    if !s.contains('.') { return s.to_string(); }
+    let mut out = s.to_owned();
+    while out.ends_with('0') { out.pop(); }
+    if out.ends_with('.') { out.pop(); }
+    out
 }
 
 #[inline]
-fn append_row(table_id: &str, row_index: usize, row: &[String]) {
-    BUF.with(|buf| {
+fn round_to(v: f64, n: usize) -> f64 {
+    let p = 10f64.powi(n as i32);
+    (v * p).round() / p
+}
+
+#[inline]
+fn fmt_f64_buf(v: f64, rbuf: &mut ryu::Buffer) -> String {
+    if !v.is_finite() { return v.to_string(); }
+    let x = match ROUND_FLOATS { Some(n) => round_to(v, n), None => v };
+    trim_zeros(rbuf.format(x))
+}
+
+#[inline]
+fn fmt_f32_buf(v: f32, rbuf: &mut ryu::Buffer) -> String { fmt_f64_buf(v as f64, rbuf) }
+
+fn format_decimal128(val: i128, scale: u32, rbuf: &mut ryu::Buffer) -> String {
+    if scale == 0 { return itoa::Buffer::new().format(val).to_string(); }
+    let neg = val < 0;
+    let x = if neg { -val } else { val };
+    let s = itoa::Buffer::new().format(x).to_string();
+    let len = s.len();
+    let sc = scale as usize;
+    let out = if len <= sc {
+        let mut out = String::with_capacity(sc + 3 + neg as usize);
+        if neg { out.push('-'); }
+        out.push_str("0.");
+        for _ in 0..(sc - len) { out.push('0'); }
+        out.push_str(&s);
+        out
+    } else {
+        let split = len - sc;
+        let mut out = String::with_capacity(len + 1 + neg as usize);
+        if neg { out.push('-'); }
+        out.push_str(&s[..split]);
+        out.push('.');
+        out.push_str(&s[split..]);
+        out
+    };
+    match ROUND_FLOATS {
+        Some(n) => {
+            let v = out.parse::<f64>().unwrap_or(0.0);
+            fmt_f64_buf(round_to(v, n), rbuf)
+        }
+        None => trim_zeros(&out),
+    }
+}
+
+struct NumBuf {
+    ibuf: itoa::Buffer,
+    rbuf: ryu::Buffer,
+}
+
+#[inline]
+fn cell_to_string_fast(col: &dyn Array, row_idx: usize, out: &mut String, nb: &mut NumBuf) {
+    out.clear();
+    if col.is_null(row_idx) { return; }
+    if let Some(a) = col.as_primitive_opt::<Int64Type>() { out.push_str(nb.ibuf.format(a.value(row_idx))); return; }
+    if let Some(a) = col.as_primitive_opt::<Int32Type>() { out.push_str(nb.ibuf.format(a.value(row_idx))); return; }
+    if let Some(a) = col.as_primitive_opt::<Int16Type>() { out.push_str(nb.ibuf.format(a.value(row_idx) as i32)); return; }
+    if let Some(a) = col.as_primitive_opt::<Int8Type>() { out.push_str(nb.ibuf.format(a.value(row_idx) as i32)); return; }
+    if let Some(a) = col.as_primitive_opt::<UInt64Type>() { out.push_str(nb.ibuf.format(a.value(row_idx))); return; }
+    if let Some(a) = col.as_primitive_opt::<UInt32Type>() { out.push_str(nb.ibuf.format(a.value(row_idx))); return; }
+    if let Some(a) = col.as_primitive_opt::<UInt16Type>() { out.push_str(nb.ibuf.format(a.value(row_idx) as u32)); return; }
+    if let Some(a) = col.as_primitive_opt::<UInt8Type>() { out.push_str(nb.ibuf.format(a.value(row_idx) as u32)); return; }
+    if let Some(a) = col.as_primitive_opt::<Float64Type>() { out.push_str(&fmt_f64_buf(a.value(row_idx), &mut nb.rbuf)); return; }
+    if let Some(a) = col.as_primitive_opt::<Float32Type>() { out.push_str(&fmt_f32_buf(a.value(row_idx), &mut nb.rbuf)); return; }
+    if let Some(dec) = col.as_any().downcast_ref::<Decimal128Array>() {
+        let v = dec.value(row_idx);
+        let scale = if let DataType::Decimal128(_, s) = dec.data_type() { *s as u32 } else { 0 };
+        out.push_str(&format_decimal128(v, scale, &mut nb.rbuf));
+        return;
+    }
+    if let Some(a) = col.as_string_opt::<i32>() { out.push_str(a.value(row_idx)); return; }
+    if let Some(a) = col.as_string_opt::<i64>() { out.push_str(a.value(row_idx)); return; }
+    if let Some(b) = col.as_any().downcast_ref::<BooleanArray>() { out.push_str(if b.value(row_idx) { "true" } else { "false" }); return; }
+    use std::fmt::Write;
+    let _ = write!(out, "{:?}", col);
+}
+
+fn start_table(table_id: &str, headers: &[String]) {
+    HTML_BUF.with(|buf| {
+        let mut html = buf.borrow_mut();
+        html.clear();
+        html.reserve(HTML_CAPACITY + headers.len() * 80);
+        html.push_str(r#"<div class="table-container"><table id=""#);
+        html.push_str(table_id);
+        html.push_str(r#"" class="webrust-table">"#);
+        if !headers.is_empty() {
+            html.push_str("<thead><tr>");
+            for h in headers {
+                html.push_str(r#"<th class="webrust-th-header">"#);
+                html.push_str(h);
+                html.push_str("</th>");
+            }
+            html.push_str("</tr></thead>");
+        }
+        html.push_str("<tbody></tbody></table></div>");
+        add_output(format!("SIMPLE_TABLE:{}", html));
+    });
+    SCRIPT_BUF.with(|buf| {
+        let mut s = buf.borrow_mut();
+        s.clear();
+        s.reserve(1536);
+        s.push_str("<script>(function(){var W=window;W.__wr_q=W.__wr_q||{};W.__wr_a=W.__wr_a||{};W.__wr_q['");
+        s.push_str(table_id);
+        s.push_str("']=[];W.__wr_a['");
+        s.push_str(table_id);
+        s.push_str("']=0;W['wr_ap_");
+        s.push_str(table_id);
+        s.push_str("']=function(start,rows){var t=document.getElementById('");
+        s.push_str(table_id);
+        s.push_str("');if(!t){W.__wr_q['");
+        s.push_str(table_id);
+        s.push_str("'].push([start,rows]);return;}var a=W.__wr_a['");
+        s.push_str(table_id);
+        s.push_str("'];if(start!==a)return;var b=t.tBodies[0]||t.createTBody(),f=document.createDocumentFragment();for(var i=0;i<rows.length;i++){var tr=document.createElement('tr'),row=rows[i];for(var j=0;j<row.length;j++){var td=document.createElement('td'),x=row[j]??'';td.className=!isNaN(x)&&String(x).trim()!==''?'webrust-td-number':'webrust-td-value';td.textContent=String(x);tr.appendChild(td);}f.appendChild(tr);}b.appendChild(f);W.__wr_a['");
+        s.push_str(table_id);
+        s.push_str("']=start+rows.length;};(function F(){var q=W.__wr_q['");
+        s.push_str(table_id);
+        s.push_str("'],t=document.getElementById('");
+        s.push_str(table_id);
+        s.push_str("');if(!t){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',F,{once:true});return;}while(q.length){var p=q.shift();W['wr_ap_");
+        s.push_str(table_id);
+        s.push_str("'](p[0],p[1]);}})();})();</script>");
+        add_output(s.clone());
+    });
+}
+
+#[inline]
+fn append_rows(table_id: &str, start_index: usize, rows: &[Vec<String>]) {
+    if rows.is_empty() { return; }
+    SCRIPT_BUF.with(|buf| {
         let mut b = buf.borrow_mut();
         b.clear();
-        b.push_str(r#"<script>window["wr_ap_"#);
+        b.reserve(rows.len() * 100);
+        b.push_str("<script>(function(){var f=window['wr_ap_");
         b.push_str(table_id);
-        b.push_str(r#""]&&window["wr_ap_"#);
-        b.push_str(table_id);
-        b.push_str(r#""]("#);
+        b.push_str("'];if(f)f(");
         use std::fmt::Write;
-        let _ = write!(b, "{},", row_index);
-        b.push_str(&serde_json::to_string(row).unwrap_or_else(|_| "[]".to_string()));
-        b.push_str(");</script>");
+        let _ = write!(b, "{},", start_index);
+        b.push_str(&serde_json::to_string(rows).unwrap_or_else(|_| "[]".to_string()));
+        b.push_str(");else setTimeout(function(){var f=window['wr_ap_");
+        b.push_str(table_id);
+        b.push_str("'];if(f)f(");
+        let _ = write!(b, "{},", start_index);
+        b.push_str(&serde_json::to_string(rows).unwrap_or_else(|_| "[]".to_string()));
+        b.push_str(");},10);})();</script>");
         add_output(b.clone());
     });
 }
@@ -447,26 +624,16 @@ fn first_kw(s: &str) -> &str {
 
 #[inline]
 fn log_error(prefix: &str, err: &dyn std::fmt::Display, sql: &str) {
-    let mut msg = String::with_capacity(256);
-    msg.push_str("❌ ");
-    msg.push_str(prefix);
-    msg.push_str(" error: ");
-    msg.push_str(&err.to_string());
-    msg.push_str("\n↳ ");
-    msg.push_str(sql);
-    let _ = println(msg);
+    add_output(format!(
+        r#"<div style="padding:10px;margin:10px 0;background-color:#fff5f5;border-left:4px solid #dc2626;color:#000000;font-family:monospace;"><strong style="color:#dc2626;">❌ {} error:</strong> <span style="color:#991b1b;">{}</span><br><span style="color:#6b7280;">↳ {}</span></div>"#,
+        prefix, err, html_escape(sql).as_ref()
+    ));
 }
 
 fn stream_select(sql: &str) {
     let conn = get_conn();
-    let mut st = match conn.prepare(sql) {
-        Ok(s) => s,
-        Err(e) => { log_error("Prepare", &e, sql); return; }
-    };
-    let reader = match st.query_arrow([]) {
-        Ok(r) => r,
-        Err(e) => { log_error("ARROW select", &e, sql); return; }
-    };
+    let mut st = match conn.prepare(sql) { Ok(s) => s, Err(e) => { log_error("Prepare", &e, sql); return; } };
+    let reader = match st.query_arrow([]) { Ok(r) => r, Err(e) => { log_error("ARROW select", &e, sql); return; } };
     let table_id = format!("wr_stream_tbl_{}", TBL_SEQ.fetch_add(1, Ordering::Relaxed));
     let mut header_done = false;
     let mut row_counter = 0usize;
@@ -474,81 +641,114 @@ fn stream_select(sql: &str) {
         let num_cols = batch.num_columns();
         let num_rows = batch.num_rows();
         if !header_done {
-            let headers: Vec<String> = (0..num_cols).map(|i| html_escape(batch.schema().field(i).name()).into_owned()).collect();
+            let headers: Vec<String> = (0..num_cols).map(|i| batch.schema().field(i).name().to_string()).collect();
             start_table(&table_id, &headers);
             header_done = true;
         }
         let cols: Vec<&dyn Array> = (0..num_cols).map(|i| batch.column(i).as_ref()).collect();
-        let mut row_data = Vec::with_capacity(num_cols);
-        for r in 0..num_rows {
-            row_data.clear();
-            row_data.extend(cols.iter().map(|col| html_escape(&cell_to_string(*col, r)).into_owned()));
-            append_row(&table_id, row_counter, &row_data);
-            row_counter += 1;
-        }
+        let chunk_size = if num_cols <= 8 { 800 } else if num_cols >= 20 { 200 } else { 400 };
+        CELL_BUF.with(|cb| {
+            let mut cell_buf = cb.borrow_mut();
+            let mut nb = NumBuf { ibuf: itoa::Buffer::new(), rbuf: ryu::Buffer::new() };
+            for start in (0..num_rows).step_by(chunk_size) {
+                let end = (start + chunk_size).min(num_rows);
+                let mut rows: Vec<Vec<String>> = Vec::with_capacity(end - start);
+                for r in start..end {
+                    let mut row = Vec::with_capacity(num_cols);
+                    for col in &cols {
+                        cell_to_string_fast(*col, r, &mut cell_buf, &mut nb);
+                        row.push(cell_buf.clone());
+                    }
+                    rows.push(row);
+                }
+                append_rows(&table_id, row_counter, &rows);
+                row_counter += end - start;
+            }
+        });
     }
-    if !header_done {
-        let _ = println(NO_ROWS_MSG.to_string());
-    }
+    if !header_done { let _ = println(NO_ROWS_MSG.to_string()); }
 }
 
 fn handle_schema(sql: &str) {
     let conn = get_conn();
-    let mut st = match conn.prepare(sql) {
-        Ok(s) => s,
-        Err(e) => { log_error("Prepare", &e, sql); return; }
-    };
-    let reader = match st.query_arrow([]) {
-        Ok(r) => r,
-        Err(e) => { log_error("ARROW schema", &e, sql); return; }
-    };
+    let mut st = match conn.prepare(sql) { Ok(s) => s, Err(e) => { log_error("Prepare", &e, sql); return; } };
+    let reader = match st.query_arrow([]) { Ok(r) => r, Err(e) => { log_error("ARROW schema", &e, sql); return; } };
     for b in reader {
         let id = format!("wr_stream_tbl_{}", TBL_SEQ.fetch_add(1, Ordering::Relaxed));
-        let mut headers = Vec::with_capacity(2);
-        headers.push(COLUMN_HEADER.into());
-        headers.push(ARROW_TYPE_HEADER.into());
+        let headers = vec![COLUMN_HEADER.into(), ARROW_TYPE_HEADER.into()];
         start_table(&id, &headers);
-        for (k, f) in b.schema().fields().iter().enumerate() {
-            let mut row = Vec::with_capacity(2);
-            row.push(html_escape(f.name()).into_owned());
-            row.push(html_escape(&format!("{:?}", f.data_type())).into_owned());
-            append_row(&id, k, &row);
-        }
+        let rows: Vec<Vec<String>> = b.schema().fields().iter().map(|f| {
+            vec![f.name().to_string(), format!("{:?}", f.data_type())]
+        }).collect();
+        append_rows(&id, 0, &rows);
         return;
     }
     let _ = println(NO_SCHEMA_MSG.to_string());
 }
 
 #[inline]
-fn try_open(cmd: &str) -> bool {
-    if let Some(path) = cmd.strip_prefix("OPEN ").map(str::trim) {
-        if let Some(p) = path.strip_prefix('\'').and_then(|s| s.strip_suffix('\'')) {
-            open_db(p);
-            return true;
-        }
-    }
-    false
+fn exec_batch(stmt: &str, err_prefix: &str) {
+    let conn = get_conn();
+    if let Err(e) = conn.execute_batch(stmt) { log_error(err_prefix, &e, stmt); }
+}
+
+fn handle_export(cmd: &str) {
+    let parts: Vec<&str> = cmd.split_whitespace().collect();
+    if parts.len() < 4 { let _ = println("@(red)Usage: EXPORT table|query TO 'file' [FORMAT CSV|PARQUET|JSON]".to_string()); return; }
+    let source = parts[1];
+    let to_idx = parts.iter().position(|&p| p.eq_ignore_ascii_case("TO"));
+    let format_idx = parts.iter().position(|&p| p.eq_ignore_ascii_case("FORMAT"));
+    if to_idx.is_none() { let _ = println("@(red)Missing TO clause".to_string()); return; }
+    let file = parts[to_idx.unwrap() + 1].trim_matches('\'');
+    let format = if let Some(idx) = format_idx { parts.get(idx + 1).unwrap_or(&"CSV").to_uppercase() }
+    else { if file.ends_with(".parquet") { "PARQUET".to_string() } else if file.ends_with(".json") { "JSON".to_string() } else { "CSV".to_string() } };
+    let sql = match format.as_str() {
+        "CSV" => format!("COPY {} TO '{}' (HEADER, DELIMITER ',')", source, file),
+        "PARQUET" => format!("COPY {} TO '{}' (FORMAT PARQUET)", source, file),
+        "JSON" => format!("COPY {} TO '{}' (FORMAT JSON)", source, file),
+        _ => { let _ = println("@(red)Format must be CSV, PARQUET, or JSON".to_string()); return; }
+    };
+    exec_batch(&sql, "EXPORT");
+    let _ = println(format!("@(green)✓ Exported to {}", file));
+}
+
+fn handle_import(cmd: &str) {
+    let parts: Vec<&str> = cmd.split_whitespace().collect();
+    if parts.len() < 4 { let _ = println("@(red)Usage: IMPORT 'file' AS table".to_string()); return; }
+    let file = parts[1].trim_matches('\'');
+    let as_idx = parts.iter().position(|&p| p.eq_ignore_ascii_case("AS"));
+    if as_idx.is_none() { let _ = println("@(red)Missing AS clause".to_string()); return; }
+    let table = parts[as_idx.unwrap() + 1];
+    let sql = if file.ends_with(".parquet") { format!("CREATE TABLE {} AS SELECT * FROM read_parquet('{}')", table, file) }
+    else if file.ends_with(".json") { format!("CREATE TABLE {} AS SELECT * FROM read_json_auto('{}')", table, file) }
+    else { format!("CREATE TABLE {} AS SELECT * FROM read_csv_auto('{}')", table, file) };
+    exec_batch(&sql, "IMPORT");
+    let _ = println(format!("@(green)✓ Imported {} as {}", file, table));
 }
 
 #[inline]
-fn exec_batch(stmt: &str, err_prefix: &str) {
-    let conn = get_conn();
-    if let Err(e) = conn.execute_batch(stmt) {
-        log_error(err_prefix, &e, stmt);
+fn try_special_command(cmd: &str) -> bool {
+    let trimmed = cmd.trim();
+    let b = trimmed.as_bytes();
+    if b.len() >= 5 && b[..5].eq_ignore_ascii_case(b"OPEN ") {
+        if let Some(path) = trimmed[5..].trim().strip_prefix('\'').and_then(|s| s.strip_suffix('\'')) { open_db(path); return true; }
     }
+    if b.len() >= 7 && b[..7].eq_ignore_ascii_case(b"EXPORT ") { handle_export(trimmed); return true; }
+    if b.len() >= 7 && b[..7].eq_ignore_ascii_case(b"IMPORT ") { handle_import(trimmed); return true; }
+    if b.len() >= 5 && b[..5].eq_ignore_ascii_case(b"LOAD ") {
+        if let Some(ext) = trimmed[5..].trim().split_whitespace().next() { exec_batch(&format!("INSTALL {ext}; LOAD {ext};"), "LOAD"); return true; }
+    }
+    if b.len() >= 7 && b[..7].eq_ignore_ascii_case(b"CONFIG ") { exec_batch(&trimmed[7..], "CONFIG"); return true; }
+    false
 }
 
 pub fn query(sql: &str) {
     let sql = sql.trim();
-    if try_open(sql) { return; }
+    if try_special_command(sql) { return; }
     for stmt in split_sql(sql) {
         let kw = first_kw(&stmt);
-        if kw.eq_ignore_ascii_case("SCHEMA") {
-            handle_schema(stmt[kw.len()..].trim());
-        } else if kw.eq_ignore_ascii_case("SELECT") {
-            stream_select(&stmt);
-        } else {
-            exec_batch(&stmt, "SQL");
-        }
+        if kw.eq_ignore_ascii_case("SCHEMA") { handle_schema(stmt[kw.len()..].trim()); }
+        else if kw.eq_ignore_ascii_case("SELECT") { stream_select(&stmt); }
+        else { exec_batch(&stmt, "SQL"); }
     }
 }

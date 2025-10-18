@@ -1,4 +1,4 @@
-// examples/py_sql.rs
+// examples/py_simplesql
 // Run with: cargo run --example sql
 //
 // This example showcases the WebRust + DuckDB "query-first" workflow.
