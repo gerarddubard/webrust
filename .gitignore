@@ -1,0 +1,21 @@
+# Rust
+/target/
+Cargo.lock
+
+# RustRover (IntelliJ IDEA)
+.idea/
+*.iml
+
+# Autres fichiers IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# Système
+.DS_Store
+Thumbs.db
+
+# Debug et logs
+*.log
+*.pdb

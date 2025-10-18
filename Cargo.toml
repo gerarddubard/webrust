@@ -1,0 +1,77 @@
+[package]
+name = "webrust"
+version = "1.5.0"
+edition = "2021"
+authors = ["gdubard <infodgjl@gmail.com>"]
+description = "Python-like Rust for Web Applications - A bridge between Python simplicity and Rust power"
+documentation = "https://docs.rs/webrust"
+repository = "https://github.com/gerarddubard/webrust"
+homepage = "https://github.com/gerarddubard/webrust"
+license = "MIT"
+keywords = ["python", "web", "gui", "latex", "formatting"]
+categories = ["gui", "web-programming", "development-tools"]
+readme = "README.md"
+
+[dependencies]
+tiny_http = "0.12.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.143"
+lazy_static = "1.5.0"
+duckdb = { version = "1.4.1", features = ["bundled"], optional = true }
+webrust-macros = { version = "1.5.0", path = "webrust-macros" }
+itoa = "1.0.15"
+ryu = "1.0.20"
+smallvec = "1.15.1"
+memchr = "2.7.6"
+
+[features]
+default = []
+sql = ["duckdb"]
+
+[[example]]
+name = "simpleio"
+path = "examples/py_simpleio.rs"
+
+[[example]]
+name = "advancedio"
+path = "examples/py_advancedio.rs"
+
+[[example]]
+name = "latexio"
+path = "examples/py_latexio.rs"
+
+[[example]]
+name = "string"
+path = "examples/py_string.rs"
+
+[[example]]
+name = "utils"
+path = "examples/py_utils.rs"
+
+[[example]]
+name = "table"
+path = "examples/py_table.rs"
+
+[[example]]
+name = "chart"
+path = "examples/py_chart.rs"
+
+[[example]]
+name = "turtle"
+path = "examples/py_turtle.rs"
+
+[[example]]
+name = "mixed"
+path = "examples/py_mixed.rs"
+
+[[example]]
+name = "sql"
+path = "examples/py_sql.rs"
+required-features = ["sql"]
+
+[workspace]
+members = ["webrust-macros"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
