@@ -1,3 +1,4 @@
+// webrust/src/lib.rs
 //! # WebRust - Python-like Rust for Web Applications
 //!
 //! WebRust brings Python's ergonomic syntax to Rust, enabling rapid development of
@@ -68,42 +69,43 @@
 //! with automatic server setup and browser launch.
 
 #![allow(clippy::all)]
+pub mod graphic;
 pub mod io;
 pub mod iter;
-pub mod viz;
-pub mod graphic;
 pub mod layout;
 pub mod text;
+pub mod viz;
 
 #[cfg(feature = "sql")]
 pub mod db;
+pub mod math;
 
 pub use io::*;
 pub use iter::*;
-pub use viz::*;
 pub use layout::*;
+pub use viz::*;
 
 #[cfg(feature = "sql")]
 pub use db::*;
 
 #[doc(hidden)]
-pub use serde;
-#[doc(hidden)]
-pub use serde_json;
-#[doc(hidden)]
 pub use itoa;
 #[doc(hidden)]
 pub use ryu;
-
+#[doc(hidden)]
+pub use serde;
+#[doc(hidden)]
+pub use serde_json;
 
 pub mod prelude {
-    pub use crate::layout::*;
+    pub use crate::graphic::turtle::*;
     pub use crate::io::print::{TH, TW};
     pub use crate::io::*;
     pub use crate::iter::*;
+    pub use crate::layout::*;
+    pub use crate::math::*;
     pub use crate::text::*;
     pub use crate::viz::*;
-    pub use crate::graphic::turtle::*;
     pub use webrust_macros::gui;
 
     #[cfg(feature = "sql")]

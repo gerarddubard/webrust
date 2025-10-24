@@ -8,7 +8,7 @@ body {
     min-height: 100vh;
 }
 #terminal {
-    position:relative;
+    position: relative;
     background: white;
     border: 2px solid silver;
     border-radius: 12px;
@@ -37,19 +37,33 @@ table.webrust-table td {
     vertical-align: middle;
     border-radius: 4px;
 }
-.webrust-th-header {
-    background: lightskyblue;
+table.webrust-table td {
+    background: white;
     color: midnightblue;
-    font-weight: bold;
-    text-align: center;
 }
-.webrust-td-value {
-    color: midnightblue;
+table.webrust-table th.webrust-th-header {
+    background: lightskyblue !important;
+    color: midnightblue !important;
+    font-weight: bold !important;
+    text-align: center !important;
+}
+.webrust-td-key {
+    background: white !important;
+    color: black !important;
+    font-weight: normal;
+    text-align: left;
+    transition: background 0.2s ease;
+}
+.webrust-td-key:hover {
+    background: #f2f2f2 !important;
+}
+.webrust-td-value,
+.webrust-td-number {
+    background: white !important;
+    color: midnightblue !important;
     font-style: italic;
 }
 .webrust-td-number {
-    color: midnightblue;
-    font-style: italic;
     text-align: right;
 }
 .no-border {
@@ -57,7 +71,6 @@ table.webrust-table td {
     background: transparent !important;
     padding: 0 !important;
 }
-
 .chart-container {
     width: 100%;
     max-width: 900px;
@@ -68,6 +81,13 @@ table.webrust-table td {
     padding: 15px;
     box-sizing: border-box;
 }
-
-.turtle-stage{position:relative;margin:12px 0}
-.turtle-stage canvas{width:100%;height:auto;display:block;background:transparent}
+.turtle-stage {
+    position: relative;
+    margin: 12px 0;
+}
+.turtle-stage canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: transparent;
+}

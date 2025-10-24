@@ -19,3 +19,6 @@ Thumbs.db
 # Debug et logs
 *.log
 *.pdb
+/target
+
+/webrust-macros/target

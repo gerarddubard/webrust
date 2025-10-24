@@ -1,28 +1,27 @@
-// examples/py_advancedsql.rs
-// Run with: cargo run --example advancedsql --features sql
+// webrust/examples/py_advancedsql.rs
 
 use webrust::prelude::*;
 
-#[gui(bg = "darkslategray", fg = "lightcyan", font = "Consolas", color = "white", size = "11px")]
+#[gui(Consolas, 11px, white, !darkslategray)]
 fn main() {
-    println("@(cyan, bold)📊 WebRust Data Analysis Demo");
-    println("@(gray)Using DuckDB for high-performance analytics\n");
+    println("<cyan,b>📊 WebRust Data Analysis Demo");
+    println("<gray>Using DuckDB for high-performance analytics\n");
 
-    // =========================================================================
-    // 1) IRIS DATASET
-    // =========================================================================
-    println("@(green, bold)🌸 Part 1: Iris Dataset Analysis");
+    println("<green,b>🌸 Part 1: Iris Dataset Analysis");
 
-    query("IMPORT 'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv' AS iris");
+    query(
+        "IMPORT 'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv' AS iris",
+    );
 
-    println("@(yellow)→ First rows");
+    println("<yellow>→ First rows");
     query("SELECT * FROM iris LIMIT 10");
 
-    println("@(yellow)→ Dataset shape");
+    println("<yellow>→ Dataset shape");
     query("SELECT COUNT(*) as rows, COUNT(DISTINCT species) as species FROM iris");
 
-    println("@(yellow)→ Descriptive statistics");
-    query(r#"
+    println("<yellow>→ Descriptive statistics");
+    query(
+        r#"
         SELECT
             species,
             COUNT(*) as count,
@@ -33,10 +32,12 @@ fn main() {
         FROM iris
         GROUP BY species
         ORDER BY species
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Distribution analysis");
-    query(r#"
+    println("<yellow>→ Distribution analysis");
+    query(
+        r#"
         SELECT
             species,
             MIN(petal_length) as min_petal,
@@ -48,30 +49,31 @@ fn main() {
         FROM iris
         GROUP BY species
         ORDER BY species
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Correlation matrix");
-    query(r#"
+    println("<yellow>→ Correlation matrix");
+    query(
+        r#"
         SELECT
             ROUND(CORR(sepal_length, sepal_width), 3) as sepal_l_w,
             ROUND(CORR(sepal_length, petal_length), 3) as sepal_l_petal_l,
             ROUND(CORR(sepal_length, petal_width), 3) as sepal_l_petal_w,
             ROUND(CORR(petal_length, petal_width), 3) as petal_l_w
         FROM iris
-    "#);
+    "#,
+    );
 
-    // =========================================================================
-    // 2) TITANIC DATASET
-    // =========================================================================
-    println("\n@(blue, bold)🚢 Part 2: Titanic Survival Analysis");
+    println("\n<blue,b>🚢 Part 2: Titanic Survival Analysis");
 
     query("IMPORT 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv' AS titanic");
 
-    println("@(yellow)→ Overview");
+    println("<yellow>→ Overview");
     query("SELECT * FROM titanic LIMIT 8");
 
-    println("@(yellow)→ Survival rate by class");
-    query(r#"
+    println("<yellow>→ Survival rate by class");
+    query(
+        r#"
         SELECT
             Pclass as class,
             COUNT(*) as total,
@@ -80,10 +82,12 @@ fn main() {
         FROM titanic
         GROUP BY Pclass
         ORDER BY Pclass
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Survival by gender");
-    query(r#"
+    println("<yellow>→ Survival by gender");
+    query(
+        r#"
         SELECT
             Sex as gender,
             COUNT(*) as total,
@@ -92,10 +96,12 @@ fn main() {
         FROM titanic
         GROUP BY Sex
         ORDER BY survival_rate_pct DESC
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Pivot: Survival by class and gender");
-    query(r#"
+    println("<yellow>→ Pivot: Survival by class and gender");
+    query(
+        r#"
         SELECT
             Pclass as class,
             COUNT(*) as total,
@@ -110,10 +116,12 @@ fn main() {
         FROM titanic
         GROUP BY Pclass
         ORDER BY Pclass
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Age distribution of survivors");
-    query(r#"
+    println("<yellow>→ Age distribution of survivors");
+    query(
+        r#"
         SELECT
             CASE
                 WHEN Age < 18 THEN 'Child'
@@ -134,10 +142,12 @@ fn main() {
                 WHEN 'Adult' THEN 3
                 ELSE 4
             END
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Fare analysis");
-    query(r#"
+    println("<yellow>→ Fare analysis");
+    query(
+        r#"
         SELECT
             Pclass as class,
             ROUND(MIN(Fare), 2) as min_fare,
@@ -148,16 +158,14 @@ fn main() {
         WHERE Fare > 0
         GROUP BY Pclass
         ORDER BY Pclass
-    "#);
+    "#,
+    );
 
-    // =========================================================================
-    // 3) ADVANCED ANALYTICS - FIXES APPLIQUÉS
-    // =========================================================================
-    println("\n@(magenta, bold)🔬 Part 3: Advanced Analytics");
+    println("\n<magenta,b>🔬 Part 3: Advanced Analytics");
 
-    println("@(yellow)→ Window functions: Running totals (FIXED)");
-    // FIX: Enlever QUALIFY et filtrer dans un WHERE classique
-    query(r#"
+    println("<yellow>→ Window functions: Running totals (FIXED)");
+    query(
+        r#"
         WITH survivors AS (
             SELECT
                 Pclass,
@@ -181,11 +189,12 @@ fn main() {
         )
         SELECT * FROM grouped
         ORDER BY Pclass, Sex
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Top 3 fares per class (FIXED - avec ROW_NUMBER)");
-    // FIX: Utiliser ROW_NUMBER() au lieu de RANK() pour éviter les égalités
-    query(r#"
+    println("<yellow>→ Top 3 fares per class (FIXED - avec ROW_NUMBER)");
+    query(
+        r#"
         WITH ranked AS (
             SELECT
                 Name,
@@ -199,11 +208,12 @@ fn main() {
         FROM ranked
         WHERE rn <= 3
         ORDER BY Pclass, rn
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Alternative: Distinct top fares per class");
-    // Bonus: montrer les tarifs distincts les plus élevés
-    query(r#"
+    println("<yellow>→ Alternative: Distinct top fares per class");
+    query(
+        r#"
         WITH distinct_fares AS (
             SELECT DISTINCT Pclass, Fare
             FROM titanic
@@ -220,10 +230,12 @@ fn main() {
         FROM ranked_fares
         WHERE rn <= 5
         ORDER BY Pclass, rn
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Cross-dataset: Compare distributions");
-    query(r#"
+    println("<yellow>→ Cross-dataset: Compare distributions");
+    query(
+        r#"
         SELECT
             'Iris petal length' as metric,
             ROUND(AVG(petal_length), 2) as mean,
@@ -249,14 +261,13 @@ fn main() {
             ROUND(MAX(Fare), 2) as max_val
         FROM titanic
         WHERE Fare > 0
-    "#);
+    "#,
+    );
 
-    // =========================================================================
-    // 4) DATA EXPORT
-    // =========================================================================
-    println("\n@(cyan, bold)💾 Part 4: Export Results");
+    println("\n<cyan,b>💾 Part 4: Export Results");
 
-    query(r#"
+    query(
+        r#"
         CREATE TEMP TABLE analysis_summary AS
         SELECT
             'Iris' as dataset,
@@ -269,28 +280,26 @@ fn main() {
             COUNT(*) as rows,
             COUNT(DISTINCT Pclass) as categories
         FROM titanic
-    "#);
+    "#,
+    );
 
-    println("@(yellow)→ Summary table");
+    println("<yellow>→ Summary table");
     query("SELECT * FROM analysis_summary");
 
     query("EXPORT analysis_summary TO 'summary.csv'");
     query("EXPORT analysis_summary TO 'summary.parquet'");
     query("EXPORT analysis_summary TO 'summary.json'");
 
-    println("@(green)✓ Exported to summary.csv, summary.parquet, summary.json");
+    println("<green>✓ Exported to summary.csv, summary.parquet, summary.json");
 
-    // =========================================================================
-    // 5) SCHEMA INSPECTION
-    // =========================================================================
-    println("\n@(bright_magenta, bold)🔍 Part 5: Schema Inspection");
+    println("\n<bright_magenta,b>🔍 Part 5: Schema Inspection");
 
-    println("@(yellow)→ Iris schema");
+    println("<yellow>→ Iris schema");
     query("SCHEMA SELECT * FROM iris");
 
-    println("@(yellow)→ Titanic schema");
+    println("<yellow>→ Titanic schema");
     query("SCHEMA SELECT PassengerId, Survived, Pclass, Name, Sex, Age, Fare FROM titanic");
 
-    println("\n@(bright_green, bold)✨ Analysis Complete!");
-    println("@(gray)All data processed in-memory with DuckDB");
+    println("\n<bright_green,b>✨ Analysis Complete!");
+    println("<gray>All data processed in-memory with DuckDB");
 }

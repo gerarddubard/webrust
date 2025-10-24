@@ -1,69 +1,12 @@
-// examples/py_table.rs
-// Run with: cargo run --example table
-//
-// This example demonstrates WebRust's powerful table() function that
-// automatically formats and displays structured data as HTML tables
-// with LaTeX support, headers, pivoting, and cell merging.
-//
-// Core features demonstrated:
-// - Automatic table generation from Vec, HashMap, nested structures
-// - Custom headers with .header([...])
-// - Matrix transposition with .pivot()
-// - Cell merging for visual grouping with .merge()
-// - LaTeX math rendering in cells and headers
-// - Smart handling of 1D, 2D, and 3D nested data structures
-//
-// Supported data types:
-// * Vec<T> - Simple vectors displayed as rows or columns
-// * Vec<Vec<T>> - 2D matrices with automatic grid layout
-// * HashMap<K, V> - Key-value pairs with sorted keys
-// * HashMap<K, Vec<V>> - Grouped data with nested vectors
-// * Nested HashMap - Multi-level hierarchical data
-//
-// Method chaining:
-// * table(&data)                        - Basic table
-// * table(&data).header([...])          - Add column headers
-// * table(&data).pivot()                - Transpose rows/columns
-// * table(&data).pivot().header([...])  - Transpose with row headers
-// * table(&data).merge()                - Merge adjacent identical cells
-//
-// LaTeX integration:
-// * Simple expressions: "$(E = mc^2)" - no raw strings needed
-// * Complex expressions: r"$(\frac{a}{b})" - raw strings for clarity
-// * Headers: ["$(x)", "$(y)", "$(z)"]
-// * Cells: Automatic rendering of embedded LaTeX
-//
-// When to use .merge():
-// * Categorical grouping: Survey ratings, color regions
-// * Visual hierarchy: Parent-child relationships
-// * Pattern visualization: Repeated values form blocks
-// * Sparse data: Reduce visual clutter
-//
-// Performance notes:
-// * Automatic HTML generation with proper escaping
-// * Smart formatting based on data structure
-// * Inline CSS for consistent styling
-// * LaTeX rendered client-side with MathJax
-//
-// Tips:
-// * Use Vec<Vec<T>> for simple grids
-// * Use HashMap for labeled data
-// * Use .pivot() to swap rows and columns
-// * Use .header() for meaningful column names
-// * Use .merge() sparingly - only when visual grouping helps
-// * Raw strings (r"...") help with complex LaTeX: \frac, \begin{...}
-// * Keep LaTeX simple in headers for readability
-
-use webrust::prelude::*;
 use std::collections::HashMap;
+use webrust::prelude::*;
 
-#[gui(bg = "white", fg = "white", font = "Arial", color = "black", size = "12px")]
+#[gui(Arial, 12px, black, !white)]
 fn main() {
-    println("@(blue, bold)🧪 WebRust Table Tests");
+    println("<blue,b>🧪 WebRust Table Tests");
     println("");
 
-    // ===== 1. SIMPLE VECTOR TEST =====
-    println("@(green, bold)1. Simple Vector");
+    println("<green,b>1. Simple Vector");
     let numbers = vec![10, 20, 30, 40, 50];
     println("Basic vector:");
     table(&numbers);
@@ -75,12 +18,14 @@ fn main() {
     table(&numbers).header(["A", "B", "C", "D", "E"]).pivot();
 
     println("Pivoted with headers:");
-    table(&numbers).header(["A", "B", "C", "D", "E"]).pivot().header(["Values"]);
+    table(&numbers)
+        .header(["A", "B", "C", "D", "E"])
+        .pivot()
+        .header(["Values"]);
 
     println("");
 
-    // ===== 2. MATRIX TEST =====
-    println("@(green, bold)2. 2x3 Matrix");
+    println("<green,b>2. 2x3 Matrix");
     let matrix = vec![vec![1, 2, 3], vec![4, 5, 6]];
     println("Basic matrix:");
     table(&matrix);
@@ -89,12 +34,14 @@ fn main() {
     table(&matrix).header(["$(x)", "$(y)", "$(z)"]);
 
     println("Pivoted with headers:");
-    table(&matrix).header(["$(x)", "$(y)", "$(z)"]).pivot().header(["$(\\vec{u})", "$(\\vec{v})"]);
+    table(&matrix)
+        .header(["$(x)", "$(y)", "$(z)"])
+        .pivot()
+        .header(["$(\\vec{u})", "$(\\vec{v})"]);
 
     println("");
 
-    // ===== 3. SIMPLE HASHMAP TEST =====
-    println("@(green, bold)3. Simple HashMap");
+    println("<green,b>3. Simple HashMap");
     let mut scores = HashMap::new();
     scores.insert("Alice", 95);
     scores.insert("Bob", 87);
@@ -108,8 +55,7 @@ fn main() {
 
     println("");
 
-    // ===== 4. HASHMAP WITH VECTORS TEST =====
-    println("@(green, bold)4. HashMap with Vectors");
+    println("<green,b>4. HashMap with Vectors");
     let mut grades = HashMap::new();
     grades.insert("Math", vec![18, 16, 19]);
     grades.insert("Physics", vec![15, 17, 16]);
@@ -122,8 +68,7 @@ fn main() {
 
     println("");
 
-    // ===== 5. TEXTUAL DATA TEST =====
-    println("@(green, bold)5. Textual Data");
+    println("<green,b>5. Textual Data");
     let employees = vec![
         vec!["Alice", "25", "Engineer"],
         vec!["Bob", "30", "Designer"],
@@ -141,8 +86,7 @@ fn main() {
 
     println("");
 
-    // ===== 6. COMPLEX STRUCTURE TESTS =====
-    println("@(green, bold)6. Complex Structure");
+    println("<green,b>6. Complex Structure");
     let mut complex = HashMap::new();
     let mut paris_data = HashMap::new();
     paris_data.insert("population", 2_200_000);
@@ -164,7 +108,10 @@ fn main() {
     let mut france = HashMap::new();
     let mut paris = HashMap::new();
     paris.insert("population".to_string(), "2.2M".to_string());
-    paris.insert("attractions".to_string(), "Eiffel Tower, Louvre".to_string());
+    paris.insert(
+        "attractions".to_string(),
+        "Eiffel Tower, Louvre".to_string(),
+    );
     france.insert("Paris".to_string(), paris);
     let mut marseille = HashMap::new();
     marseille.insert("population".to_string(), "870K".to_string());
@@ -173,11 +120,17 @@ fn main() {
     let mut usa = HashMap::new();
     let mut new_york = HashMap::new();
     new_york.insert("population".to_string(), "8.4M".to_string());
-    new_york.insert("attractions".to_string(), "Statue of Liberty, Times Square".to_string());
+    new_york.insert(
+        "attractions".to_string(),
+        "Statue of Liberty, Times Square".to_string(),
+    );
     usa.insert("New York".to_string(), new_york);
     let mut los_angeles = HashMap::new();
     los_angeles.insert("population".to_string(), "4M".to_string());
-    los_angeles.insert("attractions".to_string(), "Hollywood, Venice Beach".to_string());
+    los_angeles.insert(
+        "attractions".to_string(),
+        "Hollywood, Venice Beach".to_string(),
+    );
     usa.insert("Los Angeles".to_string(), los_angeles);
     cities_data.insert("France".to_string(), france);
     cities_data.insert("USA".to_string(), usa);
@@ -190,8 +143,7 @@ fn main() {
 
     println("");
 
-    // ===== 7. WHEN TO USE .merge() =====
-    println("@(green, bold)7. When .merge() is Useful");
+    println("<green,b>7. When .merge() is Useful");
     let survey_data = vec![
         vec!["Excellent", "Customer Service"],
         vec!["Excellent", "Product Quality"],
@@ -224,8 +176,7 @@ fn main() {
 
     println("");
 
-    // ===== 8. MATHEMATICAL EXAMPLES =====
-    println("@(green, bold)8. Mathematical Examples");
+    println("<green,b>8. Mathematical Examples");
     let truth_table = vec![
         vec!["0", "0", "0", "0"],
         vec!["0", "1", "0", "1"],
@@ -233,16 +184,11 @@ fn main() {
         vec!["1", "1", "1", "1"],
     ];
     println("Boolean logic truth table:");
-    table(&truth_table).header([
-        "$(A)",
-        "$(B)",
-        "$(A \\land B)",
-        "$(A \\lor B)"
-    ]);
+    table(&truth_table).header(["$(A)", "$(B)", "$(A \\land B)", "$(A \\lor B)"]);
 
     println("Pascal's Triangle (triangular structure preserved):");
     let mut pascal_triangle = Vec::new();
-    for n in 0.to(9) {
+    for n in 0i32.to(9) {
         let mut row = Vec::new();
         for k in 0.to(n + 1) {
             let mut c = 1u32;
@@ -255,14 +201,12 @@ fn main() {
     }
     table(&pascal_triangle);
 
-    // Multiplication Table
     println("Multiplication table (9x9):");
     let headers: Vec<String> = (1..=9).map(|i| format!("x{}", i)).collect();
     let data: Vec<Vec<u32>> = (1..=9).map(|i| (1..=9).map(|j| i * j).collect()).collect();
     table(&data).header(headers.clone()).pivot().header(headers);
 
-    // ===== 9. LATEX EXAMPLES (SIMPLE vs COMPLEX) =====
-    println("@(green, bold)9. LaTeX Examples (Simple vs Complex)");
+    println("<green,b>9. LaTeX Examples (Simple vs Complex)");
 
     println("Simple Greek alphabet:");
     let greek = vec![
@@ -274,17 +218,32 @@ fn main() {
         vec!["Pi", "$(\\pi)", "$(\\Pi)"],
     ];
     table(&greek).header(["Name", "Lowercase", "Uppercase"]);
-    
+
     println("Simple trigonometric values:");
     let trig = vec![
-        vec!["$(0)",                     "$(0)",                     "$(1)",                     "$(0)"],
-        vec![r"$(\frac{\pi}{6})",        r"$(\frac{1}{2})",          r"$(\frac{\sqrt{3}}{2})",    r"$(\frac{1}{\sqrt{3}})"],
-        vec![r"$(\frac{\pi}{4})",        r"$(\frac{\sqrt{2}}{2})",   r"$(\frac{\sqrt{2}}{2})",    "$(1)"],
-        vec![r"$(\frac{\pi}{3})",        r"$(\frac{\sqrt{3}}{2})",   r"$(\frac{1}{2})",           r"$(\sqrt{3})"],
-        vec![r"$(\frac{\pi}{2})",        "$(1)",                     "$(0)",                     "not defined"],
-        vec![r"$(\pi)",                  "$(0)",                     "$(-1)",                    "$(0)"],
-        vec![r"$(\frac{3\pi}{2})",       "$(-1)",                    "$(0)",                     "not defined"],
-        vec![r"$2\pi$",                  "$(0)",                     "$(1)",                     "$(0)"],
+        vec!["$(0)", "$(0)", "$(1)", "$(0)"],
+        vec![
+            r"$(\frac{\pi}{6})",
+            r"$(\frac{1}{2})",
+            r"$(\frac{\sqrt{3}}{2})",
+            r"$(\frac{1}{\sqrt{3}})",
+        ],
+        vec![
+            r"$(\frac{\pi}{4})",
+            r"$(\frac{\sqrt{2}}{2})",
+            r"$(\frac{\sqrt{2}}{2})",
+            "$(1)",
+        ],
+        vec![
+            r"$(\frac{\pi}{3})",
+            r"$(\frac{\sqrt{3}}{2})",
+            r"$(\frac{1}{2})",
+            r"$(\sqrt{3})",
+        ],
+        vec![r"$(\frac{\pi}{2})", "$(1)", "$(0)", "not defined"],
+        vec![r"$(\pi)", "$(0)", "$(-1)", "$(0)"],
+        vec![r"$(\frac{3\pi}{2})", "$(-1)", "$(0)", "not defined"],
+        vec![r"$2\pi$", "$(0)", "$(1)", "$(0)"],
     ];
 
     table(&trig).header([
@@ -296,65 +255,282 @@ fn main() {
 
     println("Complex equations (using raw strings for clarity):");
     let equations = vec![
-        vec!["Maxwell 1", r"$(\nabla \cdot \mathbf{E} = \frac{\rho}{\epsilon_0})"],
+        vec![
+            "Maxwell 1",
+            r"$(\nabla \cdot \mathbf{E} = \frac{\rho}{\epsilon_0})",
+        ],
         vec!["Maxwell 2", r"$(\nabla \cdot \mathbf{B} = 0)"],
-        vec!["Maxwell 3", r"$(\nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t})"],
-        vec!["Schrödinger", r"$(i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi)"],
+        vec![
+            "Maxwell 3",
+            r"$(\nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t})",
+        ],
+        vec![
+            "Schrödinger",
+            r"$(i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi)",
+        ],
     ];
     table(&equations).header(["Equation", "Mathematical Form"]);
 
     println("2D Transformation matrices (complex - use raw strings):");
     let transforms_2d = vec![
-        vec!["Rotation", r"$(\begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix})"],
-        vec!["Scaling", r"$(\begin{pmatrix} s_x & 0 \\ 0 & s_y \end{pmatrix})"],
-        vec!["Reflection X", r"$(\begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix})"],
+        vec![
+            "Rotation",
+            r"$(\begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix})",
+        ],
+        vec![
+            "Scaling",
+            r"$(\begin{pmatrix} s_x & 0 \\ 0 & s_y \end{pmatrix})",
+        ],
+        vec![
+            "Reflection X",
+            r"$(\begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix})",
+        ],
     ];
     table(&transforms_2d).header(["Transform", "2D Matrix"]);
 
     println("3D Homogeneous transformation matrices (very complex - raw strings essential):");
     let transforms_3d = vec![
-        vec!["3D Rotation Z", r"$(\begin{pmatrix} \cos\theta & -\sin\theta & 0 & 0 \\ \sin\theta & \cos\theta & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix})"],
-        vec!["3D Scaling", r"$(\begin{pmatrix} s_x & 0 & 0 & 0 \\ 0 & s_y & 0 & 0 \\ 0 & 0 & s_z & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix})"],
-        vec!["3D Translation", r"$(\begin{pmatrix} 1 & 0 & 0 & t_x \\ 0 & 1 & 0 & t_y \\ 0 & 0 & 1 & t_z \\ 0 & 0 & 0 & 1 \end{pmatrix})"],
+        vec![
+            "3D Rotation Z",
+            r"$(\begin{pmatrix} \cos\theta & -\sin\theta & 0 & 0 \\ \sin\theta & \cos\theta & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix})",
+        ],
+        vec![
+            "3D Scaling",
+            r"$(\begin{pmatrix} s_x & 0 & 0 & 0 \\ 0 & s_y & 0 & 0 \\ 0 & 0 & s_z & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix})",
+        ],
+        vec![
+            "3D Translation",
+            r"$(\begin{pmatrix} 1 & 0 & 0 & t_x \\ 0 & 1 & 0 & t_y \\ 0 & 0 & 1 & t_z \\ 0 & 0 & 0 & 1 \end{pmatrix})",
+        ],
     ];
     table(&transforms_3d).header(["Transform", "3D Homogeneous Matrix"]);
 
     println("Complex mathematical expressions (showcasing when raw strings help):");
     let complex_math = vec![
-        vec!["Fourier Transform", r"$(\mathcal{F}\{f(t)\} = \int_{-\infty}^{\infty} f(t) e^{-2\pi i \xi t} dt)"],
-        vec!["Gaussian Integral", r"$(\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi})"],
-        vec!["Euler's Identity", "$(e^{i\\pi} + 1 = 0)"], // Simple enough without raw string
-        vec!["Riemann Zeta", r"$(\zeta(s) = \sum_{n=1}^{\infty} \frac{1}{n^s})"],
+        vec![
+            "Fourier Transform",
+            r"$(\mathcal{F}\{f(t)\} = \int_{-\infty}^{\infty} f(t) e^{-2\pi i \xi t} dt)",
+        ],
+        vec![
+            "Gaussian Integral",
+            r"$(\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi})",
+        ],
+        vec!["Euler's Identity", "$(e^{i\\pi} + 1 = 0)"],
+        vec![
+            "Riemann Zeta",
+            r"$(\zeta(s) = \sum_{n=1}^{\infty} \frac{1}{n^s})",
+        ],
     ];
     table(&complex_math).header(["Name", "Expression"]);
 
-    println("@(green, bold)10. Periodic Table (colored tiles)\n");
-    const A: &str = "MistyRose"; const E: &str = "LemonChiffon"; const T: &str = "LightSteelBlue"; const P: &str = "Gainsboro"; const M: &str = "PaleGreen"; const N: &str = "HoneyDew"; const H: &str = "Moccasin"; const G: &str = "Plum"; const L: &str = "Lavender"; const C: &str = "Thistle"; const B: &str = "#333"; const X: (&str, &str, &str) = ("","","");
+    println("<green,b>10. Periodic Table (colored tiles)\n");
+    const A: &str = "MistyRose";
+    const E: &str = "LemonChiffon";
+    const T: &str = "LightSteelBlue";
+    const P: &str = "Gainsboro";
+    const M: &str = "PaleGreen";
+    const N: &str = "HoneyDew";
+    const H: &str = "Moccasin";
+    const G: &str = "Plum";
+    const L: &str = "Lavender";
+    const C: &str = "Thistle";
+    const B: &str = "#333";
+    const X: (&str, &str, &str) = ("", "", "");
     let table = vec![
-        vec![("H",N,B), X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X, ("He",G,B)],
-        vec![("Li",A,B), ("Be",E,B), X,X,X,X,X,X,X,X,X,X, ("B",M,B), ("C",N,B), ("N",N,B), ("O",N,B), ("F",H,B), ("Ne",G,B)],
-        vec![("Na",A,B), ("Mg",E,B), X,X,X,X,X,X,X,X,X,X, ("Al",P,B), ("Si",M,B), ("P",N,B), ("S",N,B), ("Cl",H,B), ("Ar",G,B)],
-        vec![("K",A,B), ("Ca",E,B), ("Sc",T,B), ("Ti",T,B), ("V",T,B), ("Cr",T,B), ("Mn",T,B), ("Fe",T,B), ("Co",T,B), ("Ni",T,B), ("Cu",T,B), ("Zn",T,B), ("Ga",P,B), ("Ge",M,B), ("As",M,B), ("Se",P,B), ("Br",H,B), ("Kr",G,B)],
-        vec![("Rb",A,B), ("Sr",E,B), ("Y",T,B), ("Zr",T,B), ("Nb",T,B), ("Mo",T,B), ("Tc",T,B), ("Ru",T,B), ("Rh",T,B), ("Pd",T,B), ("Ag",T,B), ("Cd",T,B), ("In",P,B), ("Sn",P,B), ("Sb",M,B), ("Te",M,B), ("I",H,B), ("Xe",G,B)],
-        vec![("Cs",A,B), ("Ba",E,B), ("La",L,B), ("Hf",T,B), ("Ta",T,B), ("W",T,B), ("Re",T,B), ("Os",T,B), ("Ir",T,B), ("Pt",T,B), ("Au",T,B), ("Hg",T,B), ("Tl",P,B), ("Pb",P,B), ("Bi",P,B), ("Po",P,B), ("At",H,B), ("Rn",G,B)],
-        vec![("Fr",A,B), ("Ra",E,B), ("Ac",C,B), ("Rf",T,B), ("Db",T,B), ("Sg",T,B), ("Bh",T,B), ("Hs",T,B), ("Mt",T,B), ("Ds",T,B), ("Rg",T,B), ("Cn",T,B), ("Nh",P,B), ("Fl",P,B), ("Mc",P,B), ("Lv",P,B), ("Ts",H,B), ("Og",G,B)],
-        vec![X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X],
-        vec![X,X,X, ("La",L,B), ("Ce",L,B), ("Pr",L,B), ("Nd",L,B), ("Pm",L,B), ("Sm",L,B), ("Eu",L,B), ("Gd",L,B), ("Tb",L,B), ("Dy",L,B), ("Ho",L,B), ("Er",L,B), ("Tm",L,B), ("Yb",L,B), ("Lu",L,B)],
-        vec![X,X,X, ("Ac",C,B), ("Th",C,B), ("Pa",C,B), ("U",C,B), ("Np",C,B), ("Pu",C,B), ("Am",C,B), ("Cm",C,B), ("Bk",C,B), ("Cf",C,B), ("Es",C,B), ("Fm",C,B), ("Md",C,B), ("No",C,B), ("Lr",C,B)],
+        vec![
+            ("H", N, B),
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            ("He", G, B),
+        ],
+        vec![
+            ("Li", A, B),
+            ("Be", E, B),
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            ("B", M, B),
+            ("C", N, B),
+            ("N", N, B),
+            ("O", N, B),
+            ("F", H, B),
+            ("Ne", G, B),
+        ],
+        vec![
+            ("Na", A, B),
+            ("Mg", E, B),
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            X,
+            ("Al", P, B),
+            ("Si", M, B),
+            ("P", N, B),
+            ("S", N, B),
+            ("Cl", H, B),
+            ("Ar", G, B),
+        ],
+        vec![
+            ("K", A, B),
+            ("Ca", E, B),
+            ("Sc", T, B),
+            ("Ti", T, B),
+            ("V", T, B),
+            ("Cr", T, B),
+            ("Mn", T, B),
+            ("Fe", T, B),
+            ("Co", T, B),
+            ("Ni", T, B),
+            ("Cu", T, B),
+            ("Zn", T, B),
+            ("Ga", P, B),
+            ("Ge", M, B),
+            ("As", M, B),
+            ("Se", P, B),
+            ("Br", H, B),
+            ("Kr", G, B),
+        ],
+        vec![
+            ("Rb", A, B),
+            ("Sr", E, B),
+            ("Y", T, B),
+            ("Zr", T, B),
+            ("Nb", T, B),
+            ("Mo", T, B),
+            ("Tc", T, B),
+            ("Ru", T, B),
+            ("Rh", T, B),
+            ("Pd", T, B),
+            ("Ag", T, B),
+            ("Cd", T, B),
+            ("In", P, B),
+            ("Sn", P, B),
+            ("Sb", M, B),
+            ("Te", M, B),
+            ("I", H, B),
+            ("Xe", G, B),
+        ],
+        vec![
+            ("Cs", A, B),
+            ("Ba", E, B),
+            ("La", L, B),
+            ("Hf", T, B),
+            ("Ta", T, B),
+            ("W", T, B),
+            ("Re", T, B),
+            ("Os", T, B),
+            ("Ir", T, B),
+            ("Pt", T, B),
+            ("Au", T, B),
+            ("Hg", T, B),
+            ("Tl", P, B),
+            ("Pb", P, B),
+            ("Bi", P, B),
+            ("Po", P, B),
+            ("At", H, B),
+            ("Rn", G, B),
+        ],
+        vec![
+            ("Fr", A, B),
+            ("Ra", E, B),
+            ("Ac", C, B),
+            ("Rf", T, B),
+            ("Db", T, B),
+            ("Sg", T, B),
+            ("Bh", T, B),
+            ("Hs", T, B),
+            ("Mt", T, B),
+            ("Ds", T, B),
+            ("Rg", T, B),
+            ("Cn", T, B),
+            ("Nh", P, B),
+            ("Fl", P, B),
+            ("Mc", P, B),
+            ("Lv", P, B),
+            ("Ts", H, B),
+            ("Og", G, B),
+        ],
+        vec![X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X],
+        vec![
+            X,
+            X,
+            X,
+            ("La", L, B),
+            ("Ce", L, B),
+            ("Pr", L, B),
+            ("Nd", L, B),
+            ("Pm", L, B),
+            ("Sm", L, B),
+            ("Eu", L, B),
+            ("Gd", L, B),
+            ("Tb", L, B),
+            ("Dy", L, B),
+            ("Ho", L, B),
+            ("Er", L, B),
+            ("Tm", L, B),
+            ("Yb", L, B),
+            ("Lu", L, B),
+        ],
+        vec![
+            X,
+            X,
+            X,
+            ("Ac", C, B),
+            ("Th", C, B),
+            ("Pa", C, B),
+            ("U", C, B),
+            ("Np", C, B),
+            ("Pu", C, B),
+            ("Am", C, B),
+            ("Cm", C, B),
+            ("Bk", C, B),
+            ("Cf", C, B),
+            ("Es", C, B),
+            ("Fm", C, B),
+            ("Md", C, B),
+            ("No", C, B),
+            ("Lr", C, B),
+        ],
     ];
     for row in &table {
+        println("<mb0>");
         for &(sym, bg, border) in row {
             if sym.is_empty() {
-                print("").width(20).weight(1).color("transparent").background("transparent").space(0);
+                print("<transparent !transparent w25 t1 |transparent mc>");
             } else {
-                print(sym).width(20).radius(6).align("center").weight(1).style("solid").color(border).background(bg).space(0);
+                print("<{border} !{bg} w25 t1 |transparent mc>{sym}");
             }
         }
-        println("").space(0);
     }
 
-
-    println("\n@(cyan, bold)✨ Notice the smart usage of raw strings only when needed for readability!");
-    println("@(gray, italic)Simple LaTeX: $(E = mc^2) - no raw string needed");
-    println("@(gray, italic)Complex LaTeX: r\"$(\\\\frac{...}{...})\" - raw string for clarity");
+    println("\n<cyan,b>✨ Notice the smart usage of raw strings only when needed for readability!");
+    println("<gray,i>Simple LaTeX: $(E = mc^2) - no raw string needed");
+    println("<gray,i>Complex LaTeX: r\"$(\\\\frac{...}{...})\" - raw string for clarity");
 }

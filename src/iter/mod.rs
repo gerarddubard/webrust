@@ -28,10 +28,10 @@
 //! # }
 //!
 
-pub mod range;
-pub mod enumerate;
 pub mod comprehension;
+pub mod enumerate;
+pub mod range;
 
-pub use range::*;
-pub use enumerate::enumerate;
 pub use comprehension::*;
+pub use enumerate::enumerate;
+pub use range::*;

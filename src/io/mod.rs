@@ -1,43 +1,22 @@
 // webrust/src/io/mod.rs
-//! # I/O & Layout - Unified Text and Graphics System
+//! # I/O & GUI System
 //!
-//! Provides styled printing, user input, absolute positioning, and coordinate modes
-//! that work seamlessly with both text and graphics.
+//! Système unifié d'entrées/sorties avec serveur web intégré, formatage riche et positionnement.
 //!
 //! ## Modules
 //!
-//! - [`gui`] - Web server setup, browser launch, theme configuration
-//! - [`print`] - Styled output with f-strings, colors, positioning, and screen metrics
-//! - [`input`] - Type-safe user input with real-time validation
+//! - [`gui`] - Serveur web, gestion d'état, configuration des thèmes
+//! - [`print`] - Affichage avec styles inline, couleurs, positionnement, LaTeX
+//! - [`input`] - Saisie utilisateur avec validation de type en temps réel
 //!
-//! ## Core Concept
+//! ## Utilisation
 //!
-//! The coordinate mode set with `coord()` applies globally to both text placement
-//! and turtle graphics, ensuring consistent positioning across your application.
-//!
-//! ## Examples
-//!
-//! ```rust,no_run
-//! use webrust::prelude::*;
-//! # #[gui] fn example() {
-//! // Styled text with positioning
-//! println("Dashboard")
-//!     .background("navy")
-//!     .color("white")
-//!     .at(100.0, 50.0);
-//!
-//! // Type-safe input
-//! let age: i32 = input("Enter age:");
-//!
-//! // Coordinate mode affects all positioning
-//! coord("cartesian");  // Center origin, +y up
-//! println("Centered").at(0.0, 0.0);
-//! # }
-//! ```
+//! L'attribut `#[gui]` démarre automatiquement le serveur et ouvre le navigateur.
+//! Le mode de coordonnées défini avec `coord()` s'applique globalement.
 pub mod gui;
-pub mod print;
 pub mod input;
+pub mod print;
 
 pub use crate::io::gui::*;
-pub use print::{print, println, process_webrust_styles_only, PrintBox, TW, TH};
 pub use input::input;
+pub use print::{print, println, process_webrust_styles_only, PrintBox, TH, TW};

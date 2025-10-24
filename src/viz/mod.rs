@@ -25,8 +25,8 @@
 //! # }
 //! ```
 
-pub mod table;
 pub mod chart;
+pub mod table;
 
-pub use table::*;
 pub use chart::*;
+pub use table::*;

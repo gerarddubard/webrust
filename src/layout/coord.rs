@@ -33,18 +33,27 @@
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::LazyLock;
 
-#[derive(Copy,Clone,PartialEq,Eq)]
-pub enum CoordMode{Css=1,Cartesian=2}
-
-pub static COORD_MODE:LazyLock<AtomicU8>=LazyLock::new(||AtomicU8::new(CoordMode::Css as u8));
-
-pub fn coord(mode:&str){
-    let v=match mode.to_ascii_lowercase().as_str(){"cartesian"=>CoordMode::Cartesian as u8,_=>CoordMode::Css as u8};
-    COORD_MODE.store(v,Ordering::Relaxed);
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum CoordMode {
+    Css = 1,
+    Cartesian = 2,
 }
 
-pub fn current()->CoordMode{
-    match COORD_MODE.load(Ordering::Relaxed){2=>CoordMode::Cartesian,_=>CoordMode::Css}
+pub static COORD_MODE: LazyLock<AtomicU8> = LazyLock::new(|| AtomicU8::new(CoordMode::Css as u8));
+
+pub fn coord(mode: &str) {
+    let v = match mode.to_ascii_lowercase().as_str() {
+        "cartesian" => CoordMode::Cartesian as u8,
+        _ => CoordMode::Css as u8,
+    };
+    COORD_MODE.store(v, Ordering::Relaxed);
+}
+
+pub fn current() -> CoordMode {
+    match COORD_MODE.load(Ordering::Relaxed) {
+        2 => CoordMode::Cartesian,
+        _ => CoordMode::Css,
+    }
 }
 
 pub fn to_screen_coords(x: f64, y: f64) -> (f64, f64) {
@@ -53,7 +62,7 @@ pub fn to_screen_coords(x: f64, y: f64) -> (f64, f64) {
             let tw = *crate::io::print::TW as f64;
             let th = *crate::io::print::TH as f64;
             (x + tw / 2.0, th / 2.0 - y)
-        },
-        CoordMode::Css => (x, y)
+        }
+        CoordMode::Css => (x, y),
     }
 }

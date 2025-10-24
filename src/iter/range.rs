@@ -37,74 +37,105 @@
 //!
 //! Direction is automatic: ascending if start < end, descending otherwise.
 
-use std::ops::AddAssign;
+use core::ops::{AddAssign, SubAssign};
 
-pub trait One {
+pub trait RangeNum: Copy + PartialOrd + AddAssign<Self> + SubAssign<Self> {
+    fn zero() -> Self;
     fn one() -> Self;
+    fn abs(v: Self) -> Self;
 }
 
-macro_rules! impl_one {
-    ($($t:ty => $v:expr),*) => {
-        $(impl One for $t {
-            #[inline]
-            fn one() -> Self {
-                $v
-            }
-        })*
-    };
+macro_rules! impl_range_num_int {
+    ($($t:ty),*) => {$(
+        impl RangeNum for $t {
+            #[inline] fn zero() -> Self { 0 as $t }
+            #[inline] fn one() -> Self { 1 as $t }
+            #[inline] fn abs(v: Self) -> Self { v }
+        }
+    )*}
 }
+impl_range_num_int!(u8, u16, u32, u64, u128, usize);
 
-impl_one!(
-    i8 => 1, i16 => 1, i32 => 1, i64 => 1, i128 => 1, isize => 1,
-    u8 => 1, u16 => 1, u32 => 1, u64 => 1, u128 => 1, usize => 1,
-    f32 => 1.0, f64 => 1.0
-);
+macro_rules! impl_range_num_sint {
+    ($($t:ty),*) => {$(
+        impl RangeNum for $t {
+            #[inline] fn zero() -> Self { 0 as $t }
+            #[inline] fn one() -> Self { 1 as $t }
+            #[inline] fn abs(v: Self) -> Self { if v < 0 { -v } else { v } }
+        }
+    )*}
+}
+impl_range_num_sint!(i8, i16, i32, i64, i128, isize);
+
+macro_rules! impl_range_num_float {
+    ($($t:ty),*) => {$(
+        impl RangeNum for $t {
+            #[inline] fn zero() -> Self { 0.0 as $t }
+            #[inline] fn one() -> Self { 1.0 as $t }
+            #[inline] fn abs(v: Self) -> Self { v.abs() }
+        }
+    )*}
+}
+impl_range_num_float!(f32, f64);
 
 #[derive(Clone, Copy)]
-pub struct Range<T> {
+pub struct Range<T: RangeNum> {
     current: T,
     end: T,
     step: T,
+    descending: bool,
 }
 
-impl<T: Copy + PartialOrd + AddAssign + Default> Range<T> {
+impl<T: RangeNum> Range<T> {
     #[inline]
     pub fn new(start: T, end: T, step: T) -> Self {
-        Range {
+        let descending = start > end;
+        let mut s = T::abs(step);
+        if s == T::zero() {
+            s = T::one();
+        }
+        Self {
             current: start,
             end,
-            step,
+            step: s,
+            descending,
         }
     }
 }
 
-impl<T: Copy + PartialOrd + AddAssign + Default> Iterator for Range<T> {
+impl<T: RangeNum> Iterator for Range<T> {
     type Item = T;
-
     #[inline]
     fn next(&mut self) -> Option<T> {
-        let current = self.current;
-        let zero = T::default();
-
-        if (self.step > zero && current < self.end) || (self.step < zero && current > self.end) {
-            self.current += self.step;
-            Some(current)
+        let cur = self.current;
+        if !self.descending {
+            if cur < self.end {
+                self.current += self.step;
+                Some(cur)
+            } else {
+                None
+            }
         } else {
-            None
+            if cur > self.end {
+                self.current -= self.step;
+                Some(cur)
+            } else {
+                None
+            }
         }
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct Builder<T> {
+pub struct Builder<T: RangeNum> {
     start: T,
     end: T,
 }
 
-impl<T: Copy + PartialOrd + AddAssign + Default + One + std::ops::Neg<Output = T>> Builder<T> {
+impl<T: RangeNum> Builder<T> {
     #[inline]
     pub fn new(start: T, end: T) -> Self {
-        Builder { start, end }
+        Self { start, end }
     }
     #[inline]
     pub fn by(self, step: T) -> Range<T> {
@@ -112,25 +143,20 @@ impl<T: Copy + PartialOrd + AddAssign + Default + One + std::ops::Neg<Output = T
     }
 }
 
-impl<T: Copy + PartialOrd + AddAssign + Default + One + std::ops::Neg<Output = T>> IntoIterator for Builder<T> {
+impl<T: RangeNum> IntoIterator for Builder<T> {
     type Item = T;
     type IntoIter = Range<T>;
-
     #[inline]
     fn into_iter(self) -> Range<T> {
-        Range::new(
-            self.start,
-            self.end,
-            if self.start <= self.end { T::one() } else { -T::one() }
-        )
+        Range::new(self.start, self.end, T::one())
     }
 }
 
-pub trait RangeExt: Sized {
+pub trait RangeExt: Sized + RangeNum {
     fn to(self, end: Self) -> Builder<Self>;
 }
 
-impl<T: Copy + PartialOrd + AddAssign + Default + One + std::ops::Neg<Output = T>> RangeExt for T {
+impl<T: RangeNum> RangeExt for T {
     #[inline]
     fn to(self, end: T) -> Builder<T> {
         Builder::new(self, end)
@@ -141,36 +167,49 @@ impl<T: Copy + PartialOrd + AddAssign + Default + One + std::ops::Neg<Output = T
 pub struct CharRange {
     current: char,
     end: char,
-    step: i32,
+    step: u32,
+    descending: bool,
 }
 
 impl CharRange {
     #[inline]
     pub fn new(start: char, end: char, step: i32) -> Self {
-        CharRange {
+        let descending = start > end;
+        let mut s = step.unsigned_abs() as u32;
+        if s == 0 {
+            s = 1;
+        }
+        Self {
             current: start,
             end,
-            step,
+            step: s,
+            descending,
         }
     }
 }
 
 impl Iterator for CharRange {
     type Item = char;
-
     #[inline]
     fn next(&mut self) -> Option<char> {
-        let current = self.current;
-        let (c, e) = (current as u32, self.end as u32);
-        if (self.step > 0 && c < e) || (self.step < 0 && c > e) {
-            if let Some(next) = char::from_u32((c as i32 + self.step) as u32) {
-                self.current = next;
-                Some(current)
+        let cur = self.current as u32;
+        let end = self.end as u32;
+        if !self.descending {
+            if cur < end {
+                let out = self.current;
+                self.current = core::char::from_u32(cur + self.step)?;
+                Some(out)
             } else {
                 None
             }
         } else {
-            None
+            if cur > end {
+                let out = self.current;
+                self.current = core::char::from_u32(cur.saturating_sub(self.step))?;
+                Some(out)
+            } else {
+                None
+            }
         }
     }
 }
@@ -184,7 +223,7 @@ pub struct CharBuilder {
 impl CharBuilder {
     #[inline]
     pub fn new(start: char, end: char) -> Self {
-        CharBuilder { start, end }
+        Self { start, end }
     }
     #[inline]
     pub fn by(self, step: i32) -> CharRange {
@@ -197,11 +236,7 @@ impl IntoIterator for CharBuilder {
     type IntoIter = CharRange;
     #[inline]
     fn into_iter(self) -> CharRange {
-        CharRange::new(
-            self.start,
-            self.end,
-            if self.start <= self.end { 1 } else { -1 }
-        )
+        CharRange::new(self.start, self.end, 1)
     }
 }
 

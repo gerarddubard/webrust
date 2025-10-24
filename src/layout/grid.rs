@@ -35,8 +35,8 @@
 //! # }
 //!
 
+use crate::io::print::{TH, TW};
 use crate::layout::coord::{current, CoordMode};
-use crate::io::print::{TW, TH};
 use std::sync::LazyLock;
 
 static mut GRID_ROWS: u32 = 1;
@@ -52,9 +52,21 @@ pub static CH: LazyLock<u32> = LazyLock::new(|| {
     cell_h as u32
 });
 
-pub fn grid(rows: u32, cols: u32) {unsafe {GRID_ROWS = rows;GRID_COLS = cols;}}
-pub fn grid_size() -> (u32, u32) {unsafe { (GRID_ROWS, GRID_COLS) }}
-pub fn cell_size() -> (f64, f64) {let tw = *TW as f64;let th = *TH as f64;let (rows, cols) = grid_size();(tw / cols as f64, th / rows as f64)}
+pub fn grid(rows: u32, cols: u32) {
+    unsafe {
+        GRID_ROWS = rows;
+        GRID_COLS = cols;
+    }
+}
+pub fn grid_size() -> (u32, u32) {
+    unsafe { (GRID_ROWS, GRID_COLS) }
+}
+pub fn cell_size() -> (f64, f64) {
+    let tw = *TW as f64;
+    let th = *TH as f64;
+    let (rows, cols) = grid_size();
+    (tw / cols as f64, th / rows as f64)
+}
 
 pub fn size_pct(width_pct: u32, height_pct: u32) -> (u32, u32) {
     let w = (*CW as f64 * width_pct as f64 / 100.0) as u32;
@@ -66,7 +78,9 @@ pub trait Sizable {
     fn set_size(&mut self, size: (u32, u32));
 
     fn size(mut self, width_pct: u32, height_pct: u32) -> Self
-    where Self: Sized {
+    where
+        Self: Sized,
+    {
         let (w, h) = size_pct(width_pct, height_pct);
         self.set_size((w, h));
         self
@@ -74,9 +88,12 @@ pub trait Sizable {
 }
 
 pub fn cell(r: u32, c: u32, pos: &str) -> (f64, f64) {
-    let tw = *TW as f64; let th = *TH as f64;
-    let rows = unsafe { GRID_ROWS.max(1) } as f64; let cols = unsafe { GRID_COLS.max(1) } as f64;
-    let cell_w = tw / cols; let cell_h = th / rows;
+    let tw = *TW as f64;
+    let th = *TH as f64;
+    let rows = unsafe { GRID_ROWS.max(1) } as f64;
+    let cols = unsafe { GRID_COLS.max(1) } as f64;
+    let cell_w = tw / cols;
+    let cell_h = th / rows;
 
     let (h_factor, v_factor) = match pos {
         "top left" | "tl" => (0.0, 0.0),
@@ -92,7 +109,13 @@ pub fn cell(r: u32, c: u32, pos: &str) -> (f64, f64) {
     };
 
     match current() {
-        CoordMode::Cartesian => (-tw/2.0 + cell_w*(c as f64+h_factor), th/2.0 - cell_h*(r as f64+v_factor)),
-        CoordMode::Css => (cell_w*(c as f64+h_factor), cell_h*(r as f64+v_factor))
+        CoordMode::Cartesian => (
+            -tw / 2.0 + cell_w * (c as f64 + h_factor),
+            th / 2.0 - cell_h * (r as f64 + v_factor),
+        ),
+        CoordMode::Css => (
+            cell_w * (c as f64 + h_factor),
+            cell_h * (r as f64 + v_factor),
+        ),
     }
 }
