@@ -15,7 +15,7 @@
 //!     println("Hello, {name}!");
 //!     
 //!     let squares: Vec<i32> = 0.to(10).then(|x| x * x);
-//!     chart(&squares, "line").title("Squares");
+//!     chart(&squares, "line");
 //! }
 //! ```
 //!

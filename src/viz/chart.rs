@@ -55,13 +55,14 @@
 //!
 //! Pie / Doughnut:
 //! ```rust
-//! use webrust::viz::chart::PieData;
+//! use webrust::prelude::*;
 //! chart(PieData(vec!["A".into(),"B".into(),"C".into()], vec![30.0, 45.0, 25.0]), "pie");
 //! doughnut_chart(vec!["Chrome".into(),"Firefox".into()], vec![64.0, 36.0]).hole(55);
 //! ```
 //!
 //! Multi-series area (stacked):
 //! ```rust
+//! use webrust::prelude::*;
 //! chart(vec![10.0,12.0,9.0], "area")
 //!     .xlabels(vec!["Q1","Q2","Q3"])
 //!     .add("Project A", vec![10.0,12.0,9.0], None)
@@ -71,7 +72,7 @@
 //!
 //! Candlestick:
 //! ```rust
-//! use webrust::viz::chart::CandlestickPoint;
+//! use webrust::prelude::*;
 //! let data = vec![
 //!   CandlestickPoint{open:10.0, close:12.0, low:9.5, high:12.5},
 //!   CandlestickPoint{open:12.0, close:11.8, low:11.0, high:12.2},
@@ -81,7 +82,7 @@
 //!
 //! Bubble:
 //! ```rust
-//! use webrust::viz::chart::BubblePoint;
+//! use webrust::prelude::*;
 //! let pts = vec![
 //!   BubblePoint{x:10.0,y:20.0,size:15.0,name:Some("A".into())},
 //!   BubblePoint{x:12.0,y:18.0,size:30.0,name:Some("B".into())},

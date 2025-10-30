@@ -52,7 +52,7 @@
 //! #[gui(Arial, 14px, black, !white)]
 //! fn main() {
 //!     println("<b>Hello WebRust</b>");
-//!     let name = input("Your name?");
+//!     let name: String = input("Your name?");
 //!     println(format!("Welcome, <green>{name}</green>!"));
 //! }
 //! ```

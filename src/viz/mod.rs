@@ -21,7 +21,7 @@
 //!
 //! // Interactive charts
 //! let sales = HashMap::from([("Q1", 100.0), ("Q2", 150.0)]);
-//! chart(&sales, "bar").title("Sales");
+//! chart(&sales, "bar");
 //! # }
 //! ```
 

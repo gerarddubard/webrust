@@ -56,7 +56,7 @@
 //! Basic:
 //! ```rust
 //! use webrust::prelude::*;
-//! let data = vec![ vec!["Alice", 25], vec!["Bob", 31] ];
+//! let data = vec![ vec!["Alice", "25"], vec!["Bob", "31"] ];
 //! table(&data).header(["Name", "Age"]).align("center");
 //! ```
 //!
@@ -64,9 +64,9 @@
 //! ```rust
 //! use webrust::prelude::*;
 //! let employees = vec![
-//!     vec!["Alice", 25, "Engineer"],
-//!     vec!["Bob",   30, "Designer"],
-//!     vec!["Chloé", 28, "Manager"],
+//!     vec!["Alice", "25", "Engineer"],
+//!     vec!["Bob",   "30", "Designer"],
+//!     vec!["Chloé", "28", "Manager"],
 //! ];
 //! table(&employees)
 //!     .header(["Name","Age","Role"])
@@ -79,9 +79,9 @@
 //! ```rust
 //! use webrust::prelude::*;
 //! let employees = vec![
-//!     vec!["Alice", 25, "Engineer"],
-//!     vec!["Bob",   30, "Designer"],
-//!     vec!["Chloé", 28, "Manager"],
+//!     vec!["Alice", "25", "Engineer"],
+//!     vec!["Bob",   "30", "Designer"],
+//!     vec!["Chloé", "28", "Manager"],
 //! ];
 //! table(&employees)
 //!     .header(["Name","Age","Role"])
@@ -92,6 +92,7 @@
 //!
 //! Nested object and merge:
 //! ```rust
+//! use webrust::prelude::*;
 //! use serde_json::json;
 //! let nested = json!({
 //!   "Paris":     { "Population": 2148_000, "Attractions": "Louvre,Eiffel" },
@@ -103,12 +104,14 @@
 //!
 //! Pivot:
 //! ```rust
+//! use webrust::prelude::*;
 //! let matrix = vec![ vec![1,2,3], vec![4,5,6] ];
 //! table(&matrix).header(["A","B","C"]).pivot().align("left");
 //! ```
 //!
 //! LaTeX inline:
 //! ```rust
+//! use webrust::prelude::*;
 //! let equations = vec![ vec!["$(a^2+b^2=c^2)$", "$(\\int_0^1 x^2 dx)$"] ];
 //! table(&equations).header(["Pythagoras","Integral"]).align("center");
 //! ```
