@@ -1,0 +1,22 @@
+[package]
+name = "webrust-macros"
+version = "1.8.0"
+edition = "2021"
+authors = ["gdubard <infodgjl@gmail.com>"]
+description = "Procedural macros for webrust - Ultra-optimized"
+documentation = "https://docs.rs/webrust-macros"
+repository = "https://github.com/gerarddubard/webrust"
+homepage = "https://github.com/gerarddubard/webrust"
+license = "MIT"
+keywords = ["macros", "python", "syntax", "procedural", "performance"]
+categories = ["development-tools::procedural-macro-helpers"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0.41"
+syn = { version = "2.0.108", features = ["full", "visit-mut"] }
+proc-macro2 = "1.0.103"
+memchr = "2.7.6"
+smallvec = "1.15.1"

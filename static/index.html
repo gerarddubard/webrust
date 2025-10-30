@@ -1,0 +1,27 @@
+<!-- webrust/static/index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebRust</title>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/two.js@latest/build/two.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="table.js"></script>
+    <script defer src="turtle.js"></script>
+    <script defer src="main.js"></script>
+</head>
+<body>
+<div class="container">
+    <main id="terminal"></main>
+</div>
+</body>
+</html>

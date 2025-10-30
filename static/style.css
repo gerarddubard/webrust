@@ -1,0 +1,147 @@
+/* webrust/static/style.css */
+:root {
+    --font: Arial, sans-serif;
+    --size: 12px;
+    --bg: white;
+    --color: black;
+    --primary: #007bff;
+    --success: #28a745;
+    --danger: #dc3545;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --border: #ddd;
+    --border-hover: #007bff;
+    --shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.1), 0 3px 5px -2px rgba(0, 0, 0, 0.05);
+    --table-border: purple;
+    --table-header-bg: lightskyblue;
+    --table-header-color: midnightblue;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: var(--font), ui-rounded;
+    font-size: var(--size);
+    background: #f9fafb;
+    color: var(--color);
+    padding: 0.5rem;
+    min-height: 100vh;
+}
+
+@media (min-width: 768px) { body { padding: 0.75rem; } }
+
+#terminal {
+    position: relative;
+    background: var(--bg);
+    padding: 0.75rem;
+    min-height: 90vh;
+    overflow-y: auto;
+    line-height: 1.4;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    border: 2px solid #e5e7eb;
+}
+
+@media (min-width: 768px) { #terminal { padding: 1rem; } }
+
+#terminal::-webkit-scrollbar { width: 8px; }
+#terminal::-webkit-scrollbar-track { background: transparent; }
+#terminal::-webkit-scrollbar-thumb { background: rgba(192, 192, 192, 0.4); border-radius: 4px; }
+#terminal::-webkit-scrollbar-thumb:hover { background: rgba(192, 192, 192, 0.6); }
+#terminal { scrollbar-width: thin; scrollbar-color: rgba(192, 192, 192, 0.4) transparent; }
+
+.table-container { overflow-x: auto; margin: 1px 0; }
+
+table.webrust-table {
+    border-collapse: collapse;
+    background: #fff;
+    font-size: var(--size);
+    margin: 0;
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+}
+
+table.webrust-table th,
+table.webrust-table td {
+    padding: 2px 4px;
+    border: 1px solid var(--table-border);
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.1;
+}
+
+table.webrust-table td {
+    background: white;
+    color: midnightblue;
+}
+
+table.webrust-table th.webrust-th-header {
+    background: var(--table-header-bg) !important;
+    color: var(--table-header-color) !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    padding: 2px 4px;
+}
+
+.webrust-td-key { background: white !important; color: black !important; font-weight: normal; text-align: left; }
+.webrust-td-key:hover { background: #f2f2f2 !important; }
+.webrust-td-value, .webrust-td-number { background: white !important; color: midnightblue !important; font-style: italic; }
+.webrust-td-number { text-align: right; }
+.no-border { border: none !important; background: transparent !important; padding: 0 !important; }
+
+.sortable-header { cursor: pointer; user-select: none; }
+.sortable-header:hover { background: #e0e0e0 !important; }
+.sort-indicator { display: inline-block; width: 10px; margin-left: 2px; color: #999; }
+.sort-asc .sort-indicator::after { content: '↑'; color: #333; }
+.sort-desc .sort-indicator::after { content: '↓'; color: #333; }
+
+.filter-cell { padding: 1px !important; }
+.filter-input {
+    width: 100%;
+    padding: 2px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 11px;
+}
+
+.pagination-controls { margin-top: 4px; text-align: center; }
+.pagination-controls button {
+    margin: 0 1px;
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 11px;
+}
+.pagination-controls button:hover { background: #f0f0f0; }
+.pagination-controls button.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.input-line .user-input {
+    font-size: var(--size);
+    font-weight: normal;
+    font-style: italic;
+    color: green;
+    padding: 1px 4px;
+    border: 1px solid var(--border);
+    font-family: inherit;
+    background-color: transparent;
+}
+
+.terminal-line .completed-input {
+    font-weight: normal;
+    font-style: italic;
+    color: blue;
+}

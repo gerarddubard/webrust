@@ -1,0 +1,105 @@
+// webrust/examples/py_dyntable.rs
+use webrust::prelude::*;
+
+#[gui(Arial, 14px, black, !white)]
+fn main() {
+    let employees = vec![
+        ("Alice Anderson", 25, "Engineer", true),
+        ("Bob Brown", 30, "Designer", false),
+        ("Charlie Chen", 35, "Manager", true),
+        ("Diana Davis", 28, "Developer", true),
+        ("Ethan Evans", 32, "Engineer", true),
+        ("Fiona Foster", 29, "Designer", false),
+        ("George Garcia", 41, "Manager", true),
+        ("Hannah Harris", 24, "Intern", false),
+        ("Ian Ibrahim", 38, "Engineer", true),
+        ("Jade Johnson", 26, "Designer", true),
+        ("Kevin Kim", 33, "Developer", true),
+        ("Laura Lee", 27, "Engineer", false),
+        ("Michael Martinez", 45, "Director", true),
+        ("Nina Nelson", 31, "Designer", true),
+        ("Oscar Owens", 29, "Developer", true),
+        ("Paula Parker", 36, "Manager", true),
+        ("Quinn Roberts", 28, "Engineer", false),
+        ("Rachel Rodriguez", 34, "Designer", true),
+        ("Samuel Smith", 39, "Manager", true),
+        ("Tara Taylor", 26, "Developer", true),
+        ("Uma Underwood", 42, "Director", true),
+        ("Victor Vargas", 30, "Engineer", true),
+        ("Wendy White", 27, "Designer", false),
+        ("Xavier Xu", 35, "Manager", true),
+        ("Yara Young", 29, "Developer", true),
+        ("Zachary Zhang", 31, "Engineer", true),
+        ("Amy Adams", 25, "Intern", false),
+        ("Brian Bell", 37, "Manager", true),
+        ("Chloe Clark", 28, "Designer", true),
+        ("David Davis", 33, "Engineer", true),
+        ("Emma Edwards", 26, "Developer", false),
+        ("Frank Fisher", 44, "Director", true),
+        ("Grace Green", 30, "Designer", true),
+        ("Henry Hill", 32, "Engineer", true),
+        ("Iris Jackson", 27, "Developer", true),
+        ("Jack Jones", 40, "Manager", true),
+        ("Karen King", 29, "Designer", false),
+        ("Leo Lewis", 34, "Engineer", true),
+        ("Maria Moore", 31, "Developer", true),
+        ("Nathan Nelson", 38, "Manager", true),
+        ("Olivia Owens", 25, "Intern", false),
+        ("Peter Parker", 36, "Engineer", true),
+        ("Quinn Quinn", 28, "Designer", true),
+        ("Rose Robinson", 33, "Developer", true),
+        ("Steve Scott", 41, "Director", true),
+        ("Tina Turner", 27, "Designer", false),
+        ("Ulrich Upton", 35, "Manager", true),
+        ("Vera Valdez", 29, "Engineer", true),
+        ("Walter Ward", 32, "Developer", true),
+        ("Xena Xavier", 26, "Designer", true),
+        ("Yasmin Yang", 30, "Engineer", false),
+        ("Zoe Zimmerman", 28, "Developer", true),
+        ("Adam Allen", 34, "Manager", true),
+        ("Bella Baker", 27, "Designer", true),
+        ("Carl Carter", 39, "Engineer", true),
+        ("Daisy Diaz", 31, "Developer", false),
+        ("Eric Evans", 36, "Manager", true),
+        ("Faith Ford", 28, "Designer", true),
+        ("Gary Grant", 42, "Director", true),
+        ("Helen Hayes", 26, "Intern", false),
+        ("Ivan Ingram", 33, "Engineer", true),
+        ("Julia James", 29, "Developer", true),
+        ("Kyle King", 37, "Manager", true),
+        ("Lisa Lopez", 25, "Designer", false),
+        ("Mark Miller", 40, "Engineer", true),
+        ("Nancy Nixon", 32, "Developer", true),
+        ("Owen Oliver", 35, "Manager", true),
+        ("Penny Palmer", 27, "Designer", true),
+        ("Quincy Quinn", 30, "Engineer", false),
+        ("Rita Roberts", 34, "Developer", true),
+        ("Sam Stevens", 38, "Manager", true),
+        ("Tracy Thomas", 26, "Designer", true),
+        ("Ursula Underwood", 31, "Engineer", true),
+        ("Victor Vargas", 29, "Developer", false),
+        ("Wanda Wilson", 36, "Manager", true),
+        ("Xander Xiao", 28, "Designer", true),
+        ("Yvonne Young", 33, "Engineer", true),
+        ("Zane Zhao", 30, "Developer", true),
+    ];
+
+    table(&employees)
+        .header(["Name", "Age", "Job", "Active"])
+        .sort()
+        .filter()
+        .paginate()
+        .align("center");
+
+    let personnel = vec![
+        vec!["Alice", "25", "Engineer"],
+        vec!["Bob",   "30", "Designer"],
+        vec!["Chloé", "28", "Manager"],
+    ];
+    table(&personnel)
+        .header(["Name","Age","Role"])
+        .sort().filter().paginate()        // defaults to 10 rows/page
+        .size(480, 260)
+        .align("right");
+    
+}
