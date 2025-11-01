@@ -85,7 +85,7 @@ fn main() {
     ]);
     println("<gray t1 dashed |silver w{*TW} m20>").align("center");
 
-    println("<dodgerblue t2 |dodgerblue !aliceblue r6 w460 h40 m15>14. Tree (chemins avec &[&str])</dodgerblue>").align("center");
+    println("<dodgerblue t2 |dodgerblue !aliceblue r6 w460 h40 m15>14. Tree (chemins with &[&str])</dodgerblue>").align("center");
     tree(&[
         "Company/Engineering/Backend",
         "Company/Engineering/Frontend",
@@ -94,7 +94,7 @@ fn main() {
     ] as &[&str]);
     println("<gray t1 dashed |silver w{*TW} m20>").align("center");
 
-    println("<dodgerblue t2 |dodgerblue !aliceblue r6 w460 h40 m15>15. Tree (JSON avec json! macro)</dodgerblue>").align("center");
+    println("<dodgerblue t2 |dodgerblue !aliceblue r6 w460 h40 m15>15. Tree (JSON with json! macro)</dodgerblue>").align("center");
     let org = json!({
         "Company": {
             "Engineering": {
