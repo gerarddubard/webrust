@@ -37,10 +37,10 @@
 
 use crate::io::print::{TH, TW};
 use crate::layout::coord::{current, CoordMode};
+use parking_lot::RwLock;
 use std::sync::LazyLock;
 
-static mut GRID_ROWS: u32 = 1;
-static mut GRID_COLS: u32 = 1;
+static GRID_CONFIG: RwLock<(u32, u32)> = RwLock::new((1, 1));
 
 pub static CW: LazyLock<u32> = LazyLock::new(|| {
     let (cell_w, _) = cell_size();
@@ -53,14 +53,13 @@ pub static CH: LazyLock<u32> = LazyLock::new(|| {
 });
 
 pub fn grid(rows: u32, cols: u32) {
-    unsafe {
-        GRID_ROWS = rows;
-        GRID_COLS = cols;
-    }
+    *GRID_CONFIG.write() = (rows.max(1), cols.max(1));
 }
+
 pub fn grid_size() -> (u32, u32) {
-    unsafe { (GRID_ROWS, GRID_COLS) }
+    *GRID_CONFIG.read()
 }
+
 pub fn cell_size() -> (f64, f64) {
     let tw = *TW as f64;
     let th = *TH as f64;
@@ -90,10 +89,9 @@ pub trait Sizable {
 pub fn cell(r: u32, c: u32, pos: &str) -> (f64, f64) {
     let tw = *TW as f64;
     let th = *TH as f64;
-    let rows = unsafe { GRID_ROWS.max(1) } as f64;
-    let cols = unsafe { GRID_COLS.max(1) } as f64;
-    let cell_w = tw / cols;
-    let cell_h = th / rows;
+    let (rows, cols) = grid_size();
+    let cell_w = tw / cols as f64;
+    let cell_h = th / rows as f64;
 
     let (h_factor, v_factor) = match pos {
         "top left" | "tl" => (0.0, 0.0),

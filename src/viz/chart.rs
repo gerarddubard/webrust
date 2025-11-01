@@ -1,602 +1,581 @@
-// webrust/src/viz/chart.rs
-//! # WebRust Charts — ECharts-based plotting with a fluent Rust API
+// webrust/src/io/chart.rs
+//! # Module `io::chart` — Minimal, fast ECharts wrapper for WebRust
 //!
-// //! `viz::chart` renders charts by emitting a container `<div>` plus a small
-//! initialization `<script>` that configures [Apache ECharts] in the browser.
+//! This module exposes a tiny, allocation-lean API to render common charts in
+//! the browser using ECharts. It is designed to be:
+//! - **Simple:** one constructor per chart type (`line`, `bar`, `pie`, `radar`, …).
+//! - **Zero-setup:** charts auto-mount and render when dropped.
+//! - **Compact:** minimal JS per chart, no global state beyond an internal id counter.
 //!
-//! ## Supported chart kinds
-//! - **Line / Bar / Scatter**: `"line"`, `"bar"`, `"scatter"`
-//! - **Area**: `"area"` and `"area_stacked"` (via `.stacked(true)`)
-//! - **Pie / Doughnut**: `"pie"`, `"doughnut"` (with `.hole(%)` for inner radius)
-//! - **Polar area**: `"polar_area"`
-//! - **Radar**
-//! - **Heatmap**
-//! - **Gauge**
-//! - **Funnel**
-//! - **Candlestick**
-//! - **Bubble**
-//!
-//! ## Data adapters
-//! Implemented via the `ChartData` trait:
-//! - `&[T]`, `&Vec<T>`, `Vec<T>` where `T: Into<f64>`
-//! - `&HashMap<K, V>` (keys become x-axis labels; values are numbers)
-//! - `PieData(Vec<String>, Vec<f64>)` for labeled pie-like series
-//!
-//! ## Builder methods
-//! - `.xlabel(str)`, `.ylabel(str)`, `.xlabels(Vec<String>)`
-//! - `.color(css)` — series color (default `#3498db`)
-//! - `.name(str)` — series or chart name
-//! - `.add(name, data: Vec<f64>, color: Option<String>)` — multi-series
-//! - `.stacked(true)` — for area/line/bar variants
-//! - `.indicators(Vec<(String, f64)>)` — radar axes
-//! - `.heatdata(Vec<Vec<f64>>)` — heatmap values
-//! - `.candledata(Vec<CandlestickPoint>)`
-//! - `.bubbledata(Vec<BubblePoint>)`
-//! - `.hole(percent)` — doughnut inner radius
-//! - `.at(x, y)` — absolute positioning (center-anchored)
-//! - `.size(w, h)` — fixed size in pixels
-//!
-//! ## Integration details
-//! - A unique `<div id="chart_X">` is emitted plus a script that waits for ECharts
-//!   to be available and then calls `echarts.init(..).setOption({...})`.
-//! - When `.at(x,y)` is used, the container is absolutely positioned and centered
-//!   on `(x,y)` after converting from the current coordinate mode.
-//! - Without `.size(..)`, sensible defaults are applied based on container classes.
-//!
-//! ## Examples
-//! Line:
-//! ```rust
+//! ## Quick start
+//! ```rust,no_run
 //! use webrust::prelude::*;
-//! chart(vec![1, 3, 2, 5, 4], "line")
-//!     .xlabels(vec!["Mon","Tue","Wed","Thu","Fri"])
-//!     .color("#1abc9c")
-//!     .name("Visits");
+//!
+//! #[gui(Arial 14px black !white)]
+//! fn main() {
+//!     let months = ["Jan","Feb","Mar","Apr","May"];
+//!     let sales  = [120.0, 200.0, 150.0, 300.0, 250.0];
+//!
+//!     line(&months, &sales);      // category line
+//!     bar(&months, &sales);       // category bar
+//!     pie(&["A","B","C"], &[60.0,30.0,10.0]);
+//!
+//!     let skills = [85.0,90.0,75.0,95.0,80.0];
+//!     let inds   = [("Technical",100.0),("Communication",100.0),("Leadership",100.0),
+//!                   ("Innovation",100.0),("Quality",100.0)];
+//!     radar(&skills, &inds);      // interactive radar
+//! }
 //! ```
 //!
-//! Pie / Doughnut:
-//! ```rust
-//! use webrust::prelude::*;
-//! chart(PieData(vec!["A".into(),"B".into(),"C".into()], vec![30.0, 45.0, 25.0]), "pie");
-//! doughnut_chart(vec!["Chrome".into(),"Firefox".into()], vec![64.0, 36.0]).hole(55);
-//! ```
+//! ## Chart constructors
+//! Each constructor returns a `Chart` that renders automatically when it goes out
+//! of scope (on `Drop`). You can optionally position/size a chart with `.at(x,y)`
+//! (Cartesian coordinates managed by WebRust) and `.size(w,h)` (pixels).
 //!
-//! Multi-series area (stacked):
-//! ```rust
-//! use webrust::prelude::*;
-//! chart(vec![10.0,12.0,9.0], "area")
-//!     .xlabels(vec!["Q1","Q2","Q3"])
-//!     .add("Project A", vec![10.0,12.0,9.0], None)
-//!     .add("Project B", vec![8.0,11.0,7.0], Some("#e67e22".into()))
-//!     .stacked(true);
-//! ```
+//! **Category (x = labels, y = values)**
+//! - `line(labels, values)` — Polyline (tooltip on axis).
+//! - `curve(labels, values)` — Smoothed line.
+//! - `area(labels, values)` — Filled line area.
+//! - `bar(labels, values)` — Vertical bars.
 //!
-//! Candlestick:
-//! ```rust
-//! use webrust::prelude::*;
-//! let data = vec![
-//!   CandlestickPoint{open:10.0, close:12.0, low:9.5, high:12.5},
-//!   CandlestickPoint{open:12.0, close:11.8, low:11.0, high:12.2},
-//! ];
-//! candlestick_chart(data, vec!["2025-10-01".into(),"2025-10-02".into()]);
-//! ```
+//! **XY pairs (numeric x,y)**
+//! - `line_xy(x, y)` / `curve_xy(x, y)` / `area_xy(x, y)` — Use numeric x axis.
+//! - `scatter(x, y)` — Dots with item tooltip.
 //!
-//! Bubble:
-//! ```rust
-//! use webrust::prelude::*;
-//! let pts = vec![
-//!   BubblePoint{x:10.0,y:20.0,size:15.0,name:Some("A".into())},
-//!   BubblePoint{x:12.0,y:18.0,size:30.0,name:Some("B".into())},
-//! ];
-//! bubble_chart(pts).xlabel("X").ylabel("Y").color("#9b59b6").name("Cities");
-//! ```
+//! **Compositions**
+//! - `pie(labels, values)` — Standard pie (`values` are % or any totals).
+//! - `doughnut(labels, values)` — Pie with a hole (default inner radius 50%).
+//! - `funnel(stages)` — Descending funnel (`&[(&str, f64)]`).
+//! - `gauge(value)` — 0–100 radial gauge with % tooltip.
 //!
-//! ## Requirements
-//! - The page must load Apache ECharts on `window.echarts` (provided by WebRust’s `index.html`).
+//! **Radar**
+//! - `radar(values, indicators)` — One-series radar with custom indicators
+//!   (`indicators: &[(&str, f64)]` where `max` is the axis maximum).
+//!   The chart shows clean axis names by default and reveals `name: value %` near
+//!   the corresponding key when hovering the vertex (no clutter, one value at a time).
 //!
-//! ## Safety
-//! - All chart configuration is serialized to JSON. No `unsafe` code is used.
+//! **Matrix / Heatmap**
+//! - `matrix(data, xlabels, ylabels)` — Heatmap with auto visual scale.
 //!
+//! **Tree / Treemap**
+//! - `treemap(items)` — Accepts flat items or path-like `"A/B/C"` entries.
+//! - `tree(input)` — Accepts:
+//!   - `&serde_json::Value` (object becomes a tree),
+//!   - `&str` (JSON string or newline-separated paths),
+//!   - `&[&str]` (path slices).
+//!
+//! **Function sampling**
+//! - `function(f, x0, x1, step)` — Samples `f64 -> f64` and renders a smooth curve.
+//!
+//! ## Layout helpers
+//! - `.at(x, y)` — Places the chart at world coordinates (converted by WebRust).
+//! - `.size(w, h)` — Sets container size (px). Without `.size`, a sensible
+//!   default height is applied depending on the responsive container class.
+//!
+//! ## Rendering model
+//! - Charts render via ECharts once the GUI is ready (async init in an inline `<script>`).
+//! - A unique DOM id is generated using an atomic counter; no global mutable Rust state
+//!   is exposed.
+//! - `Drop` injects the container `<div>` + the minimal JS to configure the instance.
+//!
+//! ## Styling
+//! - Charts inherit the global theme from `#[gui(...)]` (font, base color, background)
+//!   through the surrounding page styles.
+//! - Axis/label font sizes are tuned for compact layouts (e.g., `fontSize: 7` on axes).
+//! - Radar axes show names in black; the hovered key/value is highlighted for clarity.
+//!
+//! ## Data contracts & panics
+//! - All constructors expect **matching lengths** between label/value vectors where
+//!   applicable. Mismatches or missing internals will cause a panic via `unwrap()`.
+//! - Radar requires `values.len() == indicators.len()`.
+//! - `matrix` requires consistent row lengths; `xlabels.len()` must match columns,
+//!   `ylabels.len()` must match rows.
+//!
+//! ## Performance & footprint
+//! - JS emitted per chart is small and self-contained; no shared registries.
+//! - The Rust side avoids unnecessary cloning beyond converting inputs to owned
+//!   vectors (to survive `Drop` scheduling).
+//!
+//! ## Accessibility & behavior
+//! - Tooltips are concise; radar shows a single value near the hovered vertex
+//!   to reduce overload.
+//! - Charts resize responsively; a resize listener updates layout.
+//!
+//! ## Troubleshooting
+//! - **Blank chart:** ensure ECharts is available in the page (WebRust GUI loads it).
+//! - **Panic at runtime:** verify inputs (vector lengths, percentages, matrix dimensions).
+//! - **Small texts:** increase container size with `.size(w,h)` or change GUI font size.
+//!
+//! ---
+
 
 use serde::Serialize;
-use std::{
-    collections::HashMap,
-    hash::Hash,
-    sync::atomic::{AtomicUsize, Ordering},
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 static CHART_COUNTER: AtomicUsize = AtomicUsize::new(0);
-
-fn next_chart_id() -> String {
-    format!(
-        "chart_{}",
-        CHART_COUNTER.fetch_add(1, Ordering::Relaxed) + 1
-    )
-}
+fn next_chart_id() -> String { format!("chart_{}", CHART_COUNTER.fetch_add(1, Ordering::Relaxed) + 1) }
 
 #[derive(Serialize, Clone)]
-pub struct SeriesData {
-    name: String,
-    data: Vec<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    color: Option<String>,
-}
-
-#[derive(Serialize, Clone)]
-pub struct RadarIndicator {
-    name: String,
-    max: f64,
-}
-
-#[derive(Serialize, Clone)]
-pub struct CandlestickPoint {
-    pub open: f64,
-    pub close: f64,
-    pub low: f64,
-    pub high: f64,
-}
-
-#[derive(Serialize, Clone)]
-pub struct BubblePoint {
-    pub x: f64,
-    pub y: f64,
-    pub size: f64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-}
+pub struct RadarIndicator { name: String, max: f64 }
 
 #[derive(Serialize, Clone)]
 pub struct Chart {
     kind: String,
-    xlabel: String,
-    ylabel: String,
-    xlabels: Vec<String>,
-    color: String,
-    data: Vec<f64>,
-    name: Option<String>,
-    pie_labels: Vec<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    multi_series: Option<Vec<SeriesData>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    x: Option<Vec<f64>>,
+    y: Option<Vec<f64>>,
+    x_labels: Option<Vec<String>>,
+    smooth: bool,
+    pie_labels: Option<Vec<String>>,
+    pie_values: Option<Vec<f64>>,
     indicators: Option<Vec<RadarIndicator>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    heatdata: Option<Vec<Vec<f64>>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    candledata: Option<Vec<CandlestickPoint>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    bubbledata: Option<Vec<BubblePoint>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    radar_values: Option<Vec<f64>>,
+    gauge_val: Option<f64>,
+    funnel_labels: Option<Vec<String>>,
+    funnel_values: Option<Vec<f64>>,
     hole: Option<u32>,
-    #[serde(skip)]
+    matrix: Option<Vec<Vec<f64>>>,
+    matrix_xlabels: Option<Vec<String>>,
+    matrix_ylabels: Option<Vec<String>>,
+    treemap_data: Option<serde_json::Value>,
+    tree_data: Option<serde_json::Value>,
     position: Option<(f64, f64)>,
-    #[serde(skip)]
     size: Option<(u32, u32)>,
 }
 
 impl Chart {
-    fn create_labeled_items(&self) -> String {
-        let items: Vec<_> = self
-            .pie_labels
-            .iter()
-            .zip(self.data.iter())
-            .map(|(name, value)| serde_json::json!({"name": name, "value": value}))
-            .collect();
-        serde_json::to_string(&items).unwrap()
-    }
-
-    pub fn xlabel<T: Into<String>>(mut self, l: T) -> Self {
-        self.xlabel = l.into();
-        self
-    }
-    pub fn ylabel<T: Into<String>>(mut self, l: T) -> Self {
-        self.ylabel = l.into();
-        self
-    }
-    pub fn xlabels<T: Into<String>>(mut self, labels: Vec<T>) -> Self {
-        self.xlabels = labels.into_iter().map(Into::into).collect();
-        self
-    }
-    pub fn color<T: Into<String>>(mut self, c: T) -> Self {
-        self.color = c.into();
-        self
-    }
-    pub fn name<T: Into<String>>(mut self, n: T) -> Self {
-        self.name = Some(n.into());
-        self
-    }
-    pub fn at(mut self, x: f64, y: f64) -> Self {
-        self.position = Some((x, y));
-        self
-    }
-    pub fn stacked(mut self, stacked: bool) -> Self {
-        if stacked && !self.kind.contains("stacked") {
-            self.kind = format!("{}_stacked", self.kind);
-        }
-        self
-    }
-    pub fn add<T: Into<String>>(mut self, name: T, data: Vec<f64>, color: Option<String>) -> Self {
-        let series = SeriesData {
-            name: name.into(),
-            data,
-            color,
-        };
-        if let Some(ref mut multi) = self.multi_series {
-            multi.push(series);
-        } else {
-            self.multi_series = Some(vec![series]);
-        }
-        self
-    }
-    pub fn indicators(mut self, indicators: Vec<(String, f64)>) -> Self {
-        self.indicators = Some(
-            indicators
-                .into_iter()
-                .map(|(name, max)| RadarIndicator { name, max })
-                .collect(),
-        );
-        self
-    }
-    pub fn heatdata(mut self, data: Vec<Vec<f64>>) -> Self {
-        self.heatdata = Some(data);
-        self
-    }
-    pub fn candledata(mut self, data: Vec<CandlestickPoint>) -> Self {
-        self.candledata = Some(data);
-        self
-    }
-    pub fn bubbledata(mut self, data: Vec<BubblePoint>) -> Self {
-        self.bubbledata = Some(data);
-        self
-    }
-    pub fn hole(mut self, radius: u32) -> Self {
-        self.hole = Some(radius);
-        self
-    }
-
-    fn generate_script(&self, div_id: &str) -> String {
-        let start = format!(
-            r#"<script>
-requestAnimationFrame(function init(){{if(!window.echarts||!document.getElementById('{}')){{requestAnimationFrame(init);return;}}var c=echarts.init(document.getElementById('{}'));
-"#,
-            div_id, div_id
-        );
+    fn script(&self, div_id: &str) -> String {
+        let start = format!(r#"<script>
+requestAnimationFrame(function init(){{if(!window.echarts||!document.getElementById('{}')){{requestAnimationFrame(init);return;}}var c=echarts.init(document.getElementById('{}'));"#, div_id, div_id);
         let opts = match self.kind.as_str() {
-            "pie" => self.generate_pie_options(),
-            "doughnut" => self.generate_doughnut_options(),
-            "polar_area" => self.generate_polar_area_options(),
-            "area" | "area_stacked" => self.generate_area_options(),
-            "radar" => self.generate_radar_options(),
-            "heatmap" => self.generate_heatmap_options(),
-            "gauge" => self.generate_gauge_options(),
-            "funnel" => self.generate_funnel_options(),
-            "candlestick" => self.generate_candlestick_options(),
-            "bubble" => self.generate_bubble_options(),
-            _ => {
-                if self.multi_series.is_some() {
-                    self.generate_multi_series_options()
-                } else {
-                    self.generate_standard_options()
-                }
-            }
+            "line" => self.opt_line(false),
+            "curve" => self.opt_line(true),
+            "area" => self.opt_area(),
+            "line_xy" => self.opt_line_xy(false),
+            "curve_xy" => self.opt_line_xy(true),
+            "area_xy" => self.opt_area_xy(),
+            "bar" => self.opt_bar(),
+            "scatter" => self.opt_scatter(),
+            "pie" => self.opt_pie(false),
+            "doughnut" => self.opt_pie(true),
+            "radar" => self.opt_radar(div_id),
+            "gauge" => self.opt_gauge(),
+            "funnel" => self.opt_funnel(),
+            "matrix" => self.opt_matrix(),
+            "treemap" => self.opt_treemap(),
+            "tree" => self.opt_tree(),
+            _ => String::new(),
         };
-        format!(
-            "{}{}\nwindow.addEventListener('resize',function(){{c.resize();}});\n}});</script>",
-            start, opts
-        )
+        format!("{}{}\nwindow.addEventListener('resize',function(){{c.resize();}});}});</script>", start, opts)
     }
 
-    fn generate_pie_options(&self) -> String {
-        let data = self.create_labeled_items();
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'item',formatter:'{{b}}: {{c}} ({{d}}%)'}},legend:{{show:false}},series:[{{type:'pie',radius:'50%',center:['50%','50%'],avoidLabelOverlap:true,label:{{fontSize:6,formatter:'{{b}}'}},labelLine:{{show:true,length:4,length2:2}},data:{}}}]}});"#,
-            data
-        )
+    fn ds_pairs(&self) -> String {
+        let xs = self.x.as_ref().unwrap();
+        let ys = self.y.as_ref().unwrap();
+        serde_json::to_string(&xs.iter().zip(ys.iter()).map(|(a,b)| serde_json::json!([a,b])).collect::<Vec<_>>()).unwrap()
     }
 
-    fn generate_doughnut_options(&self) -> String {
-        let data = self.create_labeled_items();
-        let inner_radius = self.hole.unwrap_or(50);
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'item',formatter:'{{b}}: {{c}} ({{d}}%)'}},legend:{{show:false}},series:[{{type:'pie',radius:['{}%','70%'],center:['50%','50%'],avoidLabelOverlap:true,label:{{fontSize:6,formatter:'{{b}}'}},labelLine:{{show:true,length:4,length2:2}},emphasis:{{label:{{show:true,fontSize:8,fontWeight:'bold'}}}},data:{}}}]}});"#,
-            inner_radius, data
-        )
+    fn tooltip_xy_axis() -> &'static str {
+        "formatter:(p)=>{if(!p||!p.length)return'';const d=p[0].data;return Array.isArray(d)?`(${d[0].toFixed(2)}, ${d[1].toFixed(2)})`:`(${p[0].axisValue}, ${p[0].data.toFixed(2)})`;}"
     }
 
-    fn generate_polar_area_options(&self) -> String {
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'item'}},angleAxis:{{}},radiusAxis:{{type:'category',data:{}}},polar:{{}},legend:{{show:false}},series:[{{type:'bar',data:{},coordinateSystem:'polar',label:{{show:false}}}}]}});"#,
-            serde_json::to_string(&self.pie_labels).unwrap(),
-            serde_json::to_string(&self.data).unwrap()
-        )
+    fn opt_line_xy(&self, smooth: bool) -> String {
+        let ds = self.ds_pairs();
+        let sm = if smooth || self.smooth { "true" } else { "false" };
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'axis',{}}},
+ grid:{{left:30,right:10,top:10,bottom:20}},
+ xAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ yAxis:{{type:'value',axisLabel:{{fontSize:7}},axisLine:{{show:true}}}},
+ dataset:{{source:{}}},
+ series:[{{type:'line',encode:{{x:0,y:1}},smooth:{},lineStyle:{{width:2}}}}]
+}});"#, Self::tooltip_xy_axis(), ds, sm)
     }
 
-    fn generate_area_options(&self) -> String {
-        if self.multi_series.is_some() {
-            return self.generate_multi_series_options();
+    fn opt_area_xy(&self) -> String {
+        let ds = self.ds_pairs();
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'axis',{}}},
+ grid:{{left:30,right:10,top:10,bottom:20}},
+ xAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ dataset:{{source:{}}},
+ series:[{{type:'line',encode:{{x:0,y:1}},smooth:true,areaStyle:{{}},lineStyle:{{width:2}}}}]
+}});"#, Self::tooltip_xy_axis(), ds)
+    }
+
+    fn opt_line(&self, smooth: bool) -> String {
+        let labels = serde_json::to_string(self.x_labels.as_ref().unwrap()).unwrap();
+        let values = serde_json::to_string(self.y.as_ref().unwrap()).unwrap();
+        let sm = if smooth || self.smooth { "true" } else { "false" };
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'axis'}},
+ grid:{{left:30,right:10,top:10,bottom:20}},
+ xAxis:{{type:'category',data:{},axisLabel:{{fontSize:7}}}},
+ yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ series:[{{type:'line',data:{},smooth:{},lineStyle:{{width:2}}}}]
+}});"#, labels, values, sm)
+    }
+
+    fn opt_area(&self) -> String {
+        let labels = serde_json::to_string(self.x_labels.as_ref().unwrap()).unwrap();
+        let values = serde_json::to_string(self.y.as_ref().unwrap()).unwrap();
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'axis'}},
+ grid:{{left:30,right:10,top:10,bottom:20}},
+ xAxis:{{type:'category',data:{},axisLabel:{{fontSize:7}}}},
+ yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ series:[{{type:'line',data:{},smooth:true,areaStyle:{{}},lineStyle:{{width:2}}}}]
+}});"#, labels, values)
+    }
+
+    fn opt_bar(&self) -> String {
+        let labels = serde_json::to_string(self.x_labels.as_ref().unwrap()).unwrap();
+        let values = serde_json::to_string(self.y.as_ref().unwrap()).unwrap();
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'axis',axisPointer:{{type:'shadow'}}}},
+ grid:{{left:30,right:10,top:10,bottom:20}},
+ xAxis:{{type:'category',data:{},axisLabel:{{fontSize:7}}}},
+ yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ series:[{{type:'bar',data:{}}}]
+}});"#, labels, values)
+    }
+
+    fn opt_scatter(&self) -> String {
+        let ds = self.ds_pairs();
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'item',formatter:(p)=>`(${{p.data[0].toFixed(2)}}, ${{p.data[1].toFixed(2)}})`}},
+ grid:{{left:45,right:10,top:15,bottom:35}},
+ xAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},
+ dataset:{{source:{}}},
+ series:[{{type:'scatter',encode:{{x:0,y:1}},symbolSize:6}}]
+}});"#, ds)
+    }
+
+    fn opt_pie(&self, doughnut: bool) -> String {
+        let labels = self.pie_labels.as_ref().unwrap();
+        let values = self.pie_values.as_ref().unwrap();
+        let data = serde_json::to_string(&labels.iter().zip(values.iter()).map(|(n,v)| serde_json::json!({"name":n,"value":v})).collect::<Vec<_>>()).unwrap();
+        let radius = if doughnut { format!(r#"["{}%","70%"]"#, self.hole.unwrap_or(50)) } else { r#""50%""#.into() };
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'item',formatter:'{{b}}: {{d}}%'}},
+ legend:{{show:false}},
+ series:[{{type:'pie',radius:{},center:['50%','50%'],avoidLabelOverlap:true,label:{{fontSize:7,formatter:'{{b}}'}},labelLine:{{length:5,length2:3}},data:{}}}]
+}});"#, radius, data)
+    }
+
+    fn opt_radar(&self, div_id: &str) -> String {
+        let inds = serde_json::to_string(self.indicators.as_ref().unwrap()).unwrap();
+        let vals = serde_json::to_string(self.radar_values.as_ref().unwrap()).unwrap();
+        let indicators = self.indicators.as_ref().unwrap();
+        let values = self.radar_values.as_ref().unwrap();
+        let mut names = Vec::new();
+        let mut vals_list = Vec::new();
+        for (i, ind) in indicators.iter().enumerate() {
+            names.push(format!("'{}'", ind.name));
+            vals_list.push(values[i].to_string());
         }
-        let x_labels = serde_json::to_string(&self.xlabels).unwrap();
-        let data = serde_json::to_string(&self.data).unwrap();
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'axis'}},grid:{{left:30,right:10,top:10,bottom:20}},xAxis:{{type:'category',boundaryGap:false,data:{},axisLabel:{{fontSize:7}}}},yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},series:[{{data:{},type:'line',areaStyle:{{}},smooth:true,itemStyle:{{color:'{}'}},lineStyle:{{width:2}}}}]}});"#,
-            x_labels, data, self.color
-        )
+        let names_js = format!("[{}]", names.join(","));
+        let vals_js = format!("[{}]", vals_list.join(","));
+
+        format!(r#"c.setOption({{
+ tooltip:{{show:false}},
+ legend:{{show:false}},
+ radar:{{indicator:{}}},
+ series:[{{
+  type:'radar',
+  data:[{{value:{},name:'Data'}}],
+  symbol:'circle',
+  symbolSize:6,
+  lineStyle:{{width:2}},
+  areaStyle:{{opacity:0.25}}
+ }}]
+}});
+var showValues=false;
+var names={};
+var values={};
+document.getElementById('{}').addEventListener('mouseenter',function(){{
+ showValues=true;
+ c.setOption({{
+  radar:{{
+   indicator:names.map(function(n,i){{return{{name:n+': '+values[i]+' %',max:100}};}})
+  }}
+ }});
+}});
+document.getElementById('{}').addEventListener('mouseleave',function(){{
+ showValues=false;
+ c.setOption({{
+  radar:{{
+   indicator:names.map(function(n){{return{{name:n,max:100}};}})
+  }}
+ }});
+}});"#, inds, vals, names_js, vals_js, div_id, div_id)
     }
 
-    fn generate_radar_options(&self) -> String {
-        let ind = if let Some(ref i) = self.indicators {
-            serde_json::to_string(i).unwrap()
-        } else {
-            "[]".into()
-        };
-        let data = serde_json::to_string(&self.data).unwrap();
-        let name = self.name.as_deref().unwrap_or("");
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'item'}},legend:{{show:false}},radar:{{indicator:{}}},series:[{{type:'radar',data:[{{value:{},name:'{}'}}],symbol:'circle',symbolSize:6,itemStyle:{{color:'{}',borderWidth:1,borderColor:'#333'}},lineStyle:{{width:2}},areaStyle:{{opacity:0.3}}}}]}});"#,
-            ind, data, name, self.color
-        )
+    fn opt_gauge(&self) -> String {
+        let v = self.gauge_val.unwrap_or(0.0);
+        format!(r#"c.setOption({{
+ tooltip:{{show:true,formatter:'{{c}}%'}},
+ series:[{{type:'gauge',startAngle:200,endAngle:-20,min:0,max:100,progress:{{show:true,width:12}},pointer:{{show:true,length:'70%'}},axisLine:{{lineStyle:{{width:12}}}},detail:{{valueAnimation:true,formatter:'{{value}}%',fontSize:18}},data:[{{value:{}}}]}}]
+}});"#, v)
     }
 
-    fn generate_heatmap_options(&self) -> String {
-        let heatmap_data = if let Some(ref data) = self.heatdata {
-            let mut values = Vec::new();
-            for (i, row) in data.iter().enumerate() {
-                for (j, &value) in row.iter().enumerate() {
-                    values.push(serde_json::json!([j, i, value]));
-                }
-            }
-            serde_json::to_string(&values).unwrap()
-        } else {
-            "[]".to_string()
-        };
-        let x_labels = serde_json::to_string(&self.xlabels).unwrap();
-        let y_count = self.heatdata.as_ref().map(|d| d.len()).unwrap_or(0);
-        let y_labels: Vec<String> = (0..y_count).map(|i| format!("Row {}", i)).collect();
-        let y_labels_json = serde_json::to_string(&y_labels).unwrap();
-        format!(
-            r#"c.setOption({{tooltip:{{position:'top'}},grid:{{height:'60%',top:'10%'}},xAxis:{{type:'category',data:{},splitArea:{{show:true}}}},yAxis:{{type:'category',data:{},splitArea:{{show:true}}}},visualMap:{{min:0,max:100,calculable:true,orient:'horizontal',left:'center',bottom:'5%'}},series:[{{type:'heatmap',data:{},label:{{show:true}}}}]}});"#,
-            x_labels, y_labels_json, heatmap_data
-        )
+    fn opt_funnel(&self) -> String {
+        let labels = self.funnel_labels.as_ref().unwrap();
+        let values = self.funnel_values.as_ref().unwrap();
+        let data = serde_json::to_string(&labels.iter().zip(values.iter()).map(|(n,v)| serde_json::json!({"name":n,"value":v})).collect::<Vec<_>>()).unwrap();
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'item',formatter:'{{b}}: {{d}}%'}},
+ legend:{{show:false}},
+ series:[{{type:'funnel',left:'10%',top:10,bottom:10,width:'80%',sort:'descending',gap:2,label:{{show:true,position:'inside',fontSize:7}},labelLine:{{length:5}},itemStyle:{{borderColor:'#fff',borderWidth:1}},data:{}}}]
+}});"#, data)
     }
 
-    fn generate_gauge_options(&self) -> String {
-        let value = self.data.get(0).copied().unwrap_or(0.0);
-        format!(
-            r#"c.setOption({{series:[{{type:'gauge',startAngle:200,endAngle:-20,min:0,max:100,splitNumber:10,itemStyle:{{color:'{}'}},progress:{{show:true,width:18}},pointer:{{show:false}},axisLine:{{lineStyle:{{width:18}}}},axisTick:{{distance:-30,splitNumber:5,lineStyle:{{width:2,color:'#999'}}}},splitLine:{{distance:-40,length:14,lineStyle:{{width:3,color:'#999'}}}},axisLabel:{{distance:-20,color:'#999',fontSize:10}},anchor:{{show:false}},detail:{{valueAnimation:true,width:'60%',lineHeight:20,borderRadius:8,offsetCenter:[0,'-15%'],fontSize:20,fontWeight:'bolder',formatter:'{{value}}%',color:'inherit'}},data:[{{value:{}}}]}}]}});"#,
-            self.color, value
-        )
+    fn opt_matrix(&self) -> String {
+        let m = self.matrix.as_ref().unwrap();
+        let mut values = Vec::new();
+        for (i,row) in m.iter().enumerate() { for (j,&v) in row.iter().enumerate() { values.push(serde_json::json!([j,i,v])); } }
+        let data = serde_json::to_string(&values).unwrap();
+        let xl = serde_json::to_string(self.matrix_xlabels.as_ref().unwrap()).unwrap();
+        let yl = serde_json::to_string(self.matrix_ylabels.as_ref().unwrap()).unwrap();
+        let vmax = m.iter().flat_map(|r| r.iter().copied()).fold(0.0, f64::max);
+        format!(r#"c.setOption({{
+ tooltip:{{position:'top'}},
+ grid:{{height:'60%',top:'10%'}},
+ xAxis:{{type:'category',data:{},splitArea:{{show:true}}}},
+ yAxis:{{type:'category',data:{},splitArea:{{show:true}}}},
+ visualMap:{{min:0,max:{},calculable:true,orient:'horizontal',left:'center',bottom:'5%'}},
+ series:[{{type:'heatmap',data:{},label:{{show:false}}}}]
+}});"#, xl, yl, vmax, data)
     }
 
-    fn generate_funnel_options(&self) -> String {
-        let data = self.create_labeled_items();
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'item',formatter:'{{b}}: {{c}} ({{d}}%)'}},legend:{{show:false}},series:[{{type:'funnel',left:'10%',top:10,bottom:10,width:'80%',sort:'descending',gap:2,label:{{show:true,position:'inside',fontSize:7}},labelLine:{{length:5,lineStyle:{{width:1}}}},itemStyle:{{borderColor:'#fff',borderWidth:1}},emphasis:{{label:{{fontSize:8}}}},data:{}}}]}});"#,
-            data
-        )
+    fn opt_treemap(&self) -> String {
+        let data = serde_json::to_string(self.treemap_data.as_ref().unwrap()).unwrap();
+        format!(r#"c.setOption({{
+ toolbox:{{show:false,feature:{{}}}},
+ tooltip:{{formatter:(p)=>p.name?`${{p.name}}: ${{p.value}}`:''}},
+ series:[{{
+    type:'treemap',
+    data:{},
+    leafDepth:3,
+    label:{{show:true,fontSize:10}},
+    upperLabel:{{show:true}},
+    levels:[{{itemStyle:{{borderColor:'#fff',borderWidth:1}}}}],
+    roam:false,
+    breadcrumb:{{show:false}}
+}}]
+}});"#, data)
     }
 
-    fn generate_candlestick_options(&self) -> String {
-        let candlestick_data = if let Some(ref data) = self.candledata {
-            let values: Vec<_> = data
-                .iter()
-                .map(|c| serde_json::json!([c.open, c.close, c.low, c.high]))
-                .collect();
-            serde_json::to_string(&values).unwrap()
-        } else {
-            "[]".to_string()
-        };
-        let x_labels = serde_json::to_string(&self.xlabels).unwrap();
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'axis',axisPointer:{{type:'cross'}}}},grid:{{left:45,right:10,top:15,bottom:35}},xAxis:{{type:'category',data:{},scale:true,axisLabel:{{fontSize:7}}}},yAxis:{{scale:true,axisLabel:{{fontSize:7}}}},series:[{{type:'candlestick',data:{},itemStyle:{{color:'#ec0000',color0:'#00da3c',borderColor:'#8a0000',borderColor0:'#008f28'}}}}]}});"#,
-            x_labels, candlestick_data
-        )
+    fn opt_tree(&self) -> String {
+        let data = serde_json::to_string(self.tree_data.as_ref().unwrap()).unwrap();
+        format!(r#"c.setOption({{
+ tooltip:{{trigger:'item',triggerOn:'mousemove',formatter:(p)=>p.name||''}},
+ series:[{{type:'tree',data:{},symbol:'circle',symbolSize:8,edgeShape:'polyline',left:'15%',right:'15%',top:'5%',bottom:'5%',label:{{position:'left',verticalAlign:'middle',align:'right'}},leaves:{{label:{{position:'right',verticalAlign:'middle',align:'left'}}}},expandAndCollapse:true,animationDuration:300,animationDurationUpdate:300}}]
+}});"#, data)
     }
 
-    fn generate_bubble_options(&self) -> String {
-        let bubble_data = if let Some(ref data) = self.bubbledata {
-            let values: Vec<_> = data
-                .iter()
-                .map(|b| {
-                    serde_json::json!([b.x, b.y, b.size, b.name.as_ref().unwrap_or(&String::new())])
-                })
-                .collect();
-            serde_json::to_string(&values).unwrap()
-        } else {
-            "[]".to_string()
-        };
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'item',formatter:function(params){{return params.data[3]+'<br/>X: '+params.data[0]+'<br/>Y: '+params.data[1]+'<br/>Taille: '+params.data[2];}}}},grid:{{left:45,right:10,top:15,bottom:35}},xAxis:{{name:'{}',nameTextStyle:{{fontSize:7}},splitLine:{{show:true}},axisLabel:{{fontSize:7}}}},yAxis:{{name:'{}',nameTextStyle:{{fontSize:7}},splitLine:{{show:true}},axisLabel:{{fontSize:7}}}},series:[{{name:'{}',type:'scatter',symbolSize:function(data){{return Math.sqrt(data[2])*2;}},data:{},itemStyle:{{color:'{}',opacity:0.8}},emphasis:{{itemStyle:{{shadowBlur:10,shadowOffsetX:0,shadowColor:'rgba(0, 0, 0, 0.5)'}}}}}}]}});"#,
-            self.xlabel,
-            self.ylabel,
-            self.name.as_ref().unwrap_or(&String::new()),
-            bubble_data,
-            self.color
-        )
-    }
-
-    fn generate_standard_options(&self) -> String {
-        let x_labels = serde_json::to_string(&self.xlabels).unwrap();
-        let data = serde_json::to_string(&self.data).unwrap();
-        let chart_type = if self.kind == "scatter" {
-            "scatter"
-        } else {
-            self.kind.as_str()
-        };
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'axis'}},grid:{{left:30,right:10,top:10,bottom:20}},xAxis:{{type:'category',data:{},axisLabel:{{fontSize:7}}}},yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},series:[{{data:{},type:'{}',itemStyle:{{color:'{}'}},lineStyle:{{width:2}}}}]}});"#,
-            x_labels, data, chart_type, self.color
-        )
-    }
-
-    fn generate_multi_series_options(&self) -> String {
-        let multi_series = self.multi_series.as_ref().unwrap();
-        let series_json: Vec<_> = multi_series
-            .iter()
-            .map(|s| {
-                let base_type = if self.kind.contains("area") {
-                    "line"
-                } else {
-                    self.kind.split('_').next().unwrap_or(&self.kind)
-                };
-                format!(
-                    r#"{{name:'{}',type:'{}',data:{},itemStyle:{{color:'{}'}},{}}}"#,
-                    s.name,
-                    base_type,
-                    serde_json::to_string(&s.data).unwrap(),
-                    s.color.as_ref().unwrap_or(&self.color),
-                    if self.kind.contains("area") {
-                        "areaStyle:{}"
-                    } else {
-                        ""
-                    }
-                )
-            })
-            .collect();
-        let x_labels = serde_json::to_string(&self.xlabels).unwrap();
-        let legend_data: Vec<_> = multi_series.iter().map(|s| &s.name).collect();
-        let legend_json = serde_json::to_string(&legend_data).unwrap();
-        format!(
-            r#"c.setOption({{tooltip:{{trigger:'axis'}},legend:{{data:{},top:5,textStyle:{{fontSize:7}}}},grid:{{left:30,right:10,top:30,bottom:20}},xAxis:{{type:'category',data:{},axisLabel:{{fontSize:7}}}},yAxis:{{type:'value',axisLabel:{{fontSize:7}}}},series:[{}]}});"#,
-            legend_json,
-            x_labels,
-            series_json.join(",")
-        )
-    }
+    pub fn at(mut self, x: f64, y: f64) -> Self { self.position = Some((x, y)); self }
+    pub fn size(mut self, w: u32, h: u32) -> Self { self.size = Some((w, h)); self }
 }
 
-impl crate::layout::grid::Sizable for Chart {
-    fn set_size(&mut self, size: (u32, u32)) {
-        self.size = Some(size);
-    }
-}
+impl crate::layout::grid::Sizable for Chart { fn set_size(&mut self, size: (u32, u32)) { self.size = Some(size); } }
 
 impl Drop for Chart {
     fn drop(&mut self) {
         let id = next_chart_id();
         let div = if let Some((x, y)) = self.position {
             let (left, top) = crate::layout::coord::to_screen_coords(x, y);
-            let (width, height) = self.size.unwrap_or((400, 300));
-            format!(
-                r#"<div style="position:absolute;left:{}px;top:{}px;width:{}px;height:{}px;transform:translate(-50%,-50%);"><div id="{}" style="width:100%;height:100%"></div></div>"#,
-                left, top, width, height, id
-            )
+            let (w, h) = self.size.unwrap_or((400, 300));
+            format!(r#"<div style="position:absolute;left:{}px;top:{}px;width:{}px;height:{}px;transform:translate(-50%,-50%);"><div id="{}" style="width:100%;height:100%"></div></div>"#, left, top, w, h, id)
         } else {
-            let (class, height) = match self.size {
+            let (class, h) = match self.size {
                 Some((w, h)) if w <= 160 || h <= 160 => ("chart-container chart-small", h),
                 Some((w, h)) if w <= 220 || h <= 220 => ("chart-container chart-medium", h),
                 Some((_, h)) => ("chart-container", h),
                 None => ("chart-container", 400),
             };
-            format!(
-                r#"<div class="{}"><div id="{}" style="height:{}px"></div></div>"#,
-                class, id, height
-            )
+            format!(r#"<div class="{}"><div id="{}" style="height:{}px"></div></div>"#, class, id, h)
         };
-        crate::io::gui::add_output(format!("{}{}", div, self.generate_script(&id)));
+        crate::io::gui::add_output(format!("{}{}", div, self.script(&id)));
     }
 }
 
-pub trait ChartData {
-    fn to_chart(self, kind: &str) -> Chart;
-}
-
-fn basic(kind: &str, data: Vec<f64>) -> Chart {
+fn base(kind: &str) -> Chart {
     Chart {
         kind: kind.into(),
-        xlabel: String::new(),
-        ylabel: String::new(),
-        xlabels: Vec::new(),
-        color: "#3498db".into(),
-        data,
-        name: None,
-        pie_labels: Vec::new(),
-        multi_series: None,
+        x: None,
+        y: None,
+        x_labels: None,
+        smooth: false,
+        pie_labels: None,
+        pie_values: None,
         indicators: None,
-        heatdata: None,
-        candledata: None,
-        bubbledata: None,
+        radar_values: None,
+        gauge_val: None,
+        funnel_labels: None,
+        funnel_values: None,
         hole: None,
+        matrix: None,
+        matrix_xlabels: None,
+        matrix_ylabels: None,
+        treemap_data: None,
+        tree_data: None,
         position: None,
         size: None,
     }
 }
 
-impl<T: Into<f64> + Copy> ChartData for &[T] {
-    fn to_chart(self, kind: &str) -> Chart {
-        basic(kind, self.iter().map(|&x| x.into()).collect())
+pub fn line_xy(x: &[f64], y: &[f64]) -> Chart { let mut c = base("line_xy"); c.x = Some(x.to_vec()); c.y = Some(y.to_vec()); c }
+pub fn curve_xy(x: &[f64], y: &[f64]) -> Chart { let mut c = base("curve_xy"); c.x = Some(x.to_vec()); c.y = Some(y.to_vec()); c.smooth = true; c }
+pub fn area_xy(x: &[f64], y: &[f64]) -> Chart { let mut c = base("area_xy"); c.x = Some(x.to_vec()); c.y = Some(y.to_vec()); c }
+
+pub fn line(labels: &[&str], values: &[f64]) -> Chart { let mut c = base("line"); c.x_labels = Some(labels.iter().map(|s| (*s).to_string()).collect()); c.y = Some(values.to_vec()); c }
+pub fn curve(labels: &[&str], values: &[f64]) -> Chart { let mut c = base("curve"); c.x_labels = Some(labels.iter().map(|s| (*s).to_string()).collect()); c.y = Some(values.to_vec()); c.smooth = true; c }
+pub fn area(labels: &[&str], values: &[f64]) -> Chart { let mut c = base("area"); c.x_labels = Some(labels.iter().map(|s| (*s).to_string()).collect()); c.y = Some(values.to_vec()); c }
+pub fn bar(labels: &[&str], values: &[f64]) -> Chart { let mut c = base("bar"); c.x_labels = Some(labels.iter().map(|s| (*s).to_string()).collect()); c.y = Some(values.to_vec()); c }
+
+pub fn scatter(x: &[f64], y: &[f64]) -> Chart { let mut c = base("scatter"); c.x = Some(x.to_vec()); c.y = Some(y.to_vec()); c }
+pub fn pie(labels: &[&str], values: &[f64]) -> Chart { let mut c = base("pie"); c.pie_labels = Some(labels.iter().map(|s| (*s).to_string()).collect()); c.pie_values = Some(values.to_vec()); c }
+pub fn doughnut(labels: &[&str], values: &[f64]) -> Chart { let mut c = base("doughnut"); c.pie_labels = Some(labels.iter().map(|s| (*s).to_string()).collect()); c.pie_values = Some(values.to_vec()); c.hole = Some(50); c }
+
+pub fn radar(values: &[f64], indicators: &[(&str, f64)]) -> Chart {
+    let mut c = base("radar");
+    c.radar_values = Some(values.to_vec());
+    c.indicators = Some(indicators.iter().map(|(n,m)| RadarIndicator { name:(*n).to_string(), max:*m }).collect());
+    c
+}
+
+pub fn gauge(value: f64) -> Chart { let mut c = base("gauge"); c.gauge_val = Some(value); c }
+
+pub fn funnel(stages: &[(&str, f64)]) -> Chart {
+    let mut c = base("funnel");
+    c.funnel_labels = Some(stages.iter().map(|(n,_)| (*n).to_string()).collect());
+    c.funnel_values = Some(stages.iter().map(|(_,v)| *v).collect());
+    c
+}
+
+fn path_push(root: &mut serde_json::Value, path: &str, val: Option<f64>) {
+    let parts: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+    let mut cur = root;
+    for (i, part) in parts.iter().enumerate() {
+        let is_last = i == parts.len() - 1;
+        cur = {
+            let children = cur.get_mut("children").and_then(|c| c.as_array_mut()).unwrap();
+            if is_last {
+                children.push(serde_json::json!({"name":part.to_string(),"value":val.unwrap_or(1.0)}));
+                return;
+            } else {
+                let pos = children.iter().position(|n| n.get("name").and_then(|s| s.as_str()) == Some(part));
+                let idx = match pos {
+                    Some(i) => i,
+                    None => { children.push(serde_json::json!({"name":part.to_string(),"children":[] })); children.len()-1 }
+                };
+                children.get_mut(idx).unwrap()
+            }
+        };
     }
 }
 
-impl<T: Into<f64> + Copy> ChartData for &Vec<T> {
-    fn to_chart(self, kind: &str) -> Chart {
-        basic(kind, self.iter().map(|&x| x.into()).collect())
+pub fn treemap(items: &[(&str, f64)]) -> Chart {
+    let mut root = serde_json::json!([]);
+    let has_path = items.iter().any(|(n,_)| n.contains('/'));
+    if has_path {
+        let mut r = serde_json::json!({"name":"root","children":[]});
+        for (name,val) in items { path_push(&mut r, name, Some(*val)); }
+        root.as_array_mut().unwrap().push(r);
+    } else {
+        for (n,v) in items { root.as_array_mut().unwrap().push(serde_json::json!({"name":n.to_string(),"value":v})); }
+    }
+    let mut c = base("treemap");
+    c.treemap_data = Some(root);
+    c
+}
+
+fn json_to_tree(val: &serde_json::Value) -> Option<serde_json::Value> {
+    match val {
+        serde_json::Value::Object(map) => {
+            let mut result = Vec::new();
+            for (key, value) in map {
+                match value {
+                    serde_json::Value::Null => {
+                        result.push(serde_json::json!({"name": key}));
+                    }
+                    serde_json::Value::Object(_) => {
+                        if let Some(children) = json_to_tree(value) {
+                            result.push(serde_json::json!({
+                                "name": key,
+                                "children": children
+                            }));
+                        }
+                    }
+                    _ => {
+                        result.push(serde_json::json!({"name": key}));
+                    }
+                }
+            }
+            Some(serde_json::Value::Array(result))
+        }
+        _ => None
     }
 }
 
-impl<T: Into<f64>> ChartData for Vec<T> {
-    fn to_chart(self, kind: &str) -> Chart {
-        basic(kind, self.into_iter().map(Into::into).collect())
-    }
-}
+pub fn tree<T: TreeInput>(input: T) -> Chart { input.to_tree_chart() }
 
-impl<K: ToString + Eq + Hash, V: Into<f64> + Copy> ChartData for &HashMap<K, V> {
-    fn to_chart(self, kind: &str) -> Chart {
-        let mut pairs: Vec<(String, f64)> = self
-            .iter()
-            .map(|(k, v)| (k.to_string(), (*v).into()))
-            .collect();
-        pairs.sort_by(|a, b| a.0.cmp(&b.0));
-        let mut ch = basic(kind, pairs.iter().map(|(_, v)| *v).collect());
-        ch.xlabels = pairs.into_iter().map(|(k, _)| k).collect();
-        ch
-    }
-}
+pub trait TreeInput { fn to_tree_chart(self) -> Chart; }
 
-pub struct PieData(pub Vec<String>, pub Vec<f64>);
-
-impl ChartData for PieData {
-    fn to_chart(self, _: &str) -> Chart {
-        let mut c = basic("pie", self.1);
-        c.pie_labels = self.0;
+impl TreeInput for &serde_json::Value {
+    fn to_tree_chart(self) -> Chart {
+        let tree_data = if let Some(children) = json_to_tree(self) {
+            children
+        } else {
+            serde_json::json!([])
+        };
+        let mut c = base("tree");
+        c.tree_data = Some(tree_data);
         c
     }
 }
 
-pub fn chart<D: ChartData>(data: D, kind: &str) -> Chart {
-    data.to_chart(kind)
+impl TreeInput for &str {
+    fn to_tree_chart(self) -> Chart {
+        match serde_json::from_str::<serde_json::Value>(self) {
+            Ok(val) => (&val).to_tree_chart(),
+            Err(_) => {
+                let paths: Vec<&str> = self.lines().map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+                paths.as_slice().to_tree_chart()
+            }
+        }
+    }
 }
-pub fn area_chart<D: ChartData>(data: D) -> Chart {
-    data.to_chart("area")
+
+impl TreeInput for &[&str] {
+    fn to_tree_chart(self) -> Chart {
+        let mut temp_root = serde_json::json!({"name":"root","children":[]});
+        for p in self { path_push(&mut temp_root, p, None); }
+        let children = temp_root.get("children").and_then(|c| c.as_array()).unwrap_or(&vec![]).clone();
+        let mut c = base("tree");
+        c.tree_data = Some(serde_json::Value::Array(children));
+        c
+    }
 }
-pub fn radar_chart(data: Vec<f64>, indicators: Vec<(String, f64)>) -> Chart {
-    basic("radar", data).indicators(indicators)
-}
-pub fn heatmap_chart(data: Vec<Vec<f64>>, xlabels: Vec<String>) -> Chart {
-    basic("heatmap", vec![]).heatdata(data).xlabels(xlabels)
-}
-pub fn gauge_chart(value: f64) -> Chart {
-    basic("gauge", vec![value])
-}
-pub fn funnel_chart(labels: Vec<String>, values: Vec<f64>) -> Chart {
-    let mut c = basic("funnel", values);
-    c.pie_labels = labels;
+
+pub fn matrix(data: &[Vec<f64>], xlabels: &[&str], ylabels: &[&str]) -> Chart {
+    let mut c = base("matrix");
+    c.matrix = Some(data.to_vec());
+    c.matrix_xlabels = Some(xlabels.iter().map(|s| (*s).to_string()).collect());
+    c.matrix_ylabels = Some(ylabels.iter().map(|s| (*s).to_string()).collect());
     c
 }
-pub fn candlestick_chart(data: Vec<CandlestickPoint>, dates: Vec<String>) -> Chart {
-    let mut c = basic("candlestick", vec![]);
-    c.candledata = Some(data);
-    c.xlabels = dates;
-    c
-}
-pub fn doughnut_chart(labels: Vec<String>, values: Vec<f64>) -> Chart {
-    let mut c = basic("doughnut", values);
-    c.pie_labels = labels;
-    c.hole = Some(50);
-    c
-}
-pub fn polar_area_chart(labels: Vec<String>, values: Vec<f64>) -> Chart {
-    let mut c = basic("polar_area", values);
-    c.pie_labels = labels;
-    c
-}
-pub fn bubble_chart(data: Vec<BubblePoint>) -> Chart {
-    basic("bubble", vec![]).bubbledata(data)
+
+pub fn function<F: Fn(f64)->f64>(f: F, x0: f64, x1: f64, step: f64) -> Chart {
+    let mut x = Vec::new();
+    let mut y = Vec::new();
+    let mut t = x0;
+    while t <= x1 {
+        x.push(t);
+        y.push(f(t));
+        t += step;
+    }
+    curve_xy(&x, &y)
 }

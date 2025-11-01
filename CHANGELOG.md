@@ -3,52 +3,69 @@
 All notable changes to **WebRust** are documented here.  
 This project follows [Semantic Versioning](https://semver.org/).
 
-## [1.9.0] – 2025‑10‑31
+## [2.0.0] – 2025-11-01
 
 ### Added
-- Background color support in `#[gui(...)]` via the `!<bg>` syntax (e.g. `#[gui(Arial 14px black !whitesmoke)]`)
-- Radar chart tooltips restored by default (ECharts backend)
+- **Redesigned `chart.rs` API** with direct per-type constructors:
+  - `line`, `bar`, `area`, `curve`, `line_xy`, `area_xy`, `curve_xy`, `scatter`
+  - `pie`, `doughnut`, `radar`, `gauge`, `funnel`, `matrix`, `treemap`, `tree`, `function`
+- Uniform chaining for placement/sizing: `.at(x, y)`, `.size(w, h)`
+- Cleaner radar labels on hover (`key: value %`), consistent tiny typography
 
 ### Changed
-- Replaced standard locks with **`parking_lot`** for faster concurrency
-- Introduced new `rwlock` feature (enabled by default) for concurrent reads
-- Macro engine (`webrust‑macros`) rewritten for SIMD scanning (`memchr`/`memmem`)
-- Minor layout refinements for pie/doughnut/radar/gauge titles
-- Updated dependencies to latest stable releases
+- **Replaced** `chart(data, "type")` with direct constructors (see Migration)
+- Tuned pie/doughnut label spacing and connector lengths
+- Harmonized tooltip behavior across chart types
 
 ### Fixed
-- Minor pagination and table merge edge cases
+- Radar label overlap near left-hand vertices
+- Minor grid and heading spacing inconsistencies
+
+### Migration Notes
+- Replace all `chart(..., "type")` calls with the corresponding constructor:
+  - `chart(v, "line")` → `line(labels, values)`
+  - `chart(v, "radar")` → `radar(values, indicators)`
+  - `chart(p, "pie")` → `pie(labels, values)`
+  - etc.
+- Headings: use text (`println(...)`) instead of `.title(...)` on charts.
+
+---
+
+## [1.9.0] – 2025-10-31
+
+### Added
+- Viewport background color via `#[gui(... !<bg>)]` (e.g., `#[gui(Arial 14px black !whitesmoke)]`)
+- Restored radar tooltips and hover behavior
+
+### Changed
+- Faster locks with **`parking_lot`** (`rwlock` default feature)
+- Macro engine uses SIMD scanning (`memchr`/`memmem`)
+- Layout refinements for chart headings
+
+### Fixed
+- Pagination and table merge edge cases
 - Frontend module loading stability (main.js, table.js, turtle.js)
 
 ### Performance
-- Fewer allocations in f‑string formatting
+- Fewer allocations in f-string formatting
 - Faster JSON and LaTeX handling
 - Smaller memory footprint in table rendering
 
-### Migration Notes
-- If you previously customized background rendering, use `#[gui(... !color)]`
-- To revert to `Mutex`, disable default features:
-  ```toml
-  webrust = { version = "1.9.0", default-features = false }
-  ```
+---
+
+## [1.8.0] – 2025-10-15
+- Modular JavaScript (`main.js`, `table.js`, `turtle.js`)
+- Table improvements (multi-column sort, filter, pagination)
+- Memory optimizations in `table.rs`
 
 ---
 
-## [1.8.0] – 2025‑10‑15
-
-### Highlights
-- Modular JavaScript architecture (`main.js`, `table.js`, `turtle.js`)
-- Major table improvements (multi‑column sort, filter, pagination)
-- Refactored `table.rs` for better memory efficiency
-
----
-
-## [1.7.0] – 2025‑10‑01
+## [1.7.0] – 2025-10-01
 - Macro optimization and grid layout overhaul
 
 ---
 
-## [1.6.0] – 2025‑09‑01
+## [1.6.0] – 2025-09-01
 - Stability and documentation improvements
 
 ---
@@ -56,4 +73,4 @@ This project follows [Semantic Versioning](https://semver.org/).
 ## Unreleased
 - WebSocket streaming
 - Static export
-- Advanced visualization presets (Sankey, Treemap, 3D)
+- Advanced visualization presets (Sankey, 3D)

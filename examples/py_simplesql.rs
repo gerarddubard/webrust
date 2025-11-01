@@ -4,7 +4,7 @@ use webrust::prelude::*;
 
 #[gui(Courier New 12px navy !white)]
 fn main() {
-    println("<b white !darkgreen r5 w300 p15>🦆 WebRust + DuckDB — query-first SQL demo")
+    println("<b white !darkgreen r5 w350 p15>🦆 WebRust + DuckDB — query-first SQL demo")
         .at(*TW / 3, 0.0);
 
     println("<green mt50>→ Create tables / sequences");

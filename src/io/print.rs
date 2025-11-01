@@ -142,7 +142,6 @@ pub static TW: LazyLock<u32> = LazyLock::new(|| {
 pub static TH: LazyLock<u32> = LazyLock::new(|| {
     pshell("Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height", 600) / 2
 });
-pub static CW: LazyLock<u32> = LazyLock::new(|| *TW - 40);
 
 #[derive(Debug, Clone)]
 struct DefaultStyles {

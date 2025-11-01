@@ -20,8 +20,9 @@
 //! table(&viz).header(["X", "Y", "Z"]);
 //!
 //! // Interactive charts
-//! let sales = HashMap::from([("Q1", 100.0), ("Q2", 150.0)]);
-//! chart(&sales, "bar");
+//! let months = vec!["Jan","Feb","Mar","Apr","May"];
+//! let sales = vec![120.0, 200.0, 150.0, 300.0, 250.0];
+//! line(&months, &sales);
 //! # }
 //! ```
 

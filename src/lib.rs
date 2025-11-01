@@ -4,21 +4,6 @@
 //! WebRust brings Python's ergonomic syntax to Rust, enabling rapid development of
 //! web-based GUI applications with zero runtime overhead.
 //!
-//! ## Quick Example
-//!
-//! ```rust,no_run
-//! use webrust::prelude::*;
-//!
-//! #[gui]
-//! fn main() {
-//!     let name: String = input("What's your name?");
-//!     println("Hello, {name}!");
-//!     
-//!     let squares: Vec<i32> = 0.to(10).then(|x| x * x);
-//!     chart(&squares, "line");
-//! }
-//! ```
-//!
 //! ## SQL Support (Optional)
 //!
 //! Enable SQL analytics with the `sql` feature:

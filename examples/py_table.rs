@@ -5,7 +5,7 @@ use webrust::prelude::*;
 
 #[gui(Arial 12px black !white)]
 fn main() {
-    println("<blue,b>🧪 WebRust Table Tests");
+    println("<white !fuchsia r8 p6 w150 h25>🧪 WebRust Table Tests").align("center");
     println("");
 
     println("<green b>1. Simple Vector");

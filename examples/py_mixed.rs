@@ -1,6 +1,4 @@
 // webrust/examples/py_mixed.rs
-
-use std::collections::HashMap;
 use webrust::prelude::*;
 
 #[gui(Arial 10px black !white)]
@@ -66,10 +64,8 @@ fn main() {
     {
         let (cx, cy) = cell(1, 1, "center");
         print("<white !navy r3 p1>Bayesian Update").at(cx - 40.0, cy - 80.0);
-        println(
-            "<w{*CW * 70 / 100}>$(P(\\theta\\mid D)=\\frac{P(D\\mid \\theta)\\,P(\\theta)}{P(D)})",
-        )
-        .at(cx - 215.0, cy - 40.0);
+        println("<w{*CW * 70 / 100}>$(P(\\theta\\mid D)=\\frac{P(D\\mid \\theta)\\,P(\\theta)}{P(D)})")
+            .at(cx - 215.0, cy - 40.0);
     }
 
     {
@@ -93,33 +89,19 @@ fn main() {
 
     let (cx, cy) = cell(2, 0, "center");
     print("<white !navy r3 p1>Quarterly Revenue").at(cx - 45.0, cy - 80.0);
-    let quarters = HashMap::from([("Q1", 470.0), ("Q2", 620.0), ("Q3", 550.0), ("Q4", 680.0)]);
-    chart(&quarters, "bar")
-        .color("limegreen")
-        .at(cx, cy - 10.0)
-        .size(90, 80);
+    let q_labels = vec!["Q1", "Q2", "Q3", "Q4"];
+    let q_values = vec![470.0, 620.0, 550.0, 680.0];
+    bar(&q_labels, &q_values).at(cx, cy + 20.0).size(150, 150);
 
     let (cx, cy) = cell(2, 1, "center");
     print("<white !navy r3 p1>Sales Trend").at(cx - 25.0, cy - 80.0);
     let sales_data = vec![120.0, 200.0, 150.0, 300.0, 250.0];
     let months = vec!["Jan", "Feb", "Mar", "Apr", "May"];
-    chart(&sales_data, "line")
-        .xlabels(months.clone())
-        .color("deepskyblue")
-        .name("Sales")
-        .at(cx, cy - 10.0)
-        .size(90, 80);
+    line(&months, &sales_data).at(cx, cy + 20.0).size(200, 150);
 
     let (cx, cy) = cell(2, 2, "center");
     print("<white !navy r3 p1>Market Share 2024").at(cx - 45.0, cy - 80.0);
-    let pie_data = PieData(
-        vec![
-            "Smartphones".to_string(),
-            "Laptops".to_string(),
-            "Tablets".to_string(),
-            "Accessories".to_string(),
-        ],
-        vec![45.0, 30.0, 15.0, 10.0],
-    );
-    chart(pie_data, "pie").at(cx, cy - 10.0).size(90, 80);
+    let pie_labels = vec!["Smartphones", "Laptops", "Tablets", "Accessories"];
+    let pie_values = vec![45.0, 30.0, 15.0, 10.0];
+    pie(&pie_labels, &pie_values).at(cx, cy + 20.0).size(275, 275);
 }

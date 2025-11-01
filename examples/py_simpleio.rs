@@ -4,8 +4,7 @@ use webrust::prelude::*;
 
 #[gui(Times New Roman 10px black !ivory)]
 fn main() {
-    println("<b white !darkviolet w200 h25 r7>🎯 WebRust Personal Information Collector")
-        .align("center");
+    println("<b white !darkviolet w200 r7>🎯 WebRust Personal Information Collector").align("center");
     println("<gray i>Please fill in your details below:");
 
     println("<green b i>1. Basic input and variable display:");
@@ -19,12 +18,12 @@ fn main() {
     let status = if married { "you are" } else { "you are not" };
     println("<navy>Hello, <green b i>{first_name} <red b>{last_name}<navy>, you are <yellow>{age}<navy> years old, you are <blue>{height}<navy> m tall, your favorite letter is <magenta>{favorite_letter}<navy>, and <orange b>{status}<navy> married.");
 
-    print("<white !green r10 w120 h24 mc>● {first_name} {last_name} online")
-        .at(-20, 0.0)
+    print("<white !green r10 w120 h20 mc>● {first_name} {last_name} online")
+        .at(-20, 15.0)
         .sticky();
 
     coord("cartesian");
-    print("<white !red r6 w120 h22 mc>● In the middle")
+    print("<white !red r6 w120 h15 mc>● In the middle")
         .at(0.0, 0.0)
         .sticky();
 

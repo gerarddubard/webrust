@@ -187,7 +187,7 @@ fn main() {
             .wait(120.0);
     }
     let (lx, ly) = cell(2, 0, "bottom");
-    print("<white w{lw} !slateblue r6>Color Fan").at(lx - 30.0, ly + 10.0);
+    print("<white w{lw} !slateblue r6>Color Fan").at(lx - 30.0, ly - 5.0);
 
     let (cx, cy) = cell(2, 1, "center");
     let flower = object();
@@ -216,7 +216,7 @@ fn main() {
         .rotate(-540.0)
         .ease("back");
     let (lx, ly) = cell(2, 1, "bottom");
-    print("<white w{lw} !crimson r6>Flower").at(lx - 30.0, ly + 10.0);
+    print("<white w{lw} !crimson r6>Flower").at(lx - 30.0, ly - 5.0);
 
     let (cx, cy) = cell(2, 2, "center");
     let o = object();
@@ -233,7 +233,7 @@ fn main() {
     }
     o.speed(50.0).rotate(720.0).ease("easeOut").reverse();
     let (lx, ly) = cell(2, 2, "bottom");
-    print("<white w{lw} !indigo r6>Spiral").at(lx - 30.0, ly + 10.0);
+    print("<white w{lw} !indigo r6>Spiral").at(lx - 30.0, ly - 5.0);
 
     let (cx, cy) = cell(2, 3, "center");
     let r = 24.0;
@@ -256,5 +256,5 @@ fn main() {
         sun_rays.at(cx, cy + 25.0);
     }
     let (lx, ly) = cell(2, 3, "bottom");
-    print("<black w{lw} !gold r6>Sun").at(lx - 30.0, ly + 10.0);
+    print("<black w{lw} !gold r6>Sun").at(lx - 30.0, ly - 5.0);
 }

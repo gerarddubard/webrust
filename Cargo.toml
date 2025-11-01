@@ -1,6 +1,6 @@
 [package]
 name = "webrust"
-version = "1.9.0"
+version = "2.0.0"
 edition = "2021"
 authors = ["gdubard <infodgjl@gmail.com>"]
 description = "Python-like Rust for Web Applications - A bridge between Python simplicity and Rust power"
@@ -20,11 +20,11 @@ lazy_static = "1.5.0"
 duckdb = { version = "1.4.1", features = ["bundled"], optional = true }
 itoa = "1.0.15"
 ryu = "1.0.20"
-smallvec = "1.15.1"
+smallvec = { version = "1.15.1", features = ["serde"] }
 memchr = "2.7.6"
-compact_str = { version = "0.9.0", optional = true }
-webrust-macros = { version = "1.9.0", path = "webrust-macros" }
 parking_lot = "0.12.5"
+compact_str = { version = "0.9.0", optional = true }
+webrust-macros = { version = "2.0.0", path = "webrust-macros" }
 
 [features]
 default = ["rwlock"]
